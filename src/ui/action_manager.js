@@ -608,7 +608,7 @@ phantasus.ActionManager = function () {
     cb: function (options) {
       phantasus.FormBuilder.showInModal({
         title: 'Contact',
-        html: 'Please email us at daria.zenkova.cs@gmail.com',
+        html: 'Please email us at alsergbox@gmail.com',
         focus: options.heatMap.getFocusEl()
       });
     }

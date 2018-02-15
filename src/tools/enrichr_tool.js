@@ -73,6 +73,7 @@ phantasus.enrichrTool = function (project) {
   $dialog.dialog({
     close: function (event, ui) {
       project.getRowSelectionModel().off("selectionChanged.chart", onSelect);
+      $dialog.dialog('destroy').remove();
     },
 
     resizable: true,

@@ -261,7 +261,8 @@ phantasus.ChartTool = function (chartOptions) {
       project.getRowSelectionModel().off('selectionChanged.chart', draw);
       project.getColumnSelectionModel().off('selectionChanged.chart',
         draw);
-      _this.$el.empty();
+      $dialog.dialog('destroy').remove();
+      event.stopPropagation();
     },
 
     resizable: true,

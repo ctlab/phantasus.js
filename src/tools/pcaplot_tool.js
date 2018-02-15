@@ -182,7 +182,8 @@ phantasus.PcaPlotTool = function (chartOptions) {
       project.off('trackChanged.chart', trackChanged);
       project.getRowSelectionModel().off('selectionChanged.chart', trackChanged);
       project.getColumnSelectionModel().off('selectionChanged.chart', trackChanged);
-      _this.$el.empty();
+      $dialog.dialog('destroy').remove();
+      event.stopPropagation();
       _this.pca = null;
     },
 
