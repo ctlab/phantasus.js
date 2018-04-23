@@ -210,6 +210,15 @@ phantasus.ActionManager = function () {
   });
 
   this.add({
+    name: 'GSEA plot',
+    cb: function (options) {
+      new phantasus.gseaTool(
+        options.heatMap.getProject()
+      );
+    }
+  });
+
+  this.add({
     which: [67], // C
     commandKey: true,
     name: 'Copy'

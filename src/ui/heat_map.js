@@ -280,7 +280,8 @@ phantasus.HeatMap = function (options) {
           'limma',
           'PCA Plot',
           'Submit to Enrichr',
-          'Submit to Shiny GAM'],
+          'Submit to Shiny GAM',
+          'GSEA plot'],
         View: ['Zoom In', 'Zoom Out', null, 'Fit To Window', 'Fit Rows To Window', 'Fit Columns To Window', null, '100%', null, 'Options'],
         Edit: [
           'Copy Image',
