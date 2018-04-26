@@ -479,9 +479,19 @@ phantasus.ChartTool.prototype = {
     var axisLabelVector = options.axisLabelVector; // for row scatter, row vector
     var transpose = options.transpose;
     var axisLabel = [];
+    var rotateXAxis = 0;
+    var bottomPadding = 60;
     for (var j = 0, ncols = dataset.getColumnCount(); j < ncols; j++) {
       axisLabel.push(axisLabelVector != null ? axisLabelVector.getValue(j) : '' + j);
     }
+
+    if (dataset.getColumnCount() >= 5 &&
+        axisLabel.every(function (val) { return val.length >= 2;}) ||
+        axisLabel.some(function (val) { return val.length >= 7;})) {
+      rotateXAxis = 45;
+      bottomPadding = 150;
+    }
+
     var series = [];
     var colorMap = phantasus.VectorColorModel.getColorMapForNumber(dataset.getRowCount());
     for (var i = 0, nrows = dataset.getRowCount(); i < nrows; i++) {
@@ -520,7 +530,7 @@ phantasus.ChartTool.prototype = {
         left: 'right',
         top: 2,
         itemWidth: 14,
-        height: dataset.getRowCount() * 20,
+        height: dataset.getRowCount() * 25,
         data: series.map(function (s) {
           return s.name;
         })
@@ -531,7 +541,14 @@ phantasus.ChartTool.prototype = {
       },
       xAxis: {
         type: 'category',
-        data: axisLabel
+        data: axisLabel,
+        axisLabel: {
+          rotate: rotateXAxis,
+          interval: 0
+        },
+        axisTick: {
+          alignWithLabel: true
+        }
       },
       yAxis: {
         axisLine: {
@@ -541,7 +558,7 @@ phantasus.ChartTool.prototype = {
         type: 'value',
         name: ''
       },
-      grid: {right: 120},
+      grid: {right: 120, bottom: bottomPadding},
       series: series
     };
 
