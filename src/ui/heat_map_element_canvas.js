@@ -206,7 +206,8 @@ phantasus.HeatMapElementCanvas.prototype = {
       });
     }
     // draw selection bounding boxes
-    context.strokeStyle = 'rgb(182,213,253)';
+    // context.strokeStyle = 'rgb(182,213,253)';
+    context.strokeStyle = 'rgb(60,60,60)';
     var selectedRowElements = this.selectedRowElements;
     var selectedColumnElements = this.selectedColumnElements;
 

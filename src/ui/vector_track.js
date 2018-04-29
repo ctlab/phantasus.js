@@ -80,7 +80,8 @@ phantasus.VectorTrack = function (project, name, positions, isColumns, heatmap) 
     colorBarSize: 12,
     stackedBar: false,
     display: [],
-    selectionColor: 'rgb(182,213,253)',
+    // selectionColor: 'rgb(182,213,253)',
+    selectionColor: 'rgb(255,125,0)',
     colorByField: null, // color this vector by another vector, used in bar plot and text
     fontField: null, // use a different field for determining font
     barColor: '#bdbdbd',
@@ -607,7 +608,7 @@ phantasus.VectorTrack.prototype = {
           .getViewIndices();
         viewIndices.forEach(function (i) {
           if (i >= start && i <= end) {
-            var size = positions.getItemSize(i);
+            var size = Math.ceil(positions.getItemSize(i));
             var pix = positions.getPosition(i);
             context.fillRect(0, pix, width, size);
           }
