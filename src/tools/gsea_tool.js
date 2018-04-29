@@ -2,7 +2,8 @@ phantasus.gseaTool = function (project) {
   var self = this;
 
   var dataset = project.getSelectedDataset();
-  var numberFields = phantasus.MetadataUtil.getMetadataNumberFields(dataset
+  var fullDataset = project.getFullDataset();
+  var numberFields = phantasus.MetadataUtil.getMetadataSignedNumericFields(fullDataset
     .getRowMetadata());
 
   if (numberFields.length === 0) {
@@ -66,6 +67,7 @@ phantasus.gseaTool = function (project) {
   this.$chart = this.$el.find("[data-name=chartDiv]");
   this.$dialog.dialog({
     close: function (event, ui) {
+      project.getRowSelectionModel().off("selectionChanged.chart", onChange);
       self.$dialog.dialog('destroy').remove();
       event.stopPropagation();
     },
@@ -91,9 +93,10 @@ phantasus.gseaTool.prototype = {
     var selectedDataset = project.getSelectedDataset();
     var fullDataset = project.getSortedFilteredDataset();
 
-    if (selectedDataset.dataset.rows === fullDataset.dataset.rows) {
+    if (selectedDataset.getRowCount() === fullDataset.getRowCount()) {
       this.promise.reject('Invalid rows');
-      throw new Error('Invalid amount of rows are selected (zero rows or whole dataset selected)');
+      // throw new Error('Invalid amount of rows are selected (zero rows or whole dataset selected)');
+        return this.promise;
     }
 
     var idxs = selectedDataset.rowIndices.map(function (idx) {
@@ -101,7 +104,9 @@ phantasus.gseaTool.prototype = {
     });
 
     var self = this;
+    var rankBy = this.formBuilder.getValue('rank_by');
     var rows = phantasus.Dataset.toJSON(fullDataset).rowMetadataModel.vectors;
+    rows = rows.filter(function(row) { return row.name == rankBy; })
 
     var fvarLabels = rows.map(function (row) {
       return row.name
@@ -113,7 +118,6 @@ phantasus.gseaTool.prototype = {
 
     var height = 2;//this.formBuilder.getValue('chart_height');
     var width = 2;//this.formBuilder.getValue('chart_width');
-    var rankBy = this.formBuilder.getValue('rank_by');
 
 
     var req = ocpu.call('gseaPlot', {
