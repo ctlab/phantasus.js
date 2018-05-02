@@ -1,7 +1,6 @@
 phantasus.gseaTool = function (project) {
   var self = this;
 
-  var dataset = project.getSelectedDataset();
   var fullDataset = project.getFullDataset();
   var numberFields = phantasus.MetadataUtil.getMetadataSignedNumericFields(fullDataset
     .getRowMetadata());
@@ -20,6 +19,8 @@ phantasus.gseaTool = function (project) {
     + '<div data-name="configPane" class="col-xs-2"></div>'
     + '<div class="col-xs-10"><div style="position:relative;" data-name="chartDiv"></div></div>'
     + '</div></div>');
+
+  var $notifyRow = this.$dialog.find('h4');
 
   this.formBuilder = new phantasus.FormBuilder({
     formStyle: 'vertical'
@@ -49,6 +50,14 @@ phantasus.gseaTool = function (project) {
   });
 
   var onChange = _.debounce(function (e) {
+    var selectedDataset = project.getSelectedDataset();
+    var fullDataset = project.getSortedFilteredDataset();
+    $notifyRow.toggle(selectedDataset.getRowCount() === fullDataset.getRowCount());
+
+    if (selectedDataset.getRowCount() === fullDataset.getRowCount()) {
+      return;
+    }
+
     if (self.promise) {
       self.promise.reject('Cancelled');
     }
@@ -60,6 +69,7 @@ phantasus.gseaTool = function (project) {
 
   this.formBuilder.$form.on('change', 'select', onChange);
   project.getRowSelectionModel().on('selectionChanged.chart', onChange);
+
 
   var $configPane = this.$el.find('[data-name=configPane]');
   this.formBuilder.$form.appendTo($configPane);
@@ -77,8 +87,7 @@ phantasus.gseaTool = function (project) {
     width: 900
   });
 
-  if (project.getSelectedDataset().dataset.rows !== project.getSortedFilteredDataset().dataset.rows)
-    onChange();
+  onChange();
 };
 
 phantasus.gseaTool.prototype = {
@@ -106,7 +115,7 @@ phantasus.gseaTool.prototype = {
     var self = this;
     var rankBy = this.formBuilder.getValue('rank_by');
     var rows = phantasus.Dataset.toJSON(fullDataset).rowMetadataModel.vectors;
-    rows = rows.filter(function(row) { return row.name == rankBy; })
+    rows = rows.filter(function(row) { return row.name === rankBy; });
 
     var fvarLabels = rows.map(function (row) {
       return row.name
