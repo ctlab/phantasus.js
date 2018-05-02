@@ -362,6 +362,37 @@ phantasus.MetadataUtil.getMetadataNames = function (metadataModel, unsorted) {
   }
   return names;
 };
+
+phantasus.MetadataUtil.getMetadataSignedNumericFields = function (metadataModel) {
+  var fields = [];
+  for (var i = 0, count = metadataModel.getMetadataCount(); i < count; i++) {
+    var field = metadataModel.get(i);
+    var properties = field.getProperties();
+    if (properties.get('phantasus.dataType') === 'number') {
+      var hasPositive = false;
+      var hasNegative = false;
+      for (var j = 0; j < field.size(); j++) {
+          if (field.getValue(j) > 0) {
+              hasPositive = true;
+          }
+          if (field.getValue(j) < 0) {
+              hasNegative = true;
+          }
+          if (hasPositive && hasNegative) {
+              break;
+          }
+
+      }
+      if (hasPositive && hasNegative) {
+        fields.push(field);
+      }
+     
+    }
+  }
+
+  return fields;
+};
+
 phantasus.MetadataUtil.getVectors = function (metadataModel, names) {
   var vectors = [];
   names.forEach(function (name) {
