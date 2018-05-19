@@ -62,12 +62,13 @@ phantasus.HeatMapToolBar = function (heatMap) {
     searchHtml.push('<ul data-name="searchOptions" class="dropdown-menu">');
     searchHtml.push(
       '<li><a data-group="matchMode" data-name="exact" href="#"><span' +
-      ' data-type="toggle"></span>Exact' +
+      ' data-type="toggle"' +
+      ' class="dropdown-checkbox fa fa-check"></span>Exact' +
       ' Match</a></li>');
     searchHtml.push(
       '<li><a data-group="matchMode" data-name="contains" href="#"><span' +
       ' data-type="toggle"' +
-      ' class="dropdown-checkbox fa fa-check"></span>Contains</a></li>');
+      ' ></span>Contains</a></li>');
     searchHtml.push('<li role="separator" class="divider"></li>');
 
     searchHtml.push(
@@ -435,7 +436,7 @@ phantasus.HeatMapToolBar = function (heatMap) {
 
   this.$searchRowDendrogramGroup = $searchRowDendrogramGroup;
   this.$searchColumnDendrogramGroup = $searchColumnDendrogramGroup;
-  this.matchMode = 'contains';
+  this.matchMode = 'exact';
   this.matchAllPredicates = false;
   var $searchToggle = $searchForm.find('[name=searchToggle]'); // buttons
   var nameToSearchObject = {};
