@@ -22,7 +22,7 @@ phantasus.ChartTool = function (chartOptions) {
     name: 'chart_type',
     type: 'bootstrap-select',
     options: [
-      'boxplot', 'row profile', 'column profile', 'row scatter matrix', 'column scatter' +
+      'row profile', 'column profile', 'boxplot', 'row scatter matrix', 'column scatter' +
       ' matrix']
   });
   var rowOptions = [];
