@@ -232,7 +232,10 @@ phantasus.HeatMapElementCanvas.prototype = {
           var c = selectedColumnElements[j];
           var x1 = columnPositions.getPosition(c[0]);
           var x2 = columnPositions.getPosition(c[1]) + columnPositions.getItemSize(j);
-          context.strokeRect(x1, y1, x2 - x1, y2 - y1);
+          if (y2 - y1 >= 4) {
+              context.strokeRect(x1, y1, x2 - x1, y2 - y1);
+          }
+        
         }
       }
     }
