@@ -23,6 +23,8 @@ phantasus.Dataset = function (options) {
   if (options.esVariable) {
     this.esVariable = options.esVariable;
   }
+  this.isGEO = options.isGEO; // geo and preloaded datasets doesn't need to renew essession, they already have valid one
+  this.preloaded = options.preloaded;
   this.seriesNames.push(options.name);
   this.seriesArrays.push(options.array ? options.array : phantasus.Dataset
     .createArray(options));

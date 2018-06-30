@@ -5,10 +5,18 @@ phantasus.KmeansTool = function () {
 };
 phantasus.KmeansTool.prototype = {
   toString: function () {
-    return "k-means";
+    return "K-means";
   },
-  gui: function () {
+  gui: function (project) {
     // z-score, robust z-score, log2, inverse log2
+    if (_.size(project.getRowFilter().enabledFilters) > 0 || _.size(project.getColumnFilter().enabledFilters) > 0) {
+      phantasus.FormBuilder.showInModal({
+        title: 'Warning',
+        html: 'Your dataset is filtered.<br/>' + this.toString() + ' will apply to unfiltered dataset. Consider using New Heat Map tool.',
+        z: 10000
+      });
+    }
+
     return [{
       name: "number_of_clusters",
       type: "text"
@@ -16,64 +24,37 @@ phantasus.KmeansTool.prototype = {
   },
   execute: function (options) {
     var project = options.project;
-    var dataset = project.getSortedFilteredDataset();
+    var dataset = project.getFullDataset();
     var promise = $.Deferred();
-
-    var trueIndices = phantasus.Util.getTrueIndices(dataset);
-
-    console.log(trueIndices, project.rowSelectionModel, project.columnSelectionModel);
-
-    var columnIndices = [];
-    var rowIndices = [];
-
-    if (options.input.use_selected_only) {
-      var selectedDataset = project.getSelectedDataset();
-      var selectedIndices = phantasus.Util.getTrueIndices(selectedDataset);
-      columnIndices = selectedIndices.columns.length > 0 ? selectedIndices.columns : trueIndices.columns;
-      rowIndices = selectedIndices.rows.length > 0 ? selectedIndices.rows : trueIndices.rows;
-    }
-    else {
-      columnIndices = trueIndices.columns;
-      rowIndices = trueIndices.rows;
-    }
 
     var number = parseInt(options.input.number_of_clusters);
     if (isNaN(number)) {
       throw new Error("Enter the expected number of clusters");
     }
     var replacena = "mean";
-    var esPromise = dataset.getESSession();
+    //console.log(dataset);
 
-    console.log(dataset);
-
-    esPromise.then(function (essession) {
+    dataset.getESSession().then(function (essession) {
       var args = {
         es: essession,
         k: number,
         replacena: replacena
       };
-      if (columnIndices.length > 0) {
-        args.columns = columnIndices;
-      }
-      if (rowIndices.length > 0) {
-        args.rows = rowIndices;
-      }
-      var req = ocpu.call("performKmeans", args, function (session) {
-        session.getMessages(function (messages) {
-          console.log("kmeans::", messages);
-        });
-        session.getObject(function (success) {
-          var clusters = JSON.parse(success);
+      var req = ocpu.call("performKmeans", args, function (newSession) {
+        newSession.getObject(function (success) {
+          var result = JSON.parse(success);
 
-          var v = dataset.getRowMetadata().getByName("clusters");
-          if (v == null) {
-            v = dataset.getRowMetadata().add("clusters");
-          }
+          var v = dataset.getRowMetadata().add('clusters');
           for (var i = 0; i < dataset.getRowCount(); i++) {
-            v.setValue(i, clusters[i]);
+            v.setValue(i, result[i].toString());
           }
+
           v.getProperties().set("phantasus.dataType", "string");
+
+          dataset.setESSession(Promise.resolve(newSession));
+          dataset.setESVariable("es");
           promise.resolve();
+
           project.trigger("trackChanged", {
             vectors: [v],
             display: ["color"]

@@ -110,7 +110,7 @@ phantasus.gseaTool.prototype = {
     this.promise = $.Deferred();
 
     var selectedDataset = project.getSelectedDataset();
-    var fullDataset = project.getSortedFilteredDataset();
+    var fullDataset = project.getFullDataset();
 
     if (selectedDataset.getRowCount() === fullDataset.getRowCount()) {
       this.promise.reject('Invalid rows');
@@ -124,16 +124,6 @@ phantasus.gseaTool.prototype = {
 
     var self = this;
     var rankBy = this.formBuilder.getValue('rank_by');
-    var rows = phantasus.Dataset.toJSON(fullDataset).rowMetadataModel.vectors;
-    rows = rows.filter(function(row) { return row.name === rankBy; });
-
-    var fvarLabels = rows.map(function (row) {
-      return row.name
-    });
-    var fData = rows.reduce(function (acc, currentRow) {
-      acc[currentRow.name] = currentRow.array;
-      return acc;
-    }, {});
 
     var vertical = this.formBuilder.getValue('vertical');
 
@@ -145,26 +135,28 @@ phantasus.gseaTool.prototype = {
     }
 
 
-    ocpu.call('gseaPlot', {
-      fData: fData,
-      fvarLabels: fvarLabels,
-      rankBy: rankBy,
-      selectedGenes: idxs,
-      width: width,
-      height: height,
-      vertical: vertical
-    }, function (session) {
-      session.getObject(function (filenames) {
-        var svgPath = JSON.parse(filenames)[0];
-        var absolutePath = phantasus.Util.getFilePath(session, svgPath);
-        phantasus.BlobFromPath.getFileObject(absolutePath, function (blob) {
-          self.imageURL = URL.createObjectURL(blob);
-          self.promise.resolve(self.imageURL);
+    fullDataset.getESSession().then(function (esSession) {
+      ocpu.call('gseaPlot', {
+        es: esSession
+        rankBy: rankBy,
+        selectedGenes: idxs,
+        width: width,
+        height: height,
+        vertical: vertical
+      }, function (session) {
+        session.getObject(function (filenames) {
+          var svgPath = JSON.parse(filenames)[0];
+          var absolutePath = phantasus.Util.getFilePath(session, svgPath);
+          phantasus.BlobFromPath.getFileObject(absolutePath, function (blob) {
+            self.imageURL = URL.createObjectURL(blob);
+            self.promise.resolve(self.imageURL);
+          });
         });
-      });
-    }).fail(function () {
-      self.promise.reject();
-    });
+      }, false, "::" + fullDataset.getESVariable())
+        .fail(function () {
+          self.promise.reject();
+        });
+    })
 
     return self.promise;
   },

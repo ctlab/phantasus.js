@@ -1,14 +1,7 @@
 phantasus.SlicedDatasetView = function (dataset, rowIndices, columnIndices) {
   phantasus.DatasetAdapter.call(this, dataset);
-  if (rowIndices == null) {
-    rowIndices = null;
-  }
-  if (columnIndices == null) {
-    columnIndices = null;
-  }
-  this.rowIndices = rowIndices;
-  this.columnIndices = columnIndices;
-  //phantasus.DatasetUtil.toESSessionPromise(this);
+  this.rowIndices = rowIndices || null;
+  this.columnIndices = columnIndices || null;
 };
 phantasus.SlicedDatasetView.prototype = {
   setESSession: function (session) {

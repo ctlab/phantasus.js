@@ -276,8 +276,8 @@ phantasus.HeatMap = function (options) {
           null,
           'API',
           null,
-          'k-means',
-          'limma',
+          'K-means',
+          'Limma',
           'PCA Plot',
           'Submit to Enrichr',
           'Submit to Shiny GAM',
@@ -2113,7 +2113,10 @@ phantasus.HeatMap.prototype = {
           _this.updateDataset();
           _this.revalidate();
         });
-
+    this.getProject().on('trackChanged', function (e) {
+      //console.log('Track changed');
+      phantasus.DatasetUtil.toESSessionPromise(dataset);
+    });
     this.getProject().on('trackChanged', function (e) {
       var columns = e.columns;
       _.each(e.vectors, function (v, i) {

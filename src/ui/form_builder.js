@@ -255,7 +255,8 @@ phantasus.FormBuilder.showInModal = function (options) {
       appendTo: options.appendTo,
       backdrop: options.backdrop,
       size: options.size,
-      focus: options.focus
+      focus: options.focus,
+      z: options.z // was used before yet dissappeared
     });
   // if (options.draggable) {
   // $div.draggable({

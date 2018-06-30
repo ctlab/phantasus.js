@@ -45,7 +45,6 @@ phantasus.CheckBoxList = function (options) {
   }
 
   this.getter = idColumn.getter;
-  var html = [];
 
   var table = new phantasus.Table(options);
   if (options.columns.length === 1) {

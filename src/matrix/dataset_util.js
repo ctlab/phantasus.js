@@ -251,7 +251,7 @@ phantasus.DatasetUtil.read = function (fileOrUrl, options) {
           // console.log('ready to resolve with', dataset);
           deferred.resolve(dataset);
           if (!options.isGEO && !options.preloaded) {
-            phantasus.DatasetUtil.toESSessionPromise({dataset: dataset});
+            phantasus.DatasetUtil.toESSessionPromise(dataset);
           }
         }
       });
@@ -976,22 +976,21 @@ phantasus.DatasetUtil.getNonEmptyRows = function (dataset) {
 };
 phantasus.DatasetUtil.getContentArray = function (dataset) {
   var array = [];
-  var nr = dataset.rows;
-  var nc = dataset.columns;
-  //// console.log("getContentArray ::", "dataset:", dataset, "rows:", nr, "columns:", nc);
+
+  var nr = dataset.getRowCount();
+  var nc = dataset.getColumnCount();
 
   for (var i = 0; i < nc; i++) {
     for (var j = 0; j < nr; j++) {
       array.push(dataset.getValue(j, i));
     }
   }
-  //// console.log("getContentArray ::", array);
   return array;
 };
 phantasus.DatasetUtil.getMetadataArray = function (dataset) {
   var pDataArray = [];
   var labelDescription = [];
-  //// console.log("phantasus.DatasetUtil.getMetadataArray ::", dataset);
+  //console.log("phantasus.DatasetUtil.getMetadataArray ::", dataset);
   var columnMeta = dataset.getColumnMetadata();
   var features = columnMeta.getMetadataCount();
   var participants = dataset.getColumnCount();
@@ -1037,112 +1036,143 @@ phantasus.DatasetUtil.getMetadataArray = function (dataset) {
   };
 };
 
-phantasus.DatasetUtil.toESSessionPromise = function (options) {
-  var dataset = options.dataset ? options.dataset : options;
+phantasus.DatasetUtil.toESSessionPromise = function (dataset) {
+  var datasetSession = dataset.getESSession();
 
-  //// console.log("ENTERED TO_ESSESSION_PROMISE", dataset, options);
-  //var copiedDataset = phantasus.DatasetUtil.copy(dataset);
-  //// console.log("EsSessionPromise ::", "after copying", dataset);
-  while (dataset.dataset) {
-    dataset = dataset.dataset;
-  }
-  // console.log(dataset);
   dataset.setESSession(new Promise(function (resolve, reject) {
-    //// console.log("phantasus.DatasetUtil.toESSessionPromise ::", dataset, dataset instanceof phantasus.Dataset, dataset instanceof phantasus.SlicedDatasetView);
-    /*		if (dataset.dataset) {
-     //// console.log("phantasus.DatasetUtil.toESSessionPromise ::", "dataset in instanceof phantasus.SlicedDatasetView", "go deeper");
-     phantasus.DatasetUtil.toESSessionPromise(dataset.dataset);
-     }*/
-    //// console.log("before going further", options);
-    if (options.isGEO || options.preloaded) {
-      //// console.log("toESSession::", "resolving as geo dataset");
-      resolve(dataset.getESSession());
-      return;
-    }
-
-    var array = phantasus.DatasetUtil.getContentArray(dataset);
-    var meta = phantasus.DatasetUtil.getMetadataArray(dataset);
-
-    // console.log(array, array.length);
-    var messageJSON = {
-      rclass: "LIST",
-      rexpValue: [{
-        rclass: "REAL",
-        realValue: array,
-        attrName: "dim",
-        attrValue: {
-          rclass: "INTEGER",
-          intValue: [dataset.getRowCount(), dataset.getColumnCount()]
-        }
-      }, {
-        rclass: "STRING",
-        stringValue: meta.pdata,
-        attrName: "dim",
-        attrValue: {
-          rclass: "INTEGER",
-          intValue: [dataset.getColumnCount(), meta.varLabels.length]
-        }
-      }, {
-        rclass: "STRING",
-        stringValue: meta.varLabels
-      }, {
-        rclass: "STRING",
-        stringValue: meta.fdata,
-        attrName: "dim",
-        attrValue: {
-          rclass: "INTEGER",
-          intValue: [dataset.getRowCount(), meta.fvarLabels.length]
-        }
-      }, {
-        rclass: "STRING",
-        stringValue: meta.fvarLabels
-      }],
-      attrName: "names",
-      attrValue: {
-        rclass: "STRING",
-        stringValue: [{
-          strval: "data",
-          isNA: false
-        }, {
-          strval: "pData",
-          isNA: false
-        }, {
-          strval: "varLabels",
-          isNA: false
-        }, {
-          strval: "fData",
-          isNA: false
-        }, {
-          strval: "fvarLabels",
-          isNA: false
-        }]
-      }
-    };
-    var ProtoBuf = dcodeIO.ProtoBuf;
-    ProtoBuf.protoFromFile('./message.proto', function (error, success) {
-      if (error) {
-        alert(error);
-        // console.log("ExpressionSetCreation :: ", "ProtoBuilder failed", error);
+    phantasus.DatasetUtil.probeDataset(dataset, datasetSession).then(function (result) {
+      if (result) { // dataset identical to one in session.
+        resolve(datasetSession);
         return;
       }
-      //// console.log("phantasus.DatasetUtil.toESSessionPromise ::", "protobuilder error", error);
-      //// console.log("phantasus.DatasetUtil.toESSessionPromise ::", "protobuilder success", success);
-      var builder = success,
-        rexp = builder.build('rexp'),
-        REXP = rexp.REXP;
 
-      var proto = new REXP(messageJSON);
-      var req = ocpu.call('createES', proto, function (session) {
-        //// console.log("phantasus.DatasetUtil.toESSessionPromise ::", "from successful request", session);
-        dataset.setESVariable('es');
-        resolve(session);
-      }, true);
+      var array = phantasus.DatasetUtil.getContentArray(dataset);
+      var meta = phantasus.DatasetUtil.getMetadataArray(dataset);
 
-      req.fail(function () {
-        reject(req.responseText);
+      var messageJSON = {
+        rclass: "LIST",
+        rexpValue: [{
+          rclass: "REAL",
+          realValue: array,
+          attrName: "dim",
+          attrValue: {
+            rclass: "INTEGER",
+            intValue: [dataset.getRowCount(), dataset.getColumnCount()]
+          }
+        }, {
+          rclass: "STRING",
+          stringValue: meta.pdata,
+          attrName: "dim",
+          attrValue: {
+            rclass: "INTEGER",
+            intValue: [dataset.getColumnCount(), meta.varLabels.length]
+          }
+        }, {
+          rclass: "STRING",
+          stringValue: meta.varLabels
+        }, {
+          rclass: "STRING",
+          stringValue: meta.fdata,
+          attrName: "dim",
+          attrValue: {
+            rclass: "INTEGER",
+            intValue: [dataset.getRowCount(), meta.fvarLabels.length]
+          }
+        }, {
+          rclass: "STRING",
+          stringValue: meta.fvarLabels
+        }],
+        attrName: "names",
+        attrValue: {
+          rclass: "STRING",
+          stringValue: [{
+            strval: "data",
+            isNA: false
+          }, {
+            strval: "pData",
+            isNA: false
+          }, {
+            strval: "varLabels",
+            isNA: false
+          }, {
+            strval: "fData",
+            isNA: false
+          }, {
+            strval: "fvarLabels",
+            isNA: false
+          }]
+        }
+      };
+      var ProtoBuf = dcodeIO.ProtoBuf;
+      ProtoBuf.protoFromFile('./message.proto', function (error, success) {
+        if (error) {
+          alert(error);
+          return;
+        }
+
+        var builder = success,
+          rexp = builder.build('rexp'),
+          REXP = rexp.REXP;
+
+        var proto = new REXP(messageJSON);
+        var req = ocpu.call('createES', proto, function (session) {
+          dataset.setESVariable('es');
+          resolve(session);
+        }, true);
+
+        req.fail(function () {
+          reject(req.responseText);
+        });
       });
     });
   }));
-  /*var blob = new Blob([new Uint8Array((new REXP(messageJSON)).toArrayBuffer())], {type: "application/octet-stream"});
-   saveAs(blob, "test1.bin");*/
+};
+phantasus.DatasetUtil.probeDataset = function (dataset, session) {
+  var targetSession = session || dataset.getESSession();
+
+  return new Promise(function (resolve, reject) {
+    if (!targetSession) {
+      return resolve(false);
+    }
+
+    var meta = phantasus.DatasetUtil.getMetadataArray(dataset);
+    var fvarLabels = meta.fvarLabels.map(function (fvarLabel) { return (fvarLabel.isNA)?'NA':fvarLabel.strval});
+    var indices = [];
+    var eps = 0.001;
+
+    var testArrByEpsilon = function (value, index) {
+      var ij = indices[index];
+      return Math.abs(value - dataset.getValue(ij[0] - 1, ij[1] - 1)) < eps;
+    };
+
+    for(var i = 0;i < 100; i++) {
+      var jIdx = _.random(0, dataset.getColumnCount() - 1);
+      var iIdx = _.random(0, dataset.getRowCount() - 1);
+      indices.push([iIdx + 1, jIdx + 1]);
+    }
+
+    targetSession.then(function (essession) {
+      var request = {
+        es: essession,
+        indices: indices
+      };
+
+      var req = ocpu.call("probeDataset", request, function (newSession) {
+        newSession.getObject(function (success) {
+          var backendProbe = JSON.parse(success);
+
+          resolve(backendProbe.dims[0] === dataset.getRowCount() &&
+            backendProbe.dims[1] === dataset.getColumnCount() &&
+            backendProbe.probe.every(testArrByEpsilon) &&
+            _.isEqual(fvarLabels, backendProbe.fvarLabels));
+        })
+      }, false, "::" + dataset.getESVariable());
+
+
+      req.fail(function () {
+        reject();
+      });
+
+    });
+  });
 };

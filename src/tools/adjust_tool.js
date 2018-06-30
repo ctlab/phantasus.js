@@ -136,6 +136,7 @@ phantasus.AdjustDataTool.prototype = {
         }
       }
 
+      dataset.setESSession(null);
       return new phantasus.HeatMap({
         name: heatMap.getName(),
         dataset: dataset,

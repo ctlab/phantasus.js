@@ -342,7 +342,7 @@ phantasus.FilterUI.prototype = {
 
     html
       .push('<select style="max-width:160px;overflow-x:hidden;" name="by" class="form-control input-sm">');
-    html.push('<option value=""></option>');
+    html.push('<option disabled selected value style="display: none">--select field--</option>');
     var filterField = filter ? filter.toString() : null;
 
     _.each(fields, function (field) {

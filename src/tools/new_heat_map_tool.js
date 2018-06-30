@@ -26,7 +26,7 @@ phantasus.NewHeatMapTool.prototype = {
       selectedColumns: true
     });
     phantasus.DatasetUtil.shallowCopy(dataset);
-    //phantasus.DatasetUtil.toESSessionPromise(dataset);
+    phantasus.DatasetUtil.toESSessionPromise(dataset);
     // console.log(dataset);
     // TODO see if we can subset dendrograms
     // only handle contiguous selections for now
