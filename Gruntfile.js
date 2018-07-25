@@ -84,7 +84,7 @@ module.exports = function (grunt) {
     watch: {
       phantasus: {
         files: ['src/*.js', 'src/**/*.js'],
-        tasks: ['concat:phantasus', 'uglify:phantasus'],
+        tasks: ['concat:phantasus'],
         options: {
           livereload: true
         }
