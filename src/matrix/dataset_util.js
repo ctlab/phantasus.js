@@ -1173,6 +1173,6 @@ phantasus.DatasetUtil.probeDataset = function (dataset, session) {
         reject();
       });
 
-    });
+    }, function () { reject(); });
   });
 };
