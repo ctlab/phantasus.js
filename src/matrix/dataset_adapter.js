@@ -3,14 +3,11 @@ phantasus.DatasetAdapter = function (dataset, rowMetadata, columnMetadata) {
     throw 'dataset is null';
   }
   this.dataset = dataset;
-  this.esSession = null;
-  this.esVariable = null;
   this.rowMetadata = rowMetadata || dataset.getRowMetadata();
   this.columnMetadata = columnMetadata || dataset.getColumnMetadata();
-  if (_.isEqual(this.rowMetadata, dataset.getRowMetadata()) && _.isEqual(this.columnMetadata, dataset.getColumnMetadata())) {
-    this.esSession = new Promise(function (resolve) {resolve(dataset.getESSession())});
-    this.esVariable = _.clone(this.dataset.getESVariable());
-  }
+  this.esSession = dataset.esSession;
+  this.esVariable = dataset.esVariable;
+  this.esSource = 'copied';
 };
 phantasus.DatasetAdapter.prototype = {
   getDataset: function () {

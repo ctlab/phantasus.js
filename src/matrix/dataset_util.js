@@ -1043,6 +1043,7 @@ phantasus.DatasetUtil.toESSessionPromise = function (dataset) {
     phantasus.DatasetUtil.probeDataset(dataset, datasetSession).then(function (result) {
       if (result) { // dataset identical to one in session.
         resolve(datasetSession);
+        dataset.esSource = 'original';
         return;
       }
 
@@ -1117,6 +1118,7 @@ phantasus.DatasetUtil.toESSessionPromise = function (dataset) {
         var proto = new REXP(messageJSON);
         var req = ocpu.call('createES', proto, function (session) {
           dataset.setESVariable('es');
+          dataset.esSource = 'original';
           resolve(session);
         }, true);
 
@@ -1130,8 +1132,8 @@ phantasus.DatasetUtil.toESSessionPromise = function (dataset) {
 phantasus.DatasetUtil.probeDataset = function (dataset, session) {
   var targetSession = session || dataset.getESSession();
 
-  return new Promise(function (resolve, reject) {
-    if (!targetSession) {
+  return new Promise(function (resolve) {
+    if (!targetSession || !dataset.getESVariable()) {
       return resolve(false);
     }
 
@@ -1170,7 +1172,7 @@ phantasus.DatasetUtil.probeDataset = function (dataset, session) {
 
 
       req.fail(function () {
-        reject();
+        resolve(false);
       });
 
     }, function () { resolve(false); });

@@ -26,22 +26,24 @@ phantasus.NewHeatMapTool.prototype = {
       selectedColumns: true
     });
     phantasus.DatasetUtil.shallowCopy(dataset);
-    var oldSession = dataset.getESSession();
-    var oldVariable = dataset.getESVariable();
+    var indices = phantasus.Util.getTrueIndices(dataset);
+    var currentSessionPromise = dataset.getESSession();
+    var currentESVariable = dataset.getESVariable();
 
     dataset.setESSession(new Promise(function (resolve, reject) {
-      oldSession.then(function (esSession) {
+      currentSessionPromise.then(function (esSession) {
         var args = {
           es: esSession,
-          rows: dataset.rowIndices,
-          columns: dataset.columnIndices
+          rows: indices.rows,
+          columns: indices.columns
         };
 
         var req = ocpu.call("subsetES", args, function (newSession) {
           dataset.setESVariable('es');
+          dataset.esSource = 'original';
           resolve(newSession);
           console.log('Old dataset session: ', esSession, ', New dataset session: ', newSession);
-        }, false, "::" + oldVariable);
+        }, false, "::" + currentESVariable);
 
         req.fail(function () {
           reject();
