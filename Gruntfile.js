@@ -143,6 +143,7 @@ module.exports = function (grunt) {
   grunt.registerTask('dist', function () {
     grunt.task.run('concat');
     grunt.task.run('uglify');
+    grunt.task.run('cssmin');
   });
 
   grunt.loadNpmTasks('grunt-contrib-watch');
