@@ -532,3 +532,7 @@ classes should alter those!
 .phantasus-warning-color {
   color: darkred;
 }
+
+.form-control.phantasus-filter-input {
+  width: auto; max-width: 70px; display: inline-block; margin: 5px; padding: 5px; height: auto; line-height: normal;
+}

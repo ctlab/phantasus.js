@@ -274,8 +274,6 @@ phantasus.HeatMap = function (options) {
           'Sort/Group',
           'Filter',
           null,
-          'API',
-          null,
           'K-means',
           'Limma',
           'PCA Plot',

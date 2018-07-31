@@ -92,9 +92,9 @@ phantasus.FilterUI.rangeFilter = function (project, name, isColumns, $ui, filter
   var html = [];
   html.push('<label>Range of values</label><br />');
   html
-    .push('<label>>= </label> <input style="max-width:200px;" class="form-control input-sm" name="min" type="text" />');
+    .push('<div style="display:inline-block"><label>>= </label> <input style="max-width:100px;" class="form-control input-sm" name="min" type="text" /></div>');
   html
-    .push('<label> and <= </label> <input style="max-width:200px;" class="form-control input-sm" name="max" type="text" />');
+    .push('<div style="display:inline-block; margin-left: 5px;"><label> and <= </label> <input style="max-width:100px;" class="form-control input-sm" name="max" type="text" /></div>');
   html.push('<br /><a data-name="switch" href="#">Switch to top filter</a>');
   var $form = $(html.join(''));
   $form.appendTo($ui);
@@ -152,13 +152,16 @@ phantasus.FilterUI.rangeFilter = function (project, name, isColumns, $ui, filter
 };
 phantasus.FilterUI.topFilter = function (project, name, isColumns, $ui, filter) {
   $ui.empty();
-  var html = [];
-  html.push('<label>Top</label><br />');
-  html
-    .push('<select style="width:auto;" class="form-control input-sm" name="direction"><option value="Top">Top</option><option value="Bottom">Bottom</option><option value="TopBottom">Top/Bottom</option></select>');
-  html
-    .push(' <label>N </label> <input style="max-width:200px;" class="form-control input-sm" name="n" type="text" />');
-  html.push('<br /><a data-name="switch" href="#">Switch to range filter</a>');
+  var html = ['<label>Direction: </label>',
+              '<select class="form-control input-sm phantasus-filter-input" name="direction">',
+                '<option value="Top">Top</option>',
+                '<option value="Bottom">Bottom</option>',
+                '<option value="TopBottom">Top/Bottom</option>',
+              '</select>',
+              '<label>Amount:</label>',
+              '<input class="form-control input-sm phantasus-filter-input" name="n" type="text" />',
+              '<br /><a data-name="switch" href="#">Switch to range filter</a>'];
+
   var $form = $(html.join(''));
   $form.appendTo($ui);
   var $n = $ui.find('[name=n]');
@@ -336,12 +339,11 @@ phantasus.FilterUI.prototype = {
     var html = [];
     html.push('<div class="phantasus-entry">');
 
-    html.push('<div class="form-group">');
-    html.push('<label>Field</label>');
+    html.push('<div class="form-group" style="margin-bottom: 0px;">');
+    html.push('<label>Field:</label>');
     // field
 
-    html
-      .push('<select style="max-width:160px;overflow-x:hidden;" name="by" class="form-control input-sm">');
+    html.push('<select style="max-width:150px;overflow-x:hidden; display: inline-block; margin: 5px; padding: 5px; line-height: normal; height: auto;" name="by" class="form-control input-sm">');
     html.push('<option disabled selected value style="display: none">--select field--</option>');
     var filterField = filter ? filter.toString() : null;
 
