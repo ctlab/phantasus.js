@@ -17,8 +17,8 @@ phantasus.AdjustDataTool.prototype = {
     var numericRows = phantasus.MetadataUtil.getMetadataNames(dataset.getRowMetadata()).filter(filterNumeric.bind(null,dataset.getRowMetadata()));
     var numericColumns = phantasus.MetadataUtil.getMetadataNames(dataset.getColumnMetadata()).filter(filterNumeric.bind(null,dataset.getColumnMetadata()));
 
-    var rows = ['<None>'].concat(numericRows);
-    var columns = ['<None>'].concat(numericColumns);
+    var rows = ['(None)'].concat(numericRows);
+    var columns = ['(None)'].concat(numericColumns);
     this.sweepRowColumnSelect = form.$form.find('[name=sweep-row-column]');
     this.sweepAction = form.$form.find('[name=sweep-action]');
     this.sweepTarget = form.$form.find('[name=sweep-target]');
@@ -89,10 +89,10 @@ phantasus.AdjustDataTool.prototype = {
     var project = options.project;
     var heatMap = options.heatMap;
 
-    var sweepBy = (_.size(this.sweepRowColumnSelect) > 0) ? this.sweepRowColumnSelect[0].value : '<None>';
+    var sweepBy = (_.size(this.sweepRowColumnSelect) > 0) ? this.sweepRowColumnSelect[0].value : '(None)';
 
     if (options.input.log_2 || options.input.inverse_log_2
-      || options.input['z-score'] || options.input['robust_z-score'] || options.input.quantile_normalize || options.input.scale_column_sum || sweepBy !== '<None>') {
+      || options.input['z-score'] || options.input['robust_z-score'] || options.input.quantile_normalize || options.input.scale_column_sum || sweepBy !== '(None)') {
       // clone the values 1st
       var sortedFilteredDataset = phantasus.DatasetUtil.copy(project
         .getSortedFilteredDataset());
@@ -179,7 +179,7 @@ phantasus.AdjustDataTool.prototype = {
         }
       }
 
-      if (sweepBy !== '<None>') {
+      if (sweepBy !== '(None)') {
         var op = this.sweepAction[0].value === 'Subtract' ?
                   function (a,b) {return a - b; }         :
                   function (a,b) {return a / b; }         ;

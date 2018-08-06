@@ -14,7 +14,7 @@ phantasus.gseaTool = function (project) {
   });
 
 
-  var annotations = ["<None>"].concat(phantasus.MetadataUtil.getMetadataNames(fullDataset.getColumnMetadata()))
+  var annotations = ['(None)'].concat(phantasus.MetadataUtil.getMetadataNames(fullDataset.getColumnMetadata()))
 
   this.$dialog = $('<div style="background:white;" title="gsea plot tool"><h4>Please select rows.</h4></div>');
   this.$el = $('<div class="container-fluid" style="height: 100%">'
@@ -143,25 +143,26 @@ phantasus.gseaTool.prototype = {
         width = 6;
     }
 
+    var request = {
+      rankBy: rankBy,
+      selectedGenes: idxs,
+      width: width,
+      height: height,
+      vertical: vertical,
+      addHeatmap: true
+    };
+
     var annotateBy = this.formBuilder.getValue('annotate_by');
-    if (annotateBy === "<None>") {
-        annotateBy = null;
-        width = width - 1;
-    }
-    
+    (annotateBy === "(None)") ?
+      request.width = width - 1 :
+      request.showAnnotation = annotateBy;
+
 
 
     fullDataset.getESSession().then(function (esSession) {
-      ocpu.call('gseaPlot', {
-        es: esSession,
-        rankBy: rankBy,
-        selectedGenes: idxs,
-        width: width,
-        height: height,
-        vertical: vertical,
-        showAnnotation: annotateBy,
-        addHeatmap: true
-      }, function (session) {
+      request.es = esSession;
+
+      ocpu.call('gseaPlot', request, function (session) {
         session.getObject(function (filenames) {
           var svgPath = JSON.parse(filenames)[0];
           var absolutePath = phantasus.Util.getFilePath(session, svgPath);
