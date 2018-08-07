@@ -4,6 +4,18 @@ phantasus.PcaPlotTool = function (chartOptions) {
   var project = this.project;
   var drawFunction = null;
 
+  if (project.getFullDataset().getColumnCount() <= 1) {
+    throw new Error("Not enough columns (at least 2 required)");
+  }
+
+  if (_.size(project.getRowFilter().enabledFilters) > 0 || _.size(project.getColumnFilter().enabledFilters) > 0) {
+    phantasus.FormBuilder.showInModal({
+      title: 'Warning',
+      html: 'Your dataset is filtered.<br/>PCA Plot will apply to unfiltered dataset. Consider using New Heat Map tool.',
+      z: 10000
+    });
+  }
+
 
   this.$el = $('<div class="container-fluid">'
     + '<div class="row">'
@@ -301,9 +313,6 @@ phantasus.PcaPlotTool.prototype = {
     return function () {
       _this.$chart.empty();
 
-      // console.log("PCAPlot :: dataset:", dataset, "trueIndices:", phantasus.Util.getTrueIndices(dataset));
-
-      var indices = phantasus.Util.getTrueIndices(dataset);
       var colorBy = _this.formBuilder.getValue('color');
       var sizeBy = _this.formBuilder.getValue('size');
       var shapeBy = _this.formBuilder.getValue('shape');
@@ -432,15 +441,6 @@ phantasus.PcaPlotTool.prototype = {
         showlegend: false
       });
 
-
-      var columnIndices = indices.columns;
-      var rowIndices = indices.rows;
-
-      if (columnIndices.length == 1) {
-        new Error("Not enough columns (at least 2 required)");
-        return;
-      }
-
       var expressionSetPromise = dataset.getESSession();
 
       expressionSetPromise.then(function (essession) {
@@ -452,12 +452,6 @@ phantasus.PcaPlotTool.prototype = {
           es: essession,
           replacena: na
         };
-        if (columnIndices && columnIndices.length > 0) {
-          args.columns = columnIndices;
-        }
-        if (rowIndices && rowIndices.length > 0) {
-          args.rows = rowIndices;
-        }
 
         var prepareLabelData = function () {
           if (!label) {
@@ -470,11 +464,13 @@ phantasus.PcaPlotTool.prototype = {
             }
 
             var labels = type.x.map(function (x, idx) {
+              var size = (Array.isArray(type.marker.size)) ? type.marker.size[idx] : type.marker.size;
+
               return {
                 x: x,
                 y: type.y[idx],
                 name: type.text[idx],
-                r: type.marker.size
+                r: size
               };
             });
             type.text = null;

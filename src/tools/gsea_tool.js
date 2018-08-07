@@ -13,6 +13,9 @@ phantasus.gseaTool = function (project) {
     return field.getName();
   });
 
+
+  var annotations = ['(None)'].concat(phantasus.MetadataUtil.getMetadataNames(fullDataset.getColumnMetadata()))
+
   this.$dialog = $('<div style="background:white;" title="gsea plot tool"><h4>Please select rows.</h4></div>');
   this.$el = $('<div class="container-fluid" style="height: 100%">'
     + '<div class="row" style="height: 100%">'
@@ -37,6 +40,11 @@ phantasus.gseaTool = function (project) {
     name: 'vertical',
     type: 'checkbox',
     value: false
+  }, {
+    name: 'annotate_by',
+    options: annotations,
+    value: _.first(annotations),
+    type: 'select'
   }/*, {
     name: 'chart_width',
     type: 'range',
@@ -110,7 +118,7 @@ phantasus.gseaTool.prototype = {
     this.promise = $.Deferred();
 
     var selectedDataset = project.getSelectedDataset();
-    var fullDataset = project.getSortedFilteredDataset();
+    var fullDataset = project.getFullDataset();
 
     if (selectedDataset.getRowCount() === fullDataset.getRowCount()) {
       this.promise.reject('Invalid rows');
@@ -124,47 +132,50 @@ phantasus.gseaTool.prototype = {
 
     var self = this;
     var rankBy = this.formBuilder.getValue('rank_by');
-    var rows = phantasus.Dataset.toJSON(fullDataset).rowMetadataModel.vectors;
-    rows = rows.filter(function(row) { return row.name === rankBy; });
-
-    var fvarLabels = rows.map(function (row) {
-      return row.name
-    });
-    var fData = rows.reduce(function (acc, currentRow) {
-      acc[currentRow.name] = currentRow.array;
-      return acc;
-    }, {});
 
     var vertical = this.formBuilder.getValue('vertical');
+
 
     var height = 4;//this.formBuilder.getValue('chart_height');
     var width = 6;//this.formBuilder.getValue('chart_width');
     if (vertical) {
         height = 6;
-        width = 3;
+        width = 6;
     }
 
-
-    ocpu.call('gseaPlot', {
-      fData: fData,
-      fvarLabels: fvarLabels,
+    var request = {
       rankBy: rankBy,
       selectedGenes: idxs,
       width: width,
       height: height,
-      vertical: vertical
-    }, function (session) {
-      session.getObject(function (filenames) {
-        var svgPath = JSON.parse(filenames)[0];
-        var absolutePath = phantasus.Util.getFilePath(session, svgPath);
-        phantasus.BlobFromPath.getFileObject(absolutePath, function (blob) {
-          self.imageURL = URL.createObjectURL(blob);
-          self.promise.resolve(self.imageURL);
+      vertical: vertical,
+      addHeatmap: true
+    };
+
+    var annotateBy = this.formBuilder.getValue('annotate_by');
+    (annotateBy === "(None)") ?
+      request.width = width - 1 :
+      request.showAnnotation = annotateBy;
+
+
+
+    fullDataset.getESSession().then(function (esSession) {
+      request.es = esSession;
+
+      ocpu.call('gseaPlot', request, function (session) {
+        session.getObject(function (filenames) {
+          var svgPath = JSON.parse(filenames)[0];
+          var absolutePath = phantasus.Util.getFilePath(session, svgPath);
+          phantasus.BlobFromPath.getFileObject(absolutePath, function (blob) {
+            self.imageURL = URL.createObjectURL(blob);
+            self.promise.resolve(self.imageURL);
+          });
         });
-      });
-    }).fail(function () {
-      self.promise.reject();
-    });
+      }, false, "::" + fullDataset.getESVariable())
+        .fail(function () {
+          self.promise.reject();
+        });
+    })
 
     return self.promise;
   },

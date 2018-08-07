@@ -84,7 +84,7 @@ module.exports = function (grunt) {
     watch: {
       phantasus: {
         files: ['src/*.js', 'src/**/*.js'],
-        tasks: ['concat:phantasus', 'uglify:phantasus'],
+        tasks: ['concat:phantasus'],
         options: {
           livereload: true
         }
@@ -143,6 +143,7 @@ module.exports = function (grunt) {
   grunt.registerTask('dist', function () {
     grunt.task.run('concat');
     grunt.task.run('uglify');
+    grunt.task.run('cssmin');
   });
 
   grunt.loadNpmTasks('grunt-contrib-watch');

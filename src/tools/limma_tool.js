@@ -2,7 +2,7 @@ phantasus.LimmaTool = function () {
 };
 phantasus.LimmaTool.prototype = {
   toString: function () {
-    return "limma";
+    return "Limma";
   },
   init: function (project, form) {
     var _this = this;
@@ -31,7 +31,16 @@ phantasus.LimmaTool.prototype = {
     updateAB($field.val());
   },
   gui: function (project) {
-    var dataset = project.getSortedFilteredDataset();
+    var dataset = project.getFullDataset();
+
+    if (_.size(project.getRowFilter().enabledFilters) > 0 || _.size(project.getColumnFilter().enabledFilters) > 0) {
+      phantasus.FormBuilder.showInModal({
+        title: 'Warning',
+        html: 'Your dataset is filtered.<br/>' + this.toString() + ' will apply to unfiltered dataset. Consider using New Heat Map tool.',
+        z: 10000
+      });
+    }
+
     var fields = phantasus.MetadataUtil.getMetadataNames(dataset
       .getColumnMetadata());
     return [{
@@ -60,16 +69,14 @@ phantasus.LimmaTool.prototype = {
     var field = options.input.field;
     var classA = options.input.class_a;
     var classB = options.input.class_b;
+    var dataset = project.getFullDataset();
     var promise = $.Deferred();
 
     if (classA.length == 0 || classB.length == 0) {
       throw new Error("You must choose at least one option in each class");
     }
 
-    var dataset = project.getSortedFilteredDataset();
     // console.log(dataset);
-    var es = dataset.getESSession();
-
     var v = dataset.getColumnMetadata().getByName("Comparison");
     if (v == null) {
       v = dataset.getColumnMetadata().add("Comparison");
@@ -114,19 +121,11 @@ phantasus.LimmaTool.prototype = {
       values[j] = v.getValue(j);
     }
 
-    var trueIndices = phantasus.Util.getTrueIndices(dataset);
-
-    es.then(function (essession) {
+    dataset.getESSession().then(function (essession) {
       var args = {
         es: essession,
         fieldValues: values
       };
-      if (trueIndices.rows.length > 0) {
-        args.rows = trueIndices.rows;
-      }
-      if (trueIndices.columns.length > 0) {
-        args.columns = trueIndices.columns;
-      }
 
       var req = ocpu.call("limmaAnalysis", args, function (session) {
         session.getObject(function (success) {
@@ -148,7 +147,6 @@ phantasus.LimmaTool.prototype = {
               var data = phantasus.Util.getRexpData(res, rclass);
               var names = phantasus.Util.getFieldNames(res, rclass);
               var vs = [];
-              var rows = trueIndices.rows.length > 0 ? trueIndices.rows : dataset.rowIndices;
 
               names.forEach(function (name) {
                 if (name !== "symbol") {
@@ -161,11 +159,14 @@ phantasus.LimmaTool.prototype = {
 
               });
               // alert("Limma finished successfully");
+              dataset.setESSession(Promise.resolve(session));
+              dataset.setESVariable("es");
+              promise.resolve();
+
               project.trigger("trackChanged", {
                 vectors: vs,
                 display: []
               });
-              promise.resolve();
             })
           };
           phantasus.BlobFromPath.getFileObject(filePath, function (file) {

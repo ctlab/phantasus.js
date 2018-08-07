@@ -301,7 +301,7 @@ phantasus.Table.defaultRenderer = function (item, value) {
     }
     return s.join('');
   } else {
-    return '' + value;
+    return '' + value.toString();
   }
 };
 

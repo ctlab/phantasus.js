@@ -255,7 +255,8 @@ phantasus.FormBuilder.showInModal = function (options) {
       appendTo: options.appendTo,
       backdrop: options.backdrop,
       size: options.size,
-      focus: options.focus
+      focus: options.focus,
+      z: options.z // was used before yet dissappeared
     });
   // if (options.draggable) {
   // $div.draggable({
@@ -489,13 +490,67 @@ phantasus.FormBuilder.prototype = {
       html.push('</label></div>');
     } else if ('checkbox-list' === type) {
       html.push('<div name="' + name + '" class="checkbox-list"><div>');
+    } else if ('triple-select' === type) {
+      html.push('<h5 style="margin-top: 5px; margin-bottom: 5px;">' + name + ':</h5>');
+      html.push('<select style="' + field.comboboxStyle + '" name="' + field.firstName + '" id="' + id
+        + '" class="form-control">');
+      _.each(field.firstOptions, function (value, index) {
+          html.push('<option value="');
+          html.push(value);
+          html.push('"');
+          if (index === 0) {
+            html.push(' selected');
+          }
+          html.push('>');
+          html.push(value);
+          html.push('</option>');
+      });
+      html.push('</select>');
+
+      if (field.firstDivider) {
+        html.push('<span>' + field.firstDivider + '</span>');
+      }
+
+      html.push('<select style="' + field.comboboxStyle + '" name="' + field.secondName + '" id="' + id
+        + '" class="form-control">');
+      _.each(field.secondOptions, function (value, index) {
+        html.push('<option value="');
+        html.push(value);
+        html.push('"');
+        if (index === 0) {
+          html.push(' selected');
+        }
+        html.push('>');
+        html.push(value);
+        html.push('</option>');
+      });
+      html.push('</select>');
+
+      if (field.secondDivider) {
+        html.push('<span>' + field.secondDivider + '</span>');
+      }
+
+      html.push('<select style="' + field.comboboxStyle + '" name="' + field.thirdName + '" id="' + id
+        + '" class="form-control">');
+      _.each(field.thirdOptions, function (value, index) {
+        html.push('<option value="');
+        html.push(value);
+        html.push('"');
+        if (index === 0) {
+          html.push(' selected');
+        }
+        html.push('>');
+        html.push(value);
+        html.push('</option>');
+      });
+      html.push('</select>');
     } else if ('select' == type || type == 'bootstrap-select') {
       // if (field.multiple) {
       // field.type = 'bootstrap-select';
       // type = 'bootstrap-select';
       // }
       if (type == 'bootstrap-select') {
-        html.push('<select style="' + style + '" data-live-search="' + (field.search ? true : false) + '" data-selected-text-format="count" name="'
+        html.push('<select style="' + style + '" data-size="5" data-live-search="' + (field.search ? true : false) + '" data-selected-text-format="count" name="'
           + name + '" id="' + id
           + '" data-actions-box="' + (field.selectAll ? true : false) + '" class="selectpicker' + (this.formStyle !== 'inline' ? ' form-control' : '') + '"');
       } else {

@@ -338,14 +338,16 @@ phantasus.TopNFilter.prototype = {
         };
       }
       this.vector = vector;
-      var set = new phantasus.Set();
-      for (var i = 0, size = vector.size(); i < size; i++) {
-        var value = vector.getValue(i);
-        if (!isNaN(value)) {
-          set.add(value);
-        }
-      }
-      var values = set.values();
+      // Get exactly N top genes, not values
+
+      // var set = new phantasus.Set();
+      // for (var i = 0, size = vector.size(); i < size; i++) {
+      //   var value = vector.getValue(i);
+      //   if (!isNaN(value)) {
+      //     set.add(value);
+      //   }
+      // }
+      var values = _.clone(this.vector.array);
       // ascending order
       values.sort(function (a, b) {
         return (a === b ? 0 : (a < b ? -1 : 1));

@@ -51,13 +51,16 @@ phantasus.ActionManager = function () {
         $filterModal.on('mousewheel', function (e) {
           e.stopPropagation();
         });
-        var $filter = $('<div style="padding-bottom:30px;"></div>');
+        var $filter = $('<div></div>');
         $filter.appendTo($filterModal.find('.modal-body'));
-        var filterHtml = [];
-        filterHtml
-          .push('<div class="radio"><label><input type="radio" name="rowsOrColumns" value="rows" checked>Rows</label></div> ');
-        filterHtml
-          .push('<div class="radio"><label><input type="radio" name="rowsOrColumns" value="columns">Columns</label></div>');
+        var filterHtml = ['<ul class="nav nav-tabs" id="rowsOrColumns">',
+                          ' <li class="active"><a>Rows</a></li>',
+                          ' <li><a>Columns</a></li>',
+                          '</ul>'];
+        // filterHtml
+        //   .push('<div class="radio"><label><input type="radio" name="rowsOrColumns" value="rows" checked>Rows</label></div> ');
+        // filterHtml
+        //   .push('<div class="radio"><label><input type="radio" name="rowsOrColumns" value="columns">Columns</label></div>');
 
         var $filterChooser = $(filterHtml.join(''));
         $filterChooser.appendTo($filter);
@@ -87,10 +90,13 @@ phantasus.ActionManager = function () {
         rowFilterUI.$div.appendTo($filter);
         columnFilterUI.$div.appendTo($filter);
         columnFilterUI.$div.css('display', 'none');
-        var $filterRadio = $filterChooser.find('[name=rowsOrColumns]');
-        $filterRadio.on('change', function (e) {
-          var val = $filterRadio.filter(':checked').val();
-          if (val === 'columns') {
+        var filterTabs = $filterChooser.find('li');
+        filterTabs.on('click', function (e) {
+          filterTabs.toggleClass('active', false);
+          var target = $(e.currentTarget);
+          var mode = target.text();
+          target.toggleClass('active', true);
+          if (mode === 'Columns') {
             columnFilterUI.$div.show();
             rowFilterUI.$div.hide();
           } else {
@@ -969,7 +975,7 @@ phantasus.ActionManager = function () {
     new phantasus.HClusterTool(), new phantasus.MarkerSelection(),
     new phantasus.NearestNeighbors(), new phantasus.AdjustDataTool(),
     new phantasus.CollapseDatasetTool(), new phantasus.CreateAnnotation(), new phantasus.SimilarityMatrixTool(),
-    new phantasus.TransposeTool(), new phantasus.TsneTool(), new phantasus.DevAPI(),
+    new phantasus.TransposeTool(), new phantasus.TsneTool(),
     new phantasus.KmeansTool(), new phantasus.LimmaTool()].forEach(function (tool) {
     _this.add({
       ellipsis: false,
