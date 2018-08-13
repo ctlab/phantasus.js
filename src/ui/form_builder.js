@@ -508,7 +508,7 @@ phantasus.FormBuilder.prototype = {
       html.push('</select>');
 
       if (field.firstDivider) {
-        html.push('<span>' + field.firstDivider + '</span>');
+        html.push('<span id="' + name +'-first-divider">' + field.firstDivider + '</span>');
       }
 
       html.push('<select style="' + field.comboboxStyle + '" name="' + field.secondName + '" id="' + id
@@ -527,7 +527,7 @@ phantasus.FormBuilder.prototype = {
       html.push('</select>');
 
       if (field.secondDivider) {
-        html.push('<span>' + field.secondDivider + '</span>');
+        html.push('<span id="' + name +'-second-divider">' + field.secondDivider + '</span>');
       }
 
       html.push('<select style="' + field.comboboxStyle + '" name="' + field.thirdName + '" id="' + id

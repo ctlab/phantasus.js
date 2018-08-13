@@ -33,6 +33,16 @@ phantasus.AdjustDataTool.prototype = {
       });
     });
 
+    this.sweepAction.on('change', function (e) {
+      var action = e.currentTarget.value;
+      form.$form.find('#Sweep-first-divider').text(
+        action === 'Divide' ? 'each' : 'from each'
+      );
+      form.$form.find('#Sweep-second-divider').text(
+        action === 'Divide' ? 'by field:' : 'field:'
+      );
+    });
+
     form.$form.find('[name=scale_column_sum]').on('change', function (e) {
       form.setVisible('column_sum', form.getValue('scale_column_sum'));
     });
@@ -72,11 +82,8 @@ phantasus.AdjustDataTool.prototype = {
       type: 'checkbox',
       help: 'Subtract median, divide by median absolute deviation'
     }, {
-      name: 'use_selected_rows_and_columns_only',
-      type: 'checkbox'
-    }, {
       name: 'Sweep',
-      type: "triple-select",
+      type: 'triple-select',
       firstName: 'sweep-action',
       firstOptions: ['Divide', 'Subtract'],
       firstDivider: 'each',
