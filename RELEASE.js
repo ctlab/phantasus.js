@@ -1,2 +1,2 @@
-window.PHANTASUS_VERSION = '1.1.3';
-window.PHANTASUS_BUILD = 'staging';
+window.PHANTASUS_VERSION = 'DEVELOP';
+window.PHANTASUS_BUILD = 'NONE';
