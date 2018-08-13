@@ -42,6 +42,11 @@ phantasus.AdjustDataTool.prototype = {
   gui: function () {
     // z-score, robust z-score, log2, inverse
     return [{
+      name: 'warning',
+      showLabel: false,
+      type: 'custom',
+      value: 'Operations are performed in order listed'
+    }, {
       name: 'scale_column_sum',
       type: 'checkbox',
       help: 'Whether to scale each column sum to a specified value'

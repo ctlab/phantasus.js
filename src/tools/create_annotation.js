@@ -6,29 +6,56 @@ phantasus.CreateAnnotation.prototype = {
   },
   gui: function () {
     this.operationDict = {
-      'MEAN()': 'Mean',
-      'MAD()': 'MAD',
-      'MAX()': 'Max',
-      'MEDIAN()': 'Median',
-      'MIN()': 'Min',
-      'SUM()': 'Sum'
+      'Mean': 'MEAN()',
+      'MAD': 'MAD()',
+      'Median': 'MEDIAN()',
+      'Max': 'MAX()',
+      'Min': 'MIN()',
+      'Sum': 'SUM()',
     };
 
     return [{
+        name: 'annotate',
+        options: ['Columns', 'Rows'],
+        value: 'Rows',
+        type: 'radio'
+      }, {
         name: 'operation',
         value: _.first(Object.keys(this.operationDict)),
         type: 'select',
         options: Object.keys(this.operationDict)
+      }, {
+        name: 'use_selected_rows_and_columns_only',
+        type: 'checkbox'
       }];
   },
   execute: function (options) {
-    var self = this;
-
     var project = options.project;
-    var operation = options.input.operation;
-    var name = this.operationDict[operation];
-    var dataset = options.project.getFullDataset();
+    var name = options.input.operation;
+    var operation = this.operationDict[name];
+    var selectedOnly = options.input.use_selected_rows_and_columns_only;
+    var isColumns = options.input.annotate === 'Columns';
     var promise = $.Deferred();
+    var args = {
+      operation: name,
+      isColumns: isColumns
+    };
+    var dataset = selectedOnly
+      ? project.getSelectedDataset({
+        selectedRows: true,
+        selectedColumns: true,
+      })
+      : project.getFullDataset();
+
+    if (selectedOnly) {
+      var indices = phantasus.Util.getTrueIndices(dataset);
+      args.columns = indices.columns;
+      args.rows = indices.rows;
+    }
+
+    if (isColumns) {
+      dataset = phantasus.DatasetUtil.transposedView(dataset);
+    }
 
     var rowView = new phantasus.DatasetRowView(dataset);
     var vector = dataset.getRowMetadata().add(name);
@@ -59,33 +86,29 @@ phantasus.CreateAnnotation.prototype = {
       vector.setValue(idx, val.valueOf());
     }
 
-    phantasus.VectorUtil.maybeConvertStringToNumber(vector);
-
+    dataset = project.getFullDataset();
     dataset.getESSession().then(function (esSession) {
-      var args = {
-        es: esSession,
-        operation: self.operationDict[operation]
-      };
+      args.es = esSession;
 
       ocpu
         .call("calculatedAnnotation", args, function (newSession) {
           dataset.setESSession(new Promise(function (resolve) {resolve(newSession)}));
           dataset.setESVariable('es');
-          phantasus.DatasetUtil.probeDataset(dataset).then(function (result) {console.log(result);});
-
-          project.trigger('trackChanged', {
-            vectors: [vector],
-            display: ['text']
-          });
           promise.resolve();
+          phantasus.DatasetUtil.probeDataset(dataset).then(function (result) {console.log(result);});
         }, false, "::" + dataset.getESVariable())
         .fail(function () {
           promise.reject();
           throw new Error("Calculated annotation failed. See console");
         });
-
     });
 
+    phantasus.VectorUtil.maybeConvertStringToNumber(vector);
+    project.trigger('trackChanged', {
+      vectors: [vector],
+      display: ['text'],
+      columns: isColumns
+    });
 
     return promise;
   }
