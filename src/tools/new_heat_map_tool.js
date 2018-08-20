@@ -42,7 +42,7 @@ phantasus.NewHeatMapTool.prototype = {
           dataset.setESVariable('es');
           dataset.esSource = 'original';
           resolve(newSession);
-          console.log('Old dataset session: ', esSession, ', New dataset session: ', newSession);
+          //console.log('Old dataset session: ', esSession, ', New dataset session: ', newSession);
         }, false, "::" + currentESVariable);
 
         req.fail(function () {

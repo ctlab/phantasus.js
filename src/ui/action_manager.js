@@ -205,6 +205,15 @@ phantasus.ActionManager = function () {
     icon: 'fa fa-share-square-o'
   });
 
+  if (phantasus.Util.getURLParameter('debug') !== null) {
+    this.add({
+      name: phantasus.ProbeDebugTool.prototype.toString(),
+      cb: function (options) {
+        phantasus.HeatMap.showTool(new phantasus.ProbeDebugTool(), options.heatMap)
+      }
+    })
+  }
+
   this.add({
     name: 'Submit to Enrichr',
     cb: function (options) {

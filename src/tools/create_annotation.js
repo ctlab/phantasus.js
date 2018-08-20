@@ -94,8 +94,13 @@ phantasus.CreateAnnotation.prototype = {
         .call("calculatedAnnotation", args, function (newSession) {
           dataset.setESSession(new Promise(function (resolve) {resolve(newSession)}));
           dataset.setESVariable('es');
+          phantasus.VectorUtil.maybeConvertStringToNumber(vector);
+          project.trigger('trackChanged', {
+            vectors: [vector],
+            display: ['text'],
+            columns: isColumns
+          });
           promise.resolve();
-          phantasus.DatasetUtil.probeDataset(dataset).then(function (result) {console.log(result);});
         }, false, "::" + dataset.getESVariable())
         .fail(function () {
           promise.reject();
@@ -103,12 +108,7 @@ phantasus.CreateAnnotation.prototype = {
         });
     });
 
-    phantasus.VectorUtil.maybeConvertStringToNumber(vector);
-    project.trigger('trackChanged', {
-      vectors: [vector],
-      display: ['text'],
-      columns: isColumns
-    });
+
 
     return promise;
   }

@@ -29,7 +29,12 @@ phantasus.CollapseDatasetTool.prototype = {
     form.setVisible('percentile', false);
     form.$form.find('[name=collapse_method]').on('change', function (e) {
       form.setVisible('percentile', $(this).val() === phantasus.Percentile.toString());
-      form.setVisible('collapse', !phantasus.CollapseDatasetTool.Functions.fromString($(this).val()).selectOne)
+      var collapsableColumns = !phantasus.CollapseDatasetTool.Functions.fromString($(this).val()).selectOne;
+      form.setVisible('collapse', collapsableColumns);
+
+      if (!collapsableColumns) {
+        setValue('Rows');
+      }
     });
 
 
