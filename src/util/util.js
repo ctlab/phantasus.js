@@ -1958,3 +1958,11 @@ phantasus.Util.getTrueIndices = function (dataset) {
   //console.log(ans);
   return ans;
 };
+
+function safeTrim(string) {
+  if (string && string.trim) {
+    return string.trim();
+  } else {
+    return string;
+  }
+}
