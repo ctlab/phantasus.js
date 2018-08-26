@@ -939,6 +939,7 @@ phantasus.DatasetUtil.copy = function (dataset) {
   };
   if (dataset.getESSession()) {
     newDataset.setESSession(dataset.getESSession());
+    newDataset.setESVariable(dataset.getESVariable());
   }
   return newDataset;
 };
