@@ -101,6 +101,7 @@ phantasus.AdjustDataTool.prototype = {
   execute: function (options) {
     var project = options.project;
     var heatMap = options.heatMap;
+    var promise = $.Deferred();
 
     var sweepBy = (_.size(this.sweepRowColumnSelect) > 0) ? this.sweepRowColumnSelect[0].value : '(None)';
     if (!options.input.log_2 &&
@@ -254,19 +255,24 @@ phantasus.AdjustDataTool.prototype = {
       var req = ocpu.call("adjustDataset", functions, function (newSession) {
           dataset.setESSession(Promise.resolve(newSession));
           dataset.setESVariable("es");
+
+        new phantasus.HeatMap({
+          name: heatMap.getName(),
+          dataset: dataset,
+          parent: heatMap,
+          symmetric: project.isSymmetric() && dataset.getColumnCount() === dataset.getRowCount()
+        });
+
+        promise.resolve();
       }, false, "::" + dataset.getESVariable());
 
 
       req.fail(function () {
+        promise.reject();
         throw new Error("adjustDataset call to OpenCPU failed" + req.responseText);
       });
     });
 
-    return new phantasus.HeatMap({
-      name: heatMap.getName(),
-      dataset: dataset,
-      parent: heatMap,
-      symmetric: project.isSymmetric() && dataset.getColumnCount() === dataset.getRowCount()
-    });
+    return promise;
   }
 };
