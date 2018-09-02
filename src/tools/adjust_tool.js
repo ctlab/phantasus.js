@@ -69,6 +69,10 @@ phantasus.AdjustDataTool.prototype = {
       name: 'log_2',
       type: 'checkbox'
     }, {
+      name: 'one_plus_log_2',
+      type: 'checkbox',
+      help: 'Take log2(1 + x)'
+    }, {
       name: 'inverse_log_2',
       type: 'checkbox'
     }, {
@@ -101,7 +105,6 @@ phantasus.AdjustDataTool.prototype = {
   execute: function (options) {
     var project = options.project;
     var heatMap = options.heatMap;
-    var promise = $.Deferred();
 
     var sweepBy = (_.size(this.sweepRowColumnSelect) > 0) ? this.sweepRowColumnSelect[0].value : '(None)';
     if (!options.input.log_2 &&
@@ -110,6 +113,7 @@ phantasus.AdjustDataTool.prototype = {
         !options.input['robust_z-score'] &&
         !options.input.quantile_normalize &&
         !options.input.scale_column_sum &&
+        !options.input.one_plus_log_2 &&
         sweepBy === '(None)') {
         // No action selected;
         return;
@@ -180,14 +184,21 @@ phantasus.AdjustDataTool.prototype = {
       }
     }
 
+    if (options.input.one_plus_log_2) {
+      functions.onePlusLog2 = true;
+      for (var i = 0, nrows = dataset.getRowCount(); i < nrows; i++) {
+        for (var j = 0, ncols = dataset.getColumnCount(); j < ncols; j++) {
+          dataset.setValue(i, j, phantasus.Log2(dataset.getValue(
+            i, j) + 1));
+        }
+      }
+    }
+
     if (options.input.inverse_log_2) {
       functions.inverseLog2 = true;
       for (var i = 0, nrows = dataset.getRowCount(); i < nrows; i++) {
         for (var j = 0, ncols = dataset.getColumnCount(); j < ncols; j++) {
-          var value = dataset.getValue(i, j);
-          if (value >= 0) {
-            dataset.setValue(i, j, Math.pow(2, value));
-          }
+          dataset.setValue(i, j, Math.pow(2, dataset.getValue(i, j)));
         }
       }
     }

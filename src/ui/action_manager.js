@@ -205,11 +205,19 @@ phantasus.ActionManager = function () {
     icon: 'fa fa-share-square-o'
   });
 
-  if (phantasus.Util.getURLParameter('debug') !== null) {
+  if (phantasus.DEBUG_ENABLED) {
     this.add({
       name: phantasus.ProbeDebugTool.prototype.toString(),
       cb: function (options) {
         phantasus.HeatMap.showTool(new phantasus.ProbeDebugTool(), options.heatMap)
+      }
+    });
+
+    this.add({
+      name: "DEBUG: Expose project",
+      cb: function (options) {
+        window.project = options.heatMap.project;
+        window.dataset = options.heatMap.project.getFullDataset();
       }
     })
   }
