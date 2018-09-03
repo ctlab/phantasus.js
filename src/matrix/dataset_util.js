@@ -1204,8 +1204,12 @@ phantasus.DatasetUtil.probeDataset = function (dataset, session) {
           var isRowCountEqual = backendProbe.dims[0] === dataset.getRowCount();
           var isColumnCountEqual = backendProbe.dims[1] === dataset.getColumnCount();
           var exprsEqual = backendProbe.probe.every(verifyExprs);
-          var fDataNamesEqual = _.isEqual(fvarLabels, backendProbe.fvarLabels);
           var fDataValuesEqual = true;
+
+          var fDataNamesEqual = fvarLabels.every(function (value) {
+            return backendProbe.fvarLabels.indexOf(value) !== -1;
+          });
+
           if (fDataNamesEqual) {
             _.each(backendProbe.fdata, function (values, name) {
               if (!fDataValuesEqual) {

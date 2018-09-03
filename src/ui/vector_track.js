@@ -907,6 +907,7 @@ phantasus.VectorTrack.prototype = {
     var CLEAR_SELECTION = 'Clear Selection';
     var HIGHLIGHT_MATCHING_VALUES = 'Highlight Matching Values';
     var FIELDS = 'Choose Fields...';
+    var RENAME = 'Rename...';
     var DELETE = 'Delete...';
     var TOOLTIP = 'Show In Tooltip';
     var HIDE = 'Hide';
@@ -1200,6 +1201,9 @@ phantasus.VectorTrack.prototype = {
       separator: true
     });
     sectionToItems.Display.push({
+      name: RENAME
+    });
+    sectionToItems.Display.push({
       name: DELETE
     });
 
@@ -1424,91 +1428,170 @@ phantasus.VectorTrack.prototype = {
         } else if (item === ANNOTATE_SELECTION) {
           heatmap.getActionManager().execute(isColumns ? 'Annotate Selected Columns' : 'Annotate' +
             ' Selected Rows');
-        } else if (item === DELETE) {
-          phantasus.FormBuilder
-          .showOkCancel({
-            title: 'Delete',
-            content: 'Are you sure you want to delete '
-            + _this.name + '?',
-            okCallback: function () {
-              var metadata = isColumns ? project
-                .getFullDataset()
-                .getColumnMetadata()
-                : project
-                .getFullDataset()
-                .getRowMetadata();
-              metadata
-              .remove(phantasus.MetadataUtil
-              .indexOf(
-                metadata,
-                _this.name));
-              var sortKeys = isColumns ? project
-                .getColumnSortKeys()
-                : project
-                .getRowSortKeys();
-              var sortKeyIndex = _.indexOf(
-                sortKeys.map(function (key) {
-                  return key.field;
-                }), _this.name);
-              if (sortKeyIndex !== -1) {
-                sortKeys.splice(
-                  sortKeyIndex, 1);
-                if (isColumns) {
-                  project
-                  .setColumnSortKeys(
-                    sortKeys,
-                    true);
-                } else {
-                  project.setRowSortKeys(
-                    sortKeys, true);
+        } else if (item === RENAME) {
+          var formBuilder = new phantasus.FormBuilder();
+          formBuilder.append({
+            name: 'Name',
+            type: 'text',
+            value: _this.name,
+            required: true,
+          });
+          phantasus.FormBuilder.showInModal({
+            title: 'Rename...',
+            close: 'Apply',
+            html: formBuilder.$form,
+            focus: heatmap.getFocusEl(),
+            onClose: function () {
+              var oldName = _this.name;
+              var newName = formBuilder.getValue('Name');
+              var dataset = _this.project.getFullDataset();
+
+              if (oldName !== newName) {
+                var target = isColumns ?
+                  dataset.getColumnMetadata() :
+                  dataset.getRowMetadata();
+
+                var currentSessionPromise = dataset.getESSession();
+                var currentESVariable = dataset.getESVariable();
+
+                if (currentESVariable && currentSessionPromise) {
+
+                  dataset.setESSession(new Promise(function (resolve, reject) {
+                    currentSessionPromise.then(function (essession) {
+                      var args = {
+                        es: essession,
+                        isFeature: !isColumns,
+                        oldName: oldName,
+                        newName: newName
+                      };
+
+                      var req = ocpu.call("renameColumn", args, function (newSession) {
+                        dataset.setESVariable("es");
+                        resolve(newSession);
+
+                        var v = target.getByName(oldName);
+                        v.setName(newName);
+
+                        _this.project.trigger(isColumns? 'columnTrackRemoved' : 'rowTrackRemoved', {
+                          vector: _this.getFullVector()
+                        });
+
+                        _this.project.trigger('trackChanged', {
+                          vectors: [v],
+                          display: _this.settings.display,
+                          columns: isColumns
+                        });
+                      }, false, "::" + currentESVariable);
+
+
+                      req.fail(function () {
+                        reject();
+                        throw new Error("renameColumn call to OpenCPU failed" + req.responseText);
+                      });
+                    });
+                  }));
+
                 }
-              }
-              var groupByKeys = isColumns ? project
-                .getGroupColumns()
-                : project
-                .getGroupRows();
-              var groupByKeyIndex = _
-              .indexOf(
-                groupByKeys
-                .map(function (key) {
-                  return key.field;
-                }),
-                _this.name);
-              if (groupByKeyIndex !== -1) {
-                groupByKeys.splice(
-                  groupByKeyIndex, 1);
-                if (isColumns) {
-                  project
-                  .setGroupColumns(
-                    groupByKeys,
-                    true);
-                } else {
-                  project.setGroupRows(
-                    groupByKeys,
-                    true);
-                }
-              }
-              if (!isColumns) {
-                // remove from any group
-                // by or sort by
-                project
-                .trigger(
-                  'rowTrackRemoved',
-                  {
-                    vector: _this
-                    .getFullVector()
-                  });
-              } else {
-                project
-                .trigger(
-                  'columnTrackRemoved',
-                  {
-                    vector: _this
-                    .getFullVector()
-                  });
               }
             }
           });
+        } else if (item === DELETE) {
+          phantasus.FormBuilder
+            .showOkCancel({
+              title: 'Delete',
+              content: 'Are you sure you want to delete '
+              + _this.name + '?',
+              okCallback: function () {
+                var metadata = isColumns ? project
+                    .getFullDataset()
+                    .getColumnMetadata()
+                  : project
+                    .getFullDataset()
+                    .getRowMetadata();
+
+                metadata.remove(phantasus.MetadataUtil.indexOf(metadata, _this.name));
+                var sortKeys = isColumns ?
+                    project.getColumnSortKeys() :
+                    project.getRowSortKeys();
+
+                var sortKeyIndex = _.indexOf(
+                  sortKeys.map(function (key) {
+                    return key.field;
+                  }), _this.name);
+
+                if (sortKeyIndex !== -1) {
+                  sortKeys.splice(
+                    sortKeyIndex, 1);
+                  if (isColumns) {
+                    project
+                      .setColumnSortKeys(
+                        sortKeys,
+                        true);
+                  } else {
+                    project.setRowSortKeys(
+                      sortKeys, true);
+                  }
+                }
+                var groupByKeys = isColumns ?
+                  project.getGroupColumns() :
+                  project.getGroupRows();
+                var groupByKeyIndex = _
+                  .indexOf(
+                    groupByKeys
+                      .map(function (key) {
+                        return key.field;
+                      }),
+                    _this.name);
+                if (groupByKeyIndex !== -1) {
+                  groupByKeys.splice(
+                    groupByKeyIndex, 1);
+                  if (isColumns) {
+                    project
+                      .setGroupColumns(
+                        groupByKeys,
+                        true);
+                  } else {
+                    project.setGroupRows(
+                      groupByKeys,
+                      true);
+                  }
+                }
+
+                var dataset = _this.project.getFullDataset();
+                var currentSessionPromise = dataset.getESSession();
+                var currentESVariable = dataset.getESVariable();
+
+                if (currentESVariable && currentSessionPromise) {
+
+                  dataset.setESSession(new Promise(function (resolve, reject) {
+                    currentSessionPromise.then(function (essession) {
+                      var args = {
+                        es: essession,
+                        isFeature: !isColumns,
+                        oldName: _this.name,
+                        newName: _this.name
+                      };
+
+                      var req = ocpu.call("renameColumn", args, function (newSession) {
+                        dataset.setESVariable("es");
+                        resolve(newSession);
+
+                        _this.project.trigger(isColumns? 'columnTrackRemoved' : 'rowTrackRemoved', {
+                          vector: _this.getFullVector()
+                        });
+                      }, false, "::" + currentESVariable);
+
+
+                      req.fail(function () {
+                        reject();
+                        throw new Error("renameColumn call to OpenCPU failed" + req.responseText);
+                      });
+                    });
+                  }));
+
+                }
+              }
+            });
         } else if (item === CLEAR_SELECTION) {
           heatmap.getActionManager().execute(isColumns ? 'Clear Selected Columns' : 'Clear' +
             ' Selected Rows');
