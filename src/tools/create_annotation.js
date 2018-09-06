@@ -14,22 +14,22 @@ phantasus.CreateAnnotation.prototype = {
       'Sum': 'SUM()',
     };
 
-    return [{
+    return [ {
         name: 'annotate',
         options: ['Columns', 'Rows'],
         value: 'Rows',
         type: 'radio'
-      }, {
-        name: 'annotation_name',
-        value: '',
-        type: 'text',
-        help: 'Optional name. If not specified operation will be used as name',
-        autocomplete: 'off'
-      }, {
+      },{
         name: 'operation',
         value: _.first(Object.keys(this.operationDict)),
         type: 'select',
         options: Object.keys(this.operationDict)
+      }, {
+        name: 'annotation_name',
+        value: '',
+        type: 'text',
+        help: 'Optional annotation name. If not specified, the operation name will be used.',
+        autocomplete: 'off'
       }, {
         name: 'use_selected_rows_and_columns_only',
         type: 'checkbox'
