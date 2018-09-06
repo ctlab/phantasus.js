@@ -160,41 +160,67 @@ phantasus.HeatMapToolBar = function (heatMap) {
     menu.push('</a>');
     menu.push('<ul style="min-width:' + minWidth +
       ';" class="dropdown-menu" aria-labelledby="' + dropdownId + '">');
-    actions.forEach(function (name) {
+
+    var addSimpleAction = function (action) {
+      menu.push('<li>');
+      menu.push(
+        '<a class="phantasus-menu-item" data-action="' + action.name +
+        '" href="#">');
+      menu.push(action.name);
+      if (action.ellipsis) {
+        menu.push('...');
+      }
+      if (action.icon) {
+        menu.push('<span class="' + action.icon +
+          ' phantasus-menu-item-icon"></span> ');
+      }
+      if (action.which) {
+        menu.push('<span class="pull-right">');
+        if (action.commandKey) {
+          menu.push(phantasus.Util.COMMAND_KEY);
+        }
+        if (action.shiftKey) {
+          menu.push('Shift+');
+        }
+        menu.push(phantasus.KeyboardCharMap[action.which[0]]);
+        menu.push('</span>');
+      }
+
+      menu.push('</a>');
+      menu.push('</li>');
+    };
+
+    var addActionWithChildren = function (action) {
+      menu.push('<li class="dropdown-submenu">');
+      menu.push('<a class="phantasus-menu-item dummy" tabindex="-1" href="#">');
+      menu.push(action.name);
+      if (action.icon) {
+        menu.push('<span class="' + action.icon +
+          ' phantasus-menu-item-icon"></span> ');
+      }
+      menu.push('</a>');
+      menu.push('<ul class="dropdown-menu">');
+        action.children.forEach(defaultActionAdder);
+      menu.push('</ul>');
+      menu.push('</li>');
+    };
+
+    var defaultActionAdder = function (name) {
       if (name == null) {
         menu.push('<li role="separator" class="divider"></li>');
       } else {
         var action = heatMap.getActionManager().getAction(name);
-        if (action != null) {
-          menu.push('<li>');
-          menu.push(
-            '<a class="phantasus-menu-item" data-action="' + action.name +
-            '" href="#">');
-          menu.push(action.name);
-          if (action.ellipsis) {
-            menu.push('...');
-          }
-          if (action.icon) {
-            menu.push('<span class="' + action.icon +
-              ' phantasus-menu-item-icon"></span> ');
-          }
-          if (action.which) {
-            menu.push('<span class="pull-right">');
-            if (action.commandKey) {
-              menu.push(phantasus.Util.COMMAND_KEY);
-            }
-            if (action.shiftKey) {
-              menu.push('Shift+');
-            }
-            menu.push(phantasus.KeyboardCharMap[action.which[0]]);
-            menu.push('</span>');
-          }
-
-          menu.push('</a>');
-          menu.push('</li>');
+        if (action == null) {
+          return;
         }
+
+        action.children ?
+          addActionWithChildren(action) :
+          addSimpleAction(action);
       }
-    });
+    };
+
+    actions.forEach(defaultActionAdder);
 
     menu.push('</ul>');
     menu.push('</div>');
@@ -343,7 +369,7 @@ phantasus.HeatMapToolBar = function (heatMap) {
       heatMap.focus();
     }
   });
-  $menus.on('click', 'li > a', function (e) {
+  $menus.on('click', 'li > a:not(.dummy)', function (e) {
     e.preventDefault();
     heatMap.getActionManager().execute($(this).data('action'));
   }).on('blur', function (e) {

@@ -265,6 +265,27 @@ phantasus.ActionManager = function () {
     icon: 'fa fa-folder-open-o'
   });
 
+
+  this.add({
+    name: 'Annotate',
+    children: ['Annotate Rows', 'Annotate Columns'],
+    icon: 'fa fa-list'
+  });
+
+  this.add({
+    name: 'Annotate Rows',
+    cb: function (options) {
+      phantasus.HeatMap.showTool(new phantasus.AnnotateDatasetTool({target: 'Rows'}), options.heatMap);
+    }
+  });
+
+  this.add({
+    name: 'Annotate Columns',
+    cb: function (options) {
+      phantasus.HeatMap.showTool(new phantasus.AnnotateDatasetTool({target: 'Columns'}), options.heatMap);
+    }
+  });
+
   this.add({
     ellipsis: false,
     name: 'Save Image',
