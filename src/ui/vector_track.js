@@ -1454,6 +1454,10 @@ phantasus.VectorTrack.prototype = {
                 var currentSessionPromise = dataset.getESSession();
                 var currentESVariable = dataset.getESVariable();
 
+                var v = target.getByName(oldName);
+                v.setName(newName);
+
+
                 if (currentESVariable && currentSessionPromise) {
 
                   dataset.setESSession(new Promise(function (resolve, reject) {
@@ -1468,19 +1472,6 @@ phantasus.VectorTrack.prototype = {
                       var req = ocpu.call("renameColumn", args, function (newSession) {
                         dataset.setESVariable("es");
                         resolve(newSession);
-
-                        var v = target.getByName(oldName);
-                        v.setName(newName);
-
-                        _this.project.trigger(isColumns? 'columnTrackRemoved' : 'rowTrackRemoved', {
-                          vector: _this.getFullVector()
-                        });
-
-                        _this.project.trigger('trackChanged', {
-                          vectors: [v],
-                          display: _this.settings.display,
-                          columns: isColumns
-                        });
                       }, false, "::" + currentESVariable);
 
 
@@ -1490,8 +1481,17 @@ phantasus.VectorTrack.prototype = {
                       });
                     });
                   }));
-
                 }
+
+                _this.project.trigger(isColumns? 'columnTrackRemoved' : 'rowTrackRemoved', {
+                  vector: _this.getFullVector()
+                });
+
+                _this.project.trigger('trackChanged', {
+                  vectors: [v],
+                  display: _this.settings.display,
+                  columns: isColumns
+                });
               }
             }
           });
@@ -1575,10 +1575,6 @@ phantasus.VectorTrack.prototype = {
                       var req = ocpu.call("renameColumn", args, function (newSession) {
                         dataset.setESVariable("es");
                         resolve(newSession);
-
-                        _this.project.trigger(isColumns? 'columnTrackRemoved' : 'rowTrackRemoved', {
-                          vector: _this.getFullVector()
-                        });
                       }, false, "::" + currentESVariable);
 
 
@@ -1590,6 +1586,11 @@ phantasus.VectorTrack.prototype = {
                   }));
 
                 }
+
+                _this.project.trigger(isColumns? 'columnTrackRemoved' : 'rowTrackRemoved', {
+                  vector: _this.getFullVector()
+                });
+
               }
             });
         } else if (item === CLEAR_SELECTION) {
