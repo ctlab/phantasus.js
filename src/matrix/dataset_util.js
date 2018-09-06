@@ -127,7 +127,7 @@ phantasus.DatasetUtil.annotate = function (options) {
   _.each(options.annotations, function (ann, annotationIndex) {
     if (phantasus.Util.isArray(ann.file)) { // already parsed text
       functions[annotationIndex] = function (dataset) {
-        new phantasus.OpenFileTool().annotate(ann.file, dataset,
+        new phantasus.AnnotateDatasetTool().annotate(ann.file, dataset,
           isColumns, null, ann.datasetField, ann.fileField,
           ann.include);
       };
@@ -143,20 +143,20 @@ phantasus.DatasetUtil.annotate = function (options) {
         if (phantasus.Util.endsWith(fileName, '.gmt')) {
           var sets = new phantasus.GmtReader().parseLines(lines);
           functions[annotationIndex] = function (dataset) {
-            new phantasus.OpenFileTool().annotate(null, dataset,
+            new phantasus.AnnotateDatasetTool().annotate(null, dataset,
               isColumns, sets, ann.datasetField,
               ann.fileField);
           };
           deferred.resolve();
         } else if (phantasus.Util.endsWith(fileName, '.cls')) {
           functions[annotationIndex] = function (dataset) {
-            new phantasus.OpenFileTool().annotateCls(null, dataset,
+            new phantasus.AnnotateDatasetTool().annotateCls(null, dataset,
               fileName, isColumns, lines);
           };
           deferred.resolve();
         } else {
           functions[annotationIndex] = function (dataset) {
-            new phantasus.OpenFileTool().annotate(lines, dataset,
+            new phantasus.AnnotateDatasetTool().annotate(lines, dataset,
               isColumns, null, ann.datasetField,
               ann.fileField, ann.include, ann.transposed);
           };
