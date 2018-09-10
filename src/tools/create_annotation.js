@@ -42,7 +42,6 @@ phantasus.CreateAnnotation.prototype = {
     var operation = this.operationDict[opName];
     var selectedOnly = options.input.use_selected_rows_and_columns_only;
     var isColumns = options.input.annotate === 'Columns';
-    var promise = $.Deferred();
     var args = {
       operation: opName,
       isColumns: isColumns,
@@ -64,6 +63,26 @@ phantasus.CreateAnnotation.prototype = {
     if (isColumns) {
       dataset = phantasus.DatasetUtil.transposedView(dataset);
     }
+
+    var fullDataset = project.getFullDataset();
+    var session = fullDataset.getESSession();
+    var esVariable = fullDataset.getESVariable();
+
+    fullDataset.setESSession(new Promise(function (resolve, reject) {
+      session.then(function (esSession) {
+        args.es = esSession;
+
+        ocpu
+          .call("calculatedAnnotation", args, function (newSession) {
+            fullDataset.setESVariable('es');
+            resolve(newSession);
+          }, false, "::" + esVariable)
+          .fail(function () {
+            reject();
+            throw new Error("Calculated annotation failed. See console");
+          });
+      });
+    }));
 
     var rowView = new phantasus.DatasetRowView(dataset);
     var vector = dataset.getRowMetadata().add(colName);
@@ -94,30 +113,11 @@ phantasus.CreateAnnotation.prototype = {
       vector.setValue(idx, val.valueOf());
     }
 
-    dataset = project.getFullDataset();
-    dataset.getESSession().then(function (esSession) {
-      args.es = esSession;
-
-      ocpu
-        .call("calculatedAnnotation", args, function (newSession) {
-          dataset.setESSession(new Promise(function (resolve) {resolve(newSession)}));
-          dataset.setESVariable('es');
-          phantasus.VectorUtil.maybeConvertStringToNumber(vector);
-          project.trigger('trackChanged', {
-            vectors: [vector],
-            display: ['text'],
-            columns: isColumns
-          });
-          promise.resolve();
-        }, false, "::" + dataset.getESVariable())
-        .fail(function () {
-          promise.reject();
-          throw new Error("Calculated annotation failed. See console");
-        });
+    phantasus.VectorUtil.maybeConvertStringToNumber(vector);
+    project.trigger('trackChanged', {
+      vectors: [vector],
+      display: ['text'],
+      columns: isColumns
     });
-
-
-
-    return promise;
   }
 };
