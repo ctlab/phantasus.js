@@ -250,9 +250,6 @@ phantasus.DatasetUtil.read = function (fileOrUrl, options) {
           // console.log(dataset);
           // console.log('ready to resolve with', dataset);
           deferred.resolve(dataset);
-          if (!options.isGEO && !options.preloaded) {
-            phantasus.DatasetUtil.toESSessionPromise(dataset);
-          }
         }
       });
 
@@ -1152,7 +1149,8 @@ phantasus.DatasetUtil.probeDataset = function (dataset, session) {
     var verifyExprs = function (value, index) {
       var ij = query.exprs[index];
       var testValue = dataset.getValue(ij[0] - 1, ij[1] - 1);
-      return Math.abs(value - testValue) < epsExprs;
+      var rdaValue = parseFloat(value);
+      return (isNaN(rdaValue) && isNaN(testValue)) || Math.abs(rdaValue - testValue) < epsExprs;
     };
 
     var verifyFeature = function (name, backendValues) {
@@ -1170,6 +1168,10 @@ phantasus.DatasetUtil.probeDataset = function (dataset, session) {
       } else {
         backendValues = _.map(backendValues, function (value) { // backend might be numbers, frontend string
           return value === 'NA' ? null : value.toString();
+        });
+
+        frontendValues = _.map(frontendValues, function (value) {
+          return value || '';
         });
 
         return _.isEqual(backendValues,frontendValues);
