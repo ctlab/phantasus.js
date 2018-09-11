@@ -54,7 +54,7 @@ phantasus.Median.toString = function () {
  * @return {string}
  */
 phantasus.Median.rString = function () {
-  return 'median';
+  return 'fastMedian';
 };
 
 /**
@@ -143,7 +143,7 @@ phantasus.Mean.toString = function () {
   return 'Mean';
 };
 phantasus.Mean.rString = function () {
-  return 'mean';
+  return 'mean.default';
 };
 phantasus.Sum = function (vector) {
   var sum = 0;
