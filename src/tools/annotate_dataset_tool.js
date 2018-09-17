@@ -14,7 +14,11 @@ phantasus.AnnotateDatasetTool.prototype = {
       value: '',
       type: 'file',
       required: true,
-      help: phantasus.DatasetUtil.ANNOTATION_FILE_FORMATS
+      allowedInputs: {
+        computer: true,
+        url: true,
+        dropbox: true
+      }
     });
     array.options = {
       ok: this.options.file != null,

@@ -661,15 +661,15 @@ phantasus.FormBuilder.prototype = {
 
       }
 
+      var allowedInputs = field.allowedInputs || {all: true};
+
 
       // data types are file, dropbox, url, GEO, preloaded and predefined
-      options.push('My Computer');
-      options.push('URL');
-      options.push('GEO Datasets');
-      if (typeof Dropbox !== 'undefined') {
-        options.push('Dropbox');
-      }
-      options.push('Saved on server datasets');
+      if (allowedInputs.all || allowedInputs.computer) options.push('My Computer');
+      if (allowedInputs.all || allowedInputs.url) options.push('URL');
+      if (allowedInputs.all || allowedInputs.geo) options.push('GEO Datasets');
+      if ((allowedInputs.all || allowedInputs.dropbox) && typeof Dropbox !== 'undefined') options.push('Dropbox');
+      if (allowedInputs.all || allowedInputs.saved) options.push('Saved on server datasets');
       if (field.text != null) {
         options.push(field.text);
       }
