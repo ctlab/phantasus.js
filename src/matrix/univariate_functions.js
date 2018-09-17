@@ -211,7 +211,7 @@ phantasus.Min.toString = function () {
   return 'Min';
 };
 phantasus.Min.rString = function () {
-  return 'Min';
+  return 'min';
 };
 phantasus.Variance = function (list, mean) {
   if (mean == undefined) {
