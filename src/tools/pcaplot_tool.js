@@ -398,7 +398,8 @@ phantasus.PcaPlotTool.prototype = {
         var uniqColors = {};
         color = _.map(phantasus.VectorUtil.toArray(colorByVector), function (value) {
           if (!uniqColors[value]) {
-            if (colorModel.containsDiscreteColor(colorByVector, value)) {
+            if (colorModel.containsDiscreteColor(colorByVector, value)
+              && colorByVector.getProperties().get(phantasus.VectorKeys.DISCRETE)) {
               uniqColors[value] = colorModel.getMappedValue(colorByVector, value);
             } else if (colorModel.isContinuous(colorByVector)) {
               uniqColors[value] = colorModel.getContinuousMappedValue(colorByVector, value);
