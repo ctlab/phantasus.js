@@ -281,7 +281,8 @@ phantasus.HeatMap = function (options) {
           'Submit to Shiny GAM',
           'GSEA plot',
           'DEBUG: Probe Debug Tool',
-          'DEBUG: Expose project'],
+          'DEBUG: Expose project',
+          'DEBUG: Export Dataset History'],
         View: ['Zoom In', 'Zoom Out', null, 'Fit To Window', 'Fit Rows To Window', 'Fit Columns To Window', null, '100%', null, 'Options'],
         Edit: [
           'Copy Image',

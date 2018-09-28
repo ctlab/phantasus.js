@@ -219,6 +219,13 @@ phantasus.ActionManager = function () {
         window.project = options.heatMap.project;
         window.dataset = options.heatMap.project.getFullDataset();
       }
+    });
+
+    this.add({
+      name: "DEBUG: Export Dataset History",
+      cb: function (options) {
+        phantasus.HeatMap.showTool(new phantasus.ExportDatasetHistory(), options.heatMap)
+      }
     })
   }
 
