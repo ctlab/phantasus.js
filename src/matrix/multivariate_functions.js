@@ -6,6 +6,10 @@ phantasus.MaximumMeanProbe.toString = function() {
   return "Maximum Mean Probe";
 };
 
+phantasus.MaximumMeanProbe.rString = function() {
+  return "mean";
+};
+
 phantasus.MaximumMeanProbe.selectOne = true;
 
 phantasus.MaximumMedianProbe = function(probes) {
@@ -14,6 +18,10 @@ phantasus.MaximumMedianProbe = function(probes) {
 
 phantasus.MaximumMedianProbe.toString = function() {
   return "Maximum Median Probe";
+};
+
+phantasus.MaximumMedianProbe.rString = function() {
+  return "fastMedian";
 };
 
 phantasus.MaximumMedianProbe.selectOne = true;

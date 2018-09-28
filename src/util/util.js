@@ -1958,3 +1958,15 @@ phantasus.Util.getTrueIndices = function (dataset) {
   //console.log(ans);
   return ans;
 };
+
+phantasus.Util.safeTrim = function (string) {
+  if (string && string.trim) {
+    return string.trim();
+  } else {
+    return string;
+  }
+};
+
+phantasus.Util.getURLParameter = function (name) {
+  return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
+};

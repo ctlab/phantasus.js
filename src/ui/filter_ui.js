@@ -281,6 +281,8 @@ phantasus.FilterUI.prototype = {
       array = array.map(function (item) {
         if (item === '') {
           return {valueOf: function () { return ''; }, toString: function () { return '(None)'; }};
+        } else if (item === null || item === undefined) {
+          return {valueOf: function () { return item }, toString: function () { return '(NULL)'; }};
         }
 
         return item;

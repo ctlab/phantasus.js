@@ -253,7 +253,7 @@ phantasus.HeatMap = function (options) {
       $loadingImage: phantasus.Util.createLoadingEl(),
       menu: {
         File: [
-          'Open', null, 'Save Image', 'Save Dataset', 'Save Session', null, 'Close Tab', null, 'Rename' +
+          'Open', 'Annotate', null, 'Save Image', 'Save Dataset', 'Save Session', null, 'Close Tab', null, 'Rename' +
           ' Tab'],
         Tools: [
           'New Heat Map',
@@ -279,7 +279,9 @@ phantasus.HeatMap = function (options) {
           'PCA Plot',
           'Submit to Enrichr',
           'Submit to Shiny GAM',
-          'GSEA plot'],
+          'GSEA plot',
+          'DEBUG: Probe Debug Tool',
+          'DEBUG: Expose project'],
         View: ['Zoom In', 'Zoom Out', null, 'Fit To Window', 'Fit Rows To Window', 'Fit Columns To Window', null, '100%', null, 'Options'],
         Edit: [
           'Copy Image',

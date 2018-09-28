@@ -315,7 +315,7 @@ phantasus.TcgaUtil.getDataset = function (options) {
         var mutationDataset = new phantasus.SlicedDatasetView(
           datasetToReturn, sourceToIndices
             .get('mutations_merged.maf'));
-        new phantasus.OpenFileTool()
+        new phantasus.AnnotateDatasetTool()
           .annotate(sigGenesLines, mutationDataset, false,
             null, 'id', 'gene', ['q']);
         var qVector = mutationDataset.getRowMetadata().getByName(

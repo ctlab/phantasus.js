@@ -260,14 +260,13 @@ phantasus.VectorUtil.maybeConvertStringToNumber = function (vector) {
   var found = false;
   for (var i = 0, nrows = vector.size(); i < nrows; i++) {
     var s = vector.getValue(i);
-    if (s != null && s !== '' && s !== 'NA' && s !== 'NaN') {
-      if (!$.isNumeric(s)) {
-        return false;
-      } else {
-        found = true;
-      }
+    var tmp = parseFloat(s);
+    if (!isNaN(tmp) && isFinite(tmp)) {
+      newValues.push(tmp);
+      found = true;
+    } else {
+      return false;
     }
-    newValues.push(parseFloat(s));
   }
   if (!found) {
     return false;

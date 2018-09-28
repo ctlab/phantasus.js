@@ -127,7 +127,7 @@ phantasus.DatasetUtil.annotate = function (options) {
   _.each(options.annotations, function (ann, annotationIndex) {
     if (phantasus.Util.isArray(ann.file)) { // already parsed text
       functions[annotationIndex] = function (dataset) {
-        new phantasus.OpenFileTool().annotate(ann.file, dataset,
+        new phantasus.AnnotateDatasetTool().annotate(ann.file, dataset,
           isColumns, null, ann.datasetField, ann.fileField,
           ann.include);
       };
@@ -143,20 +143,20 @@ phantasus.DatasetUtil.annotate = function (options) {
         if (phantasus.Util.endsWith(fileName, '.gmt')) {
           var sets = new phantasus.GmtReader().parseLines(lines);
           functions[annotationIndex] = function (dataset) {
-            new phantasus.OpenFileTool().annotate(null, dataset,
+            new phantasus.AnnotateDatasetTool().annotate(null, dataset,
               isColumns, sets, ann.datasetField,
               ann.fileField);
           };
           deferred.resolve();
         } else if (phantasus.Util.endsWith(fileName, '.cls')) {
           functions[annotationIndex] = function (dataset) {
-            new phantasus.OpenFileTool().annotateCls(null, dataset,
+            new phantasus.AnnotateDatasetTool().annotateCls(null, dataset,
               fileName, isColumns, lines);
           };
           deferred.resolve();
         } else {
           functions[annotationIndex] = function (dataset) {
-            new phantasus.OpenFileTool().annotate(lines, dataset,
+            new phantasus.AnnotateDatasetTool().annotate(lines, dataset,
               isColumns, null, ann.datasetField,
               ann.fileField, ann.include, ann.transposed);
           };
@@ -250,9 +250,6 @@ phantasus.DatasetUtil.read = function (fileOrUrl, options) {
           // console.log(dataset);
           // console.log('ready to resolve with', dataset);
           deferred.resolve(dataset);
-          if (!options.isGEO && !options.preloaded) {
-            phantasus.DatasetUtil.toESSessionPromise(dataset);
-          }
         }
       });
 
@@ -939,6 +936,7 @@ phantasus.DatasetUtil.copy = function (dataset) {
   };
   if (dataset.getESSession()) {
     newDataset.setESSession(dataset.getESSession());
+    newDataset.setESVariable(dataset.getESVariable());
   }
   return newDataset;
 };
@@ -1138,35 +1136,93 @@ phantasus.DatasetUtil.probeDataset = function (dataset, session) {
     }
 
     var meta = phantasus.DatasetUtil.getMetadataArray(dataset);
-    var fvarLabels = meta.fvarLabels.map(function (fvarLabel) { return (fvarLabel.isNA)?'NA':fvarLabel.strval});
-    var indices = [];
-    var eps = 0.001;
+    var fData = dataset.getRowMetadata();
 
-    var testArrByEpsilon = function (value, index) {
-      var ij = indices[index];
-      return Math.abs(value - dataset.getValue(ij[0] - 1, ij[1] - 1)) < eps;
+    var fvarLabels = meta.fvarLabels.map(function (fvarLabel) { return (fvarLabel.isNA)?'NA':fvarLabel.strval});
+    var query = {
+      exprs: [],
+      fData: []
+    };
+    var epsExprs = 0.01;
+    var epsFdata = 0.1;
+
+    var verifyExprs = function (value, index) {
+      var ij = query.exprs[index];
+      var testValue = dataset.getValue(ij[0] - 1, ij[1] - 1);
+      var rdaValue = parseFloat(value);
+      return (isNaN(rdaValue) && isNaN(testValue)) || Math.abs(rdaValue - testValue) < epsExprs;
     };
 
-    for(var i = 0;i < 100; i++) {
-      var jIdx = _.random(0, dataset.getColumnCount() - 1);
-      var iIdx = _.random(0, dataset.getRowCount() - 1);
-      indices.push([iIdx + 1, jIdx + 1]);
-    }
+    var verifyFeature = function (name, backendValues) {
+      var indices = _.find(query.fData, {name: name}).indices;
+      var column = fData.getByName(name);
+      var frontendValues = _.map(indices, function (index) {return column.getValue(index - 1)});
+      var type = column.getProperties().get(phantasus.VectorKeys.DATA_TYPE);
+      if (type === 'number' || type === '[number]') {
+        return frontendValues.every(function (value, index) {
+          var backendValue = parseFloat(backendValues[index]);  // backend might be string, frontend number
+
+          return (isNaN(value) && isNaN(backendValue) === isNaN(value)) || // both NaN
+                  Math.abs(value - backendValue) < epsFdata;
+        });
+      } else {
+        backendValues = _.map(backendValues, function (value) { // backend might be numbers, frontend string
+          return value === 'NA' ? null : value.toString();
+        });
+
+        frontendValues = _.map(frontendValues, function (value) {
+          return value || '';
+        });
+
+        return _.isEqual(backendValues,frontendValues);
+      }
+    };
+
+    query.exprs = _.times(100, function () {
+      var jIdx = _.random(0, dataset.getColumnCount() - 1) + 1;
+      var iIdx = _.random(0, dataset.getRowCount() - 1) + 1;
+      return [iIdx, jIdx];
+    });
+
+    query.fData = _.map(fData.vectors, function (fDataVector) {
+      var fDataVectorMeta = {name: fDataVector.getName()};
+      fDataVectorMeta.indices = _.times(20, function () {
+        return _.random(0, fDataVector.size() - 1) + 1;
+      });
+
+      return fDataVectorMeta;
+    });
 
     targetSession.then(function (essession) {
       var request = {
         es: essession,
-        indices: indices
+        query: query
       };
 
       var req = ocpu.call("probeDataset", request, function (newSession) {
         newSession.getObject(function (success) {
           var backendProbe = JSON.parse(success);
 
-          resolve(backendProbe.dims[0] === dataset.getRowCount() &&
-            backendProbe.dims[1] === dataset.getColumnCount() &&
-            backendProbe.probe.every(testArrByEpsilon) &&
-            _.isEqual(fvarLabels, backendProbe.fvarLabels));
+          var isRowCountEqual = backendProbe.dims[0] === dataset.getRowCount();
+          var isColumnCountEqual = backendProbe.dims[1] === dataset.getColumnCount();
+          var exprsEqual = backendProbe.probe.every(verifyExprs);
+          var fDataValuesEqual = true;
+
+          var fDataNamesEqual = fvarLabels.every(function (value) {
+            return backendProbe.fvarLabels.indexOf(value) !== -1;
+          });
+
+          if (fDataNamesEqual) {
+            _.each(backendProbe.fdata, function (values, name) {
+              if (!fDataValuesEqual) {
+                return;
+              }
+
+              fDataValuesEqual = verifyFeature(name, values);
+            });
+          }
+
+          resolve(isRowCountEqual && isColumnCountEqual && exprsEqual && fDataNamesEqual && fDataValuesEqual);
         })
       }, false, "::" + dataset.getESVariable());
 

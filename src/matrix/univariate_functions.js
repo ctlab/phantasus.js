@@ -49,6 +49,14 @@ phantasus.Median = function (vector) {
 phantasus.Median.toString = function () {
   return 'Median';
 };
+
+/**
+ * @return {string}
+ */
+phantasus.Median.rString = function () {
+  return 'fastMedian';
+};
+
 /**
  * @ignore
  */
@@ -134,6 +142,9 @@ phantasus.Mean = function (vector) {
 phantasus.Mean.toString = function () {
   return 'Mean';
 };
+phantasus.Mean.rString = function () {
+  return 'mean.default';
+};
 phantasus.Sum = function (vector) {
   var sum = 0;
   var found = false;
@@ -148,6 +159,9 @@ phantasus.Sum = function (vector) {
 };
 phantasus.Sum.toString = function () {
   return 'Sum';
+};
+phantasus.Sum.rString = function () {
+  return 'sum';
 };
 phantasus.CountNonNaN = function (vector) {
   var count = 0;
@@ -178,6 +192,9 @@ phantasus.Max = function (vector) {
 phantasus.Max.toString = function () {
   return 'Max';
 };
+phantasus.Max.rString = function () {
+  return 'max';
+};
 phantasus.Min = function (vector) {
   var min = Number.MAX_VALUE;
   var found = false;
@@ -192,6 +209,9 @@ phantasus.Min = function (vector) {
 };
 phantasus.Min.toString = function () {
   return 'Min';
+};
+phantasus.Min.rString = function () {
+  return 'min';
 };
 phantasus.Variance = function (list, mean) {
   if (mean == undefined) {
