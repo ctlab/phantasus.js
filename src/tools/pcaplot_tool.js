@@ -305,17 +305,23 @@ phantasus.PcaPlotTool.prototype = {
   },
   init: function () {
     var _this = this;
-    var plotlyDefaults = phantasus.PcaPlotTool.getPlotlyDefaults();
-    var layout = plotlyDefaults.layout;
-    var config = plotlyDefaults.config;
     var dataset = _this.project.getFullDataset();
 
     return function () {
       _this.$chart.empty();
 
+      var plotlyDefaults = phantasus.PcaPlotTool.getPlotlyDefaults();
+      var data = [];
+      var layout = plotlyDefaults.layout;
+      var config = plotlyDefaults.config;
+
       var colorBy = _this.formBuilder.getValue('color');
       var sizeBy = _this.formBuilder.getValue('size');
       var shapeBy = _this.formBuilder.getValue('shape');
+      var pc1 = _this.formBuilder.getValue('x-axis');
+      var pc2 = _this.formBuilder.getValue('y-axis');
+      var label = _this.formBuilder.getValue('label');
+      var drawLabels = _this.formBuilder.getValue('visible_labels') === 'On';
 
       var getTrueVector = function (vector) {
         while (vector && vector.indices && vector.indices.length === 0) {
@@ -324,39 +330,34 @@ phantasus.PcaPlotTool.prototype = {
         return vector;
       };
 
-      _this.colorByVector = getTrueVector(dataset.getColumnMetadata().getByName(colorBy));
-      var colorByVector = _this.colorByVector;
+      var colorByVector = getTrueVector(dataset.getColumnMetadata().getByName(colorBy));
       var sizeByVector = getTrueVector(dataset.getColumnMetadata().getByName(sizeBy));
       var shapeByVector = getTrueVector(dataset.getColumnMetadata().getByName(shapeBy));
-
-      var pc1 = _this.formBuilder.getValue('x-axis');
-      var pc2 = _this.formBuilder.getValue('y-axis');
-
-      var label = _this.formBuilder.getValue('label');
       var textByVector = getTrueVector(dataset.getColumnMetadata().getByName(label));
+
+      _this.colorByVector = colorByVector;
 
       var na = 'mean';
       var color = colorByVector ? [] : null;
       var size = sizeByVector ? [] : 12;
       var shapes = shapeByVector ? [] : null;
-      var text = [];
-      var sizeFunction = null;
-      var drawLabels = _this.formBuilder.getValue('visible_labels') === 'On';
+      var text = null;
 
 
-      var data = [];
       if (sizeByVector) {
         var minMax = phantasus.VectorUtil.getMinMax(sizeByVector);
-        sizeFunction = d3.scale.linear().domain(
-          [minMax.min, minMax.max]).range([6, 19])
+        var sizeFunction = d3.scale.linear()
+          .domain([minMax.min, minMax.max])
+          .range([6, 19])
           .clamp(true);
 
-
-        size = _.map(phantasus.VectorUtil.toArray(sizeByVector), function (value) {return sizeFunction(value)});
+        size = _.map(phantasus.VectorUtil.toArray(sizeByVector), sizeFunction);
       }
-      if (textByVector) {
+
+      if (textByVector && drawLabels) {
         text = phantasus.VectorUtil.toArray(textByVector);
       }
+
       if (shapeByVector) {
         var allShapes = ['circle', 'square', 'diamond', 'cross', 'triangle-up', 'star', 'hexagram', 'bowtie', 'diamond-cross', 'hourglass', 'hash-open'];
         var uniqShapes = {};
@@ -386,7 +387,6 @@ phantasus.PcaPlotTool.prototype = {
             name: categoryName,
             legendgroup: 'shapes',
             mode: "markers",
-            text: text,
             type: "scatter",
             showlegend: true
           });
@@ -434,9 +434,13 @@ phantasus.PcaPlotTool.prototype = {
           size: size,
           symbol: shapes
         },
-        name: " ",
-        mode: "markers",
+        name: "",
+        mode: "markers+text",
         text: text,
+        textfont: {
+          size: 11
+        },
+        textposition: "top right",
         type: "scatter",
         showlegend: false
       });
@@ -444,141 +448,9 @@ phantasus.PcaPlotTool.prototype = {
       var expressionSetPromise = dataset.getESSession();
 
       expressionSetPromise.then(function (essession) {
-        var label_array = [];
-        var anchor_array = [];
-        var links, labels;
-
         var args = {
           es: essession,
           replacena: na
-        };
-
-        var prepareLabelData = function () {
-          if (!label) {
-            return;
-          }
-
-          var labelData = data.map(function (type) {
-            if (!type.text) {
-              return [];
-            }
-
-            var labels = type.x.map(function (x, idx) {
-              var size = (Array.isArray(type.marker.size)) ? type.marker.size[idx] : type.marker.size;
-
-              return {
-                x: x,
-                y: type.y[idx],
-                name: type.text[idx],
-                r: size
-              };
-            });
-            type.text = null;
-            return labels;
-          });
-
-          label_array = [].concat.apply([], labelData);
-          anchor_array = [].concat.apply([], labelData);
-        };
-
-        var putLabels = function () {
-          if (!label) {
-            return;
-          }
-
-          var plot = _this.$chart.children()[0];
-          var xrange = plot._fullLayout.xaxis.range;
-          var yrange = plot._fullLayout.yaxis.range;
-          var svg = d3.select(plot).select('.cartesianlayer .subplot .gridlayer');
-          svg.selectAll(".label").data([]).exit().remove();
-          svg.selectAll(".link").data([]).exit().remove();
-
-          var tempLabels = label_array.filter(function (label) {
-            return label.x >= xrange[0] && label.x <= xrange[1] && label.y >= yrange[0] && label.y <= yrange[1];
-          }).map(function (label) {
-            return {x: plot._fullLayout.xaxis.l2p(label.x), y: plot._fullLayout.yaxis.l2p(label.y), name: label.name};
-          });
-
-          var tempAnchors = anchor_array.filter(function (anchor) {
-            return anchor.x >= xrange[0] && anchor.x <= xrange[1] && anchor.y >= yrange[0] && anchor.y <= yrange[1];
-          }).map(function (anchor) {
-            return {x: plot._fullLayout.xaxis.l2p(anchor.x), y: plot._fullLayout.yaxis.l2p(anchor.y), r: anchor.r};
-          });
-
-          // Draw labels
-          labels = svg.selectAll(".label")
-            .data(tempLabels)
-            .enter()
-            .append("text")
-            .attr("class", "label")
-            .attr('text-anchor', 'start')
-            .text(function (d) {
-              return d.name;
-            })
-            .attr("x", function (d) {
-              return (d.x);
-            })
-            .attr("y", function (d) {
-              return (d.y);
-            })
-            .attr("fill", "black");
-
-          // Size of each label
-          var index = 0;
-          labels.each(function () {
-            tempLabels[index].width = this.getBBox().width;
-            tempLabels[index].height = this.getBBox().height;
-            index += 1;
-          });
-
-          // Draw links
-          links = svg.selectAll(".link")
-            .data(tempLabels)
-            .enter()
-            .append("line")
-            .attr("class", "link")
-            .attr("x1", function (d) {
-              return (d.x);
-            })
-            .attr("y1", function (d) {
-              return (d.y);
-            })
-            .attr("x2", function (d) {
-              return (d.x);
-            })
-            .attr("y2", function (d) {
-              return (d.y);
-            })
-            .attr("stroke-width", 0.6)
-            .attr("stroke", "gray");
-
-          d3.labeler()
-            .label(tempLabels)
-            .anchor(tempAnchors)
-            .width(plot._fullLayout._size.w)
-            .height(plot._fullLayout._size.h)
-            .force_bounds(true)
-            .start(1000);
-
-          labels
-            .transition()
-            .duration(800)
-            .attr("x", function (d) {
-              return (d.x);
-            })
-            .attr("y", function (d) {
-              return (d.y);
-            });
-
-          links
-            .transition()
-            .duration(800)
-            .attr("x2", function (d) {
-              return (d.x);
-            })
-            .attr("y2", function (d) {
-              return (d.y);
-            });
         };
 
         var drawResult = function () {
@@ -598,30 +470,21 @@ phantasus.PcaPlotTool.prototype = {
 
           layout.xaxis = {
             title: _this.pca.xlabs[pc1],
-            range: [xmin - (xmax - xmin) * 0.1, xmax + (xmax - xmin) * 0.1],
+            range: [xmin - (xmax - xmin) * 0.15, xmax + (xmax - xmin) * 0.15],
             zeroline: false
           };
           layout.yaxis = {
             title: _this.pca.xlabs[pc2],
-            range: [ymin - (ymax - ymin) * 0.1, ymax + (ymax - ymin) * 0.1],
+            range: [ymin - (ymax - ymin) * 0.15, ymax + (ymax - ymin) * 0.15],
             zeroline: false
           };
           layout.showlegend = true;
-          layout.config = config;
-          layout.data = data;
           var $chart = $('<div></div>');
-          var myPlot = $chart[0];
+          var plot = $chart[0];
           $chart.appendTo(_this.$chart);
 
-
-          if (drawLabels) {
-            prepareLabelData();
-          }
-
-          Plotly.newPlot(myPlot, data, layout, config).then(putLabels);
-          myPlot.on('plotly_afterplot', putLabels);
+          Plotly.newPlot(plot, data, layout, config).then(Plotly.annotate);
         };
-
 
         if (!_this.pca) {
           var req = ocpu.call("calcPCA", args, function (session) {
@@ -637,10 +500,7 @@ phantasus.PcaPlotTool.prototype = {
         } else {
           drawResult();
         }
-      });
-
-
-      expressionSetPromise.catch(function (reason) {
+      }).catch(function (reason) {
         alert("Problems occured during transforming dataset to ExpressionSet\n" + reason);
       });
 
@@ -692,22 +552,6 @@ phantasus.PcaPlotTool.getPlotlyDefaults = function () {
     }
   };
 
-  // var toImage = {
-  //   name: 'toImage',
-  //   title: 'Download plot as a svg',
-  //   icon: Icons.camera,
-  //   click: function (gd) {
-  //     var format = 'svg';
-  //     Lib.notifier('Taking snapshot - this may take a few seconds', 'long');
-  //     downloadImage(gd, {'format': format})
-  //     .then(function (filename) {
-  //       Lib.notifier('Snapshot succeeded - ' + filename, 'long');
-  //     })
-  //     .catch(function () {
-  //       Lib.notifier('Sorry there was a problem downloading your snapshot!', 'long');
-  //     });
-  //   }
-  // };
   var config = {
     modeBarButtonsToAdd: [],
     showLink: false,
