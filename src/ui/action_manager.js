@@ -220,14 +220,16 @@ phantasus.ActionManager = function () {
         window.dataset = options.heatMap.project.getFullDataset();
       }
     });
-
-    this.add({
-      name: "DEBUG: Export Dataset History",
-      cb: function (options) {
-        phantasus.HeatMap.showTool(new phantasus.ExportDatasetHistory(), options.heatMap)
-      }
-    })
   }
+
+  this.add({
+    name: phantasus.ExportDatasetHistory.prototype.toString(),
+    cb: function (options) {
+      new phantasus.ExportDatasetHistory(
+        options.heatMap.getProject()
+      );
+    }
+  })
 
   this.add({
     name: 'Submit to Enrichr',
