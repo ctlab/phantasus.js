@@ -233,7 +233,7 @@ phantasus.ActionManager = function () {
   });
 
   this.add({
-    name: 'GSEA plot',
+    name: phantasus.gseaTool.prototype.toString(),
     cb: function (options) {
       new phantasus.gseaTool(
         options.heatMap.getProject()
