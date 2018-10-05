@@ -1452,13 +1452,12 @@ phantasus.VectorTrack.prototype = {
                   dataset.getRowMetadata();
 
                 var currentSessionPromise = dataset.getESSession();
-                var currentESVariable = dataset.getESVariable();
 
                 var v = target.getByName(oldName);
                 v.setName(newName);
 
 
-                if (currentESVariable && currentSessionPromise) {
+                if (currentSessionPromise) {
 
                   dataset.setESSession(new Promise(function (resolve, reject) {
                     currentSessionPromise.then(function (essession) {
@@ -1470,9 +1469,8 @@ phantasus.VectorTrack.prototype = {
                       };
 
                       var req = ocpu.call("renameColumn", args, function (newSession) {
-                        dataset.setESVariable("es");
                         resolve(newSession);
-                      }, false, "::" + currentESVariable);
+                      }, false, "::es");
 
 
                       req.fail(function () {
@@ -1559,9 +1557,7 @@ phantasus.VectorTrack.prototype = {
 
                 var dataset = _this.project.getFullDataset();
                 var currentSessionPromise = dataset.getESSession();
-                var currentESVariable = dataset.getESVariable();
-
-                if (currentESVariable && currentSessionPromise) {
+                if (currentSessionPromise) {
 
                   dataset.setESSession(new Promise(function (resolve, reject) {
                     currentSessionPromise.then(function (essession) {
@@ -1573,9 +1569,8 @@ phantasus.VectorTrack.prototype = {
                       };
 
                       var req = ocpu.call("renameColumn", args, function (newSession) {
-                        dataset.setESVariable("es");
                         resolve(newSession);
-                      }, false, "::" + currentESVariable);
+                      }, false, "::es");
 
 
                       req.fail(function () {

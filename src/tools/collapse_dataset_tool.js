@@ -101,11 +101,8 @@ phantasus.CollapseDatasetTool.prototype = {
 
     var oldDataset = project.getFullDataset();
     var oldSession = oldDataset.getESSession();
-    var oldVariable = oldDataset.getESVariable();
 
-    if (oldVariable && oldSession) {
-
-      dataset.setESVariable('es');
+    if (oldSession) {
       dataset.setESSession(new Promise(function (resolve, reject) {
         oldSession.then(function (esSession) {
           var args = {
@@ -119,9 +116,8 @@ phantasus.CollapseDatasetTool.prototype = {
           ocpu
             .call("collapseDataset", args, function (newSession) {
               resolve(newSession);
-            }, false, "::" + oldVariable)
+            }, false, "::es")
             .fail(function () {
-              dataset.setESVariable(undefined);
               reject();
               throw new Error("Collapse dataset failed. See console");
             });

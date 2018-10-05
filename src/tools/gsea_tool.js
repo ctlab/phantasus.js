@@ -171,7 +171,7 @@ phantasus.gseaTool.prototype = {
             self.promise.resolve(self.imageURL);
           });
         });
-      }, false, "::" + fullDataset.getESVariable())
+      }, false, "::es")
         .fail(function () {
           self.promise.reject();
         });

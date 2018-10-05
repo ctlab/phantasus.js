@@ -52,7 +52,6 @@ phantasus.KmeansTool.prototype = {
           v.getProperties().set("phantasus.dataType", "string");
 
           dataset.setESSession(Promise.resolve(newSession));
-          dataset.setESVariable("es");
           promise.resolve();
 
           project.trigger("trackChanged", {
@@ -60,7 +59,7 @@ phantasus.KmeansTool.prototype = {
             display: ["color"]
           });
         })
-      }, false, "::" + dataset.getESVariable());
+      }, false, "::es");
       req.fail(function () {
         promise.reject();
         throw new Error("Kmeans call to OpenCPU failed" + req.responseText);

@@ -630,7 +630,7 @@ phantasus.PcaPlotTool.prototype = {
               drawResult();
             });
 
-          }, false, "::" + dataset.getESVariable());
+          }, false, "::es");
           req.fail(function () {
             new Error("PcaPlot call failed" + req.responseText);
           });

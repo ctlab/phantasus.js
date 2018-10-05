@@ -20,9 +20,6 @@ phantasus.Dataset = function (options) {
   if (options.esSession) {
     this.esSession = options.esSession;
   }
-  if (options.esVariable) {
-    this.esVariable = options.esVariable;
-  }
   this.isGEO = options.isGEO; // geo and preloaded datasets doesn't need to renew essession, they already have valid one
   this.preloaded = options.preloaded;
   this.seriesNames.push(options.name);
@@ -266,15 +263,6 @@ phantasus.Dataset.prototype = {
   getESSession: function () {
     //// console.log("phantasus.Dataset.prototype.getESSession ::", this);
     return this.esSession;
-  },
-
-  getESVariable: function () {
-    return this.esVariable;
-  },
-
-  setESVariable: function(variable) {
-    this.esVariable = variable;
   }
-
 };
 phantasus.Util.extend(phantasus.Dataset, phantasus.AbstractDataset);

@@ -936,7 +936,6 @@ phantasus.DatasetUtil.copy = function (dataset) {
   };
   if (dataset.getESSession()) {
     newDataset.setESSession(dataset.getESSession());
-    newDataset.setESVariable(dataset.getESVariable());
   }
   return newDataset;
 };
@@ -1115,7 +1114,6 @@ phantasus.DatasetUtil.toESSessionPromise = function (dataset) {
 
         var proto = new REXP(messageJSON);
         var req = ocpu.call('createES', proto, function (session) {
-          dataset.setESVariable('es');
           dataset.esSource = 'original';
           resolve(session);
         }, true);
@@ -1131,7 +1129,7 @@ phantasus.DatasetUtil.probeDataset = function (dataset, session) {
   var targetSession = session || dataset.getESSession();
 
   return new Promise(function (resolve) {
-    if (!targetSession || !dataset.getESVariable()) {
+    if (!targetSession) {
       return resolve(false);
     }
 
@@ -1224,7 +1222,7 @@ phantasus.DatasetUtil.probeDataset = function (dataset, session) {
 
           resolve(isRowCountEqual && isColumnCountEqual && exprsEqual && fDataNamesEqual && fDataValuesEqual);
         })
-      }, false, "::" + dataset.getESVariable());
+      }, false, "::es");
 
 
       req.fail(function () {

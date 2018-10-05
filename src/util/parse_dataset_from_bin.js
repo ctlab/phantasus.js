@@ -30,7 +30,6 @@ phantasus.ParseDatasetFromProtoBin.parse = function (session, callback, options)
                                                                       Object.keys(jsondata)[k],
                                                                       jsondata[Object.keys(jsondata)[k]],
                                                                       options);
-          dataset.setESVariable('es_' + (k + 1).toString());
           datasets.push(dataset);
         }
         callback(null, datasets);

@@ -6,7 +6,6 @@ phantasus.DatasetAdapter = function (dataset, rowMetadata, columnMetadata) {
   this.rowMetadata = rowMetadata || dataset.getRowMetadata();
   this.columnMetadata = columnMetadata || dataset.getColumnMetadata();
   this.esSession = dataset.esSession;
-  this.esVariable = dataset.esVariable;
   this.esSource = 'copied';
 };
 phantasus.DatasetAdapter.prototype = {
@@ -57,11 +56,5 @@ phantasus.DatasetAdapter.prototype = {
   },
   setESSession: function (esSession) {
     this.esSession = esSession;
-  },
-  getESVariable: function () {
-    return this.esVariable;
-  },
-  setESVariable: function (variable) {
-    this.esVariable = variable;
   }
 };
