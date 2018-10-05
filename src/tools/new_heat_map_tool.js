@@ -28,7 +28,6 @@ phantasus.NewHeatMapTool.prototype = {
     phantasus.DatasetUtil.shallowCopy(dataset);
     var indices = phantasus.Util.getTrueIndices(dataset);
     var currentSessionPromise = dataset.getESSession();
-    var currentESVariable = dataset.getESVariable();
 
     dataset.setESSession(new Promise(function (resolve, reject) {
       currentSessionPromise.then(function (esSession) {
@@ -39,11 +38,10 @@ phantasus.NewHeatMapTool.prototype = {
         };
 
         var req = ocpu.call("subsetES", args, function (newSession) {
-          dataset.setESVariable('es');
           dataset.esSource = 'original';
           resolve(newSession);
           //console.log('Old dataset session: ', esSession, ', New dataset session: ', newSession);
-        }, false, "::" + currentESVariable);
+        }, false, "::es");
 
         req.fail(function () {
           reject();

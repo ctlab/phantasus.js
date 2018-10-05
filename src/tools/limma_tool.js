@@ -160,7 +160,6 @@ phantasus.LimmaTool.prototype = {
               });
               // alert("Limma finished successfully");
               dataset.setESSession(Promise.resolve(session));
-              dataset.setESVariable("es");
               promise.resolve();
 
               project.trigger("trackChanged", {
@@ -173,7 +172,7 @@ phantasus.LimmaTool.prototype = {
             r.readAsArrayBuffer(file);
           });
         })
-      }, false, "::" + dataset.getESVariable());
+      }, false, "::es");
       req.fail(function () {
         promise.reject();
         throw new Error("Limma call failed" + req.responseText);

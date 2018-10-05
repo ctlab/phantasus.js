@@ -66,7 +66,6 @@ phantasus.CreateAnnotation.prototype = {
 
     var fullDataset = project.getFullDataset();
     var session = fullDataset.getESSession();
-    var esVariable = fullDataset.getESVariable();
 
     fullDataset.setESSession(new Promise(function (resolve, reject) {
       session.then(function (esSession) {
@@ -74,9 +73,8 @@ phantasus.CreateAnnotation.prototype = {
 
         ocpu
           .call("calculatedAnnotation", args, function (newSession) {
-            fullDataset.setESVariable('es');
             resolve(newSession);
-          }, false, "::" + esVariable)
+          }, false, "::es")
           .fail(function () {
             reject();
             throw new Error("Calculated annotation failed. See console");

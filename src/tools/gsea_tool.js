@@ -16,7 +16,7 @@ phantasus.gseaTool = function (project) {
 
   var annotations = ['(None)'].concat(phantasus.MetadataUtil.getMetadataNames(fullDataset.getColumnMetadata()))
 
-  this.$dialog = $('<div style="background:white;" title="gsea plot tool"><h4>Please select rows.</h4></div>');
+  this.$dialog = $('<div style="background:white;" title="' + this.toString() + '"><h4>Please select rows.</h4></div>');
   this.$el = $('<div class="container-fluid" style="height: 100%">'
     + '<div class="row" style="height: 100%">'
     + '<div data-name="configPane" class="col-xs-2"></div>'
@@ -110,7 +110,7 @@ phantasus.gseaTool = function (project) {
 
 phantasus.gseaTool.prototype = {
   toString: function () {
-    return 'gsea Plot';
+    return 'GSEA Plot';
   },
   request: function (project) {
     this.$chart.empty();
@@ -171,7 +171,7 @@ phantasus.gseaTool.prototype = {
             self.promise.resolve(self.imageURL);
           });
         });
-      }, false, "::" + fullDataset.getESVariable())
+      }, false, "::es")
         .fail(function () {
           self.promise.reject();
         });

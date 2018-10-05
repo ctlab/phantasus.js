@@ -35,8 +35,8 @@ phantasus.shinyGamTool.prototype = {
           window.open(link.split('"')[1], '_blank');
         });
         promise.resolve();
-      }, false, '::' + dataset.getESVariable()).fail(function () {
-        console.error('Failed to submit to shiny GAM analysis. Reason: ' + req.responseText);
+      }, false, '::es').fail(function () {
+        console.error('Failed to submit to shiny GAM analysis');
         promise.reject();
       });
     });
