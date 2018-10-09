@@ -1165,7 +1165,10 @@ phantasus.DatasetUtil.probeDataset = function (dataset, session) {
         });
       } else {
         backendValues = _.map(backendValues, function (value) { // backend might be numbers, frontend string
-          return value === null || value === undefined || value === 'NA' ? 'NA' : value.toString();
+          return  value === null ||
+                  value === undefined ||
+                  value === '' ||
+                  value === 'NA' ? 'NA' : value.toString();
         });
 
         frontendValues = _.map(frontendValues, function (value) {
