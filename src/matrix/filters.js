@@ -347,7 +347,7 @@ phantasus.TopNFilter.prototype = {
       //     set.add(value);
       //   }
       // }
-      var values = _.clone(this.vector.array);
+      var values = phantasus.VectorUtil.toArray(this.vector);
       // ascending order
       values.sort(function (a, b) {
         return (a === b ? 0 : (a < b ? -1 : 1));
