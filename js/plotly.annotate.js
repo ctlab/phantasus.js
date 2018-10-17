@@ -21,7 +21,7 @@ Plotly.annotate = function (plot) {
           y: trace.y[i] || 0,
           width: rendered[trace.text[i]].width || 0,
           height: rendered[trace.text[i]].height || 0,
-          r: Array.isArray(trace.marker.size) ? trace.marker.size[i] : trace.marker.size,
+          r: (Array.isArray(trace.marker.size) ? trace.marker.size[i] : trace.marker.size) / 2,
           annotation: {
             x: trace.x[i] || 0,
             y: trace.y[i] || 0,
@@ -34,7 +34,7 @@ Plotly.annotate = function (plot) {
               size: Array.isArray(trace.textfont.size) ? trace.textfont.size[i] : trace.textfont.size
             },
             showarrow: true,
-            arrowhead: 2,
+            arrowhead: 0,
             arrowsize: 1,
             arrowwidth: 1,
             arrowcolor: '#636363'
@@ -79,7 +79,7 @@ Plotly.annotate = function (plot) {
       return {
         x: plot._fullLayout.xaxis.l2p(point.x),
         y: plot._fullLayout.yaxis.l2p(point.y),
-        r: point.r + 2
+        r: point.r * 2 + 2
       }
     });
 
@@ -92,8 +92,16 @@ Plotly.annotate = function (plot) {
       .start(1000);
 
     pointsInRange.forEach(function (point, i) {
-      point.annotation.ax = labels[i].x - anchors[i].x + labels[i].width / 2;
-      point.annotation.ay = labels[i].y - anchors[i].y - labels[i].height / 2;
+      var annotation_x = labels[i].x + labels[i].width / 2;
+      var annotation_y = labels[i].y - labels[i].height / 2;
+      var dx = annotation_x - anchors[i].x;
+      var dy = annotation_y - anchors[i].y;
+      var outer = 1 - point.r / Math.sqrt(dx * dx + dy * dy);
+
+      point.annotation.x = plot._fullLayout.xaxis.p2l(annotation_x - dx * outer);
+      point.annotation.y = plot._fullLayout.yaxis.p2l(annotation_y - dy * outer);
+      point.annotation.ax = dx * outer;
+      point.annotation.ay = dy * outer;
     });
 
     Plotly.redraw(plot);
