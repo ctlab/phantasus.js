@@ -14,6 +14,9 @@ Plotly.annotate = function (plot) {
     });
 
   var points = [].concat.apply([], plot._fullData.map(function (trace) {
+    if (trace.mode.indexOf("text") == -1) {
+      return [];
+    }
     return trace.x.reduce(function (acc, item, i) {
       if (trace.text && trace.text[i]) {
         var point = {
@@ -48,7 +51,9 @@ Plotly.annotate = function (plot) {
   }));
 
   plot.data.forEach(function (trace) {
-    trace.text = null;
+    trace.mode = trace.mode.split('+').filter(function(item) {
+      return item !== "text"
+    }).join('+');
   });
 
   var annotating = false;
