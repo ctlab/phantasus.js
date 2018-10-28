@@ -118,6 +118,8 @@ phantasus.gseaTool.prototype = {
     this.promise = $.Deferred();
 
     var selectedDataset = project.getSelectedDataset();
+    var parentDataset = selectedDataset.dataset;
+
     var fullDataset = project.getFullDataset();
 
     if (selectedDataset.getRowCount() === fullDataset.getRowCount()) {
@@ -127,7 +129,8 @@ phantasus.gseaTool.prototype = {
     }
 
     var idxs = selectedDataset.rowIndices.map(function (idx) {
-      return idx + 1; // #' @param selectedGenes indexes of selected genes (starting from one, in the order of fData)
+      return parentDataset.rowIndices[idx] + 1;
+      //return idx + 1; // #' @param selectedGenes indexes of selected genes (starting from one, in the order of fData)
     });
 
     var self = this;
