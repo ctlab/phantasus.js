@@ -19,6 +19,7 @@ phantasus.LandingPage = function (pageOptions) {
 
   html.push('<h4>Open your own file</h4>');
   html.push('<div data-name="formRow" class="center-block"></div>');
+  html.push('<div data-name="historyRow" class="center-block"></div>');
   html.push('<div style="display: none;" data-name="preloadedDataset"><h4>Or select a preloaded' +
     ' dataset</h4></div>');
   html.push('</div>');
@@ -64,6 +65,20 @@ phantasus.LandingPage = function (pageOptions) {
     this.tabManager.$tabContent.appendTo($(this.pageOptions.el));
   }
 
+  this.$historyDatsetsEl = $el.find('[data-name=historyRow]');
+  this.datasetHistory = new phantasus.DatasetHistory();
+
+  this.datasetHistory.on('open', function (evt) {
+    var dataset = evt.dataset;
+
+    _this.open({dataset: dataset});
+  });
+
+  this.datasetHistory.on('changed', function () {
+    _this.datasetHistory.render(_this.$historyDatsetsEl);
+  });
+
+  this.datasetHistory.render(this.$historyDatsetsEl);
 }
 ;
 
@@ -137,6 +152,7 @@ phantasus.LandingPage.prototype = {
 
     // console.log(optionsArray);
     for (var i = 0; i < optionsArray.length; i++) {
+      var originalOptions = _.clone(optionsArray[i]);
       var options = optionsArray[i];
       options.tabManager = _this.tabManager;
       options.focus = i === 0;
@@ -145,8 +161,10 @@ phantasus.LandingPage.prototype = {
 
       if (options.dataset.options && options.dataset.options.isGEO) {
         createGEOHeatMap(options);
+        _this.datasetHistory.store(originalOptions)
       } else if (options.dataset.options && options.dataset.options.preloaded) {
         createPreloadedHeatMap(options);
+        _this.datasetHistory.store(originalOptions)
       }
       else {
         // console.log("before loading heatmap from landing_page", options);
