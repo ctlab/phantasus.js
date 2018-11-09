@@ -789,22 +789,24 @@ phantasus.FormBuilder.prototype = {
           }
 
           _this.$form.find('#' + name + '_url')
-          .css('display',
-            showUrlInput ? '' : 'none');
+              .css('display', showUrlInput ? 'block' : 'none');
+
           _this.$form.find('[name=' + name + '_text]')
-          .css('display',
-            showTextInput ? '' : 'none');
+              .css('display', showTextInput ? 'block' : 'none');
+
           _this.$form.find('#' + name + '_geo')
-              .css('display',
-                showGSEInput ? '' : 'none');
+              .css('display', showGSEInput ? 'block' : 'none');
+
           _this.$form.find('#' + name + '_pre')
-              .css('display',
-                showPreInput ? '' : 'none');
+              .css('display', showPreInput ? 'block' : 'none');
         });
 
       // URL
       var URL_dispatcher = function (form) {
-        var text = $.trim(form.find('[name=' + name + '_url]').val());;
+        var $div = form.find('#' + name + '_url');
+        var $input = form.find('[name=' + name + '_url]');
+
+        var text = $.trim($input.val());
         if (isMultiple) {
           text = text.split(',').filter(function (t) {
             t = $.trim(t);
@@ -815,6 +817,9 @@ phantasus.FormBuilder.prototype = {
           name: name,
           value: text
         });
+
+        $input.val('');
+        $div.css('display', 'none');
       };
 
       //??
@@ -830,7 +835,10 @@ phantasus.FormBuilder.prototype = {
       });
       // GEO
       var geo_dispatcher = function (form) {
-        var text = $.trim(form.find('[name=' + name + '_geo]').val());
+        var $div = form.find('#' + name + '_geo');
+        var $input = form.find('[name=' + name + '_geo]');
+
+        var text = $.trim($input.val());
           // console.log('environment', evt);
           // console.log('object to trigger with result', _this, 'name', name, 'text', text);
         _this.trigger('change', {
@@ -839,12 +847,18 @@ phantasus.FormBuilder.prototype = {
             name: text.toUpperCase(),
             isGEO: true
           }
-        })
+        });
+
+        $input.val('');
+        $div.css('display', 'none');
       };
 
       // Preloaded
       var PRE_dispatcher = function (form) {
-        var text = $.trim(form.find('[name=' + name + '_pre]').val());
+        var $div = form.find('#' + name + '_pre');
+        var $input = form.find('[name=' + name + '_pre]');
+
+        var text = $.trim($input.val());
         // console.log('environment', evt);
         //console.log('object to trigger with result', _this, 'name', name, 'text', text);
         _this.trigger('change', {
@@ -853,7 +867,10 @@ phantasus.FormBuilder.prototype = {
             name: text,
             preloaded: true
           }
-        })
+        });
+
+        $input.val('');
+        $div.css('display', 'none');
       };
       // browse file selected
       _this.$form.on('change', '[name=' + name + '_file]', function (evt) {
@@ -868,7 +885,9 @@ phantasus.FormBuilder.prototype = {
 
       //SUBMIT
       _this.$form.on('submit', function () {
-        var val = $(this).find('[name=' + name + '_picker]').val(); //many
+        var typePicker = $(this).find('[name=' + name + '_picker]');
+
+        var val = typePicker.val(); //many
         var showUrlInput = val === 'URL';
         var showGSEInput = val === 'GEO Datasets';
         var showPreInput = val === 'Saved on server datasets';
