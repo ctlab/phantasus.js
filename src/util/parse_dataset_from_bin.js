@@ -51,6 +51,7 @@ phantasus.ParseDatasetFromProtoBin.getDataset = function (session, seriesName, j
   //var id = jsondata.rownames.values;
   var metaNames = jsondata.colMetaNames.values;
   var rowMetaNames = jsondata.rowMetaNames.values;
+  var experimentData = jsondata.experimentData;
 
   // console.log(seriesName, jsondata);
 
@@ -70,7 +71,8 @@ phantasus.ParseDatasetFromProtoBin.getDataset = function (session, seriesName, j
     dataType: 'Float32',
     esSession: session,
     isGEO: options.isGEO,
-    preloaded: options.preloaded
+    preloaded: options.preloaded,
+    experimentData: experimentData
   });
 
   // console.log(seriesName, dataset);

@@ -56,5 +56,8 @@ phantasus.DatasetAdapter.prototype = {
   },
   setESSession: function (esSession) {
     this.esSession = esSession;
+  },
+  getExperimentData: function () {
+    return this.dataset.getExperimentData();
   }
 };

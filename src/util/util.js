@@ -1802,6 +1802,10 @@ phantasus.Util.NotPredicate.prototype = {
 
 
 phantasus.Util.getFieldNames = function (rexp) {
+  if (_.size(rexp.attrValue) === 0) {
+    return [];
+  }
+
   var strValues = rexp.attrValue[0].stringValue;
   var res = [];
   strValues.forEach(function (v) {

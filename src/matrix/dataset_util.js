@@ -1079,7 +1079,7 @@ phantasus.DatasetUtil.toESSessionPromise = function (dataset) {
         }, {
           rclass: "STRING",
           stringValue: meta.fvarLabels
-        }],
+        }], // TODO: EXPERIMENT DATA
         attrName: "names",
         attrValue: {
           rclass: "STRING",

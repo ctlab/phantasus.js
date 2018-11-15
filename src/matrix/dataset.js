@@ -26,6 +26,7 @@ phantasus.Dataset = function (options) {
   this.seriesArrays.push(options.array ? options.array : phantasus.Dataset
     .createArray(options));
   this.seriesDataTypes.push(options.dataType);
+  this.experimentData = options.experimentData;
   //// console.log(this);
 };
 /**
@@ -263,6 +264,9 @@ phantasus.Dataset.prototype = {
   getESSession: function () {
     //// console.log("phantasus.Dataset.prototype.getESSession ::", this);
     return this.esSession;
+  },
+  getExperimentData: function () {
+    return this.experimentData;
   }
 };
 phantasus.Util.extend(phantasus.Dataset, phantasus.AbstractDataset);
