@@ -66,19 +66,16 @@ phantasus.LandingPage = function (pageOptions) {
   }
 
   this.$historyDatsetsEl = $el.find('[data-name=historyRow]');
-  this.datasetHistory = new phantasus.DatasetHistory();
 
-  this.datasetHistory.on('open', function (evt) {
-    var dataset = evt.dataset;
-
-    _this.open({dataset: dataset});
+  phantasus.datasetHistory.on('open', function (evt) {
+    _this.open({dataset: evt});
   });
 
-  this.datasetHistory.on('changed', function () {
-    _this.datasetHistory.render(_this.$historyDatsetsEl);
+  phantasus.datasetHistory.on('changed', function () {
+    phantasus.datasetHistory.render(_this.$historyDatsetsEl);
   });
 
-  this.datasetHistory.render(this.$historyDatsetsEl);
+  phantasus.datasetHistory.render(this.$historyDatsetsEl);
 }
 ;
 
@@ -161,10 +158,9 @@ phantasus.LandingPage.prototype = {
 
       if (options.dataset.options && options.dataset.options.isGEO) {
         createGEOHeatMap(options);
-        _this.datasetHistory.store(originalOptions)
       } else if (options.dataset.options && options.dataset.options.preloaded) {
         createPreloadedHeatMap(options);
-        _this.datasetHistory.store(originalOptions)
+
       }
       else {
         // console.log("before loading heatmap from landing_page", options);

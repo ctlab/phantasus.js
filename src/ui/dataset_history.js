@@ -3,7 +3,7 @@ phantasus.DatasetHistory = function () {};
 
 phantasus.DatasetHistory.prototype = {
   STORAGE_KEY: 'dataset_history',
-  STORAGE_LIMIT: 5,
+  STORAGE_LIMIT: 10,
 
   render: function ($parent) {
     var _this = this;
@@ -14,11 +14,11 @@ phantasus.DatasetHistory.prototype = {
     var currentHistory = this.get();
 
     if (!_.size(currentHistory)) {
-      $('<h5>But apparently there is no datasets in your history. Great time to start new journey</h5>').appendTo($parent);
+      $('<h5>But apparently there is no datasets in your history.</h5>').appendTo($parent);
     } else {
       var ul = $('<ul></ul>');
       _.each(currentHistory, function (elem, idx) {
-        var li = $('<li><a href="#" data-idx="' + idx + '">' + elem.name + _this.datasetTypeToString(elem.options.dataset) +'</a></li>');
+        var li = $('<li title="' + elem.name + _this.datasetTypeToString(elem) +'"><a href="#" data-idx="' + idx + '">' + elem.name + _this.datasetTypeToString(elem) +'</a></li>');
         li.appendTo(ul);
       });
       ul.appendTo($parent);
@@ -30,15 +30,16 @@ phantasus.DatasetHistory.prototype = {
         var clickedIndex = $(evt.target).data('idx');
 
         _this.remove(clickedIndex);
-        _this.trigger('open', currentHistory[clickedIndex].options);
+        _this.trigger('open', currentHistory[clickedIndex].openParameters);
       });
     }
   },
 
-  store: function (datasetOpenOptions) {
+  store: function (options) {
     var current = JSON.parse(localStorage.getItem(this.STORAGE_KEY) || '[]');
-    current.unshift({name: datasetOpenOptions.dataset.file, options: datasetOpenOptions});
+    current.unshift({name: options.name, openParameters: options.openParameters, description: options.description});
     current.length = Math.min(current.length, this.STORAGE_LIMIT);
+    current = _.uniq(current, function (elem) { return elem.name; });
 
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(current));
 
@@ -55,11 +56,9 @@ phantasus.DatasetHistory.prototype = {
     return JSON.parse(localStorage.getItem(this.STORAGE_KEY) || '[]');
   },
 
-  datasetTypeToString: function (dataset) {
-    if (dataset.options.isGEO) {
-      return " - GEO dataset";
-    } else if (dataset.options.preloaded) {
-      return " - preloaded dataset";
+  datasetTypeToString: function (datasetHistory) {
+    if (datasetHistory.description) {
+      return " - " + datasetHistory.description;
     } else {
       return " - unknown dataset";
     }
@@ -67,3 +66,5 @@ phantasus.DatasetHistory.prototype = {
 };
 
 phantasus.Util.extend(phantasus.DatasetHistory, phantasus.Events);
+
+phantasus.datasetHistory = new phantasus.DatasetHistory();
