@@ -1047,6 +1047,16 @@ phantasus.DatasetUtil.toESSessionPromise = function (dataset) {
       var array = phantasus.DatasetUtil.getContentArray(dataset);
       var meta = phantasus.DatasetUtil.getMetadataArray(dataset);
 
+      var expData = dataset.getExperimentData() || {
+        name: { values: "" },
+        lab: { values: "" },
+        contact: { values: "" },
+        title: { values: "" },
+        url: { values: "" },
+        other: { empty: { values: "" } },
+        pubMedIds: { values: "" },
+      };
+
       var messageJSON = {
         rclass: "LIST",
         rexpValue: [{
@@ -1079,7 +1089,7 @@ phantasus.DatasetUtil.toESSessionPromise = function (dataset) {
         }, {
           rclass: "STRING",
           stringValue: meta.fvarLabels
-        }], // TODO: EXPERIMENT DATA
+        }],
         attrName: "names",
         attrValue: {
           rclass: "STRING",
@@ -1098,9 +1108,82 @@ phantasus.DatasetUtil.toESSessionPromise = function (dataset) {
           }, {
             strval: "fvarLabels",
             isNA: false
+          }, {
+            strval: "eData",
+            isNA: false
           }]
         }
       };
+
+      messageJSON.rexpValue.push({
+        rclass: "LIST",
+        attrName: "names",
+        attrValue: {
+          rclass: "STRING",
+          stringValue: Object.keys(expData).map(function (name) {
+            return {
+              strval: name,
+              isNA: false
+            }
+          })
+        },
+        rexpValue: [{
+          rclass: "STRING",
+          stringValue: [{
+            strval: expData.name.values.toString(),
+            isNA: false
+          }]
+        }, {
+          rclass: "STRING",
+          stringValue: [{
+            strval: expData.lab.values.toString(),
+            isNA: false
+          }]
+        }, {
+          rclass: "STRING",
+          stringValue: [{
+            strval: expData.contact.values.toString(),
+            isNA: false
+          }]
+        }, {
+          rclass: "STRING",
+          stringValue: [{
+            strval: expData.title.values.toString(),
+            isNA: false
+          }]
+        }, {
+          rclass: "STRING",
+          stringValue: [{
+            strval: expData.url.values.toString(),
+            isNA: false
+          }]
+        }, {
+          rclass: "LIST",
+          attrName: "names",
+          attrValue: {
+            rclass: "STRING",
+            stringValue: Object.keys(expData.other).map(function (name) {
+              return {
+                strval: name,
+                isNA: false
+              }
+            })
+          },
+          rexpValue: _.map(expData.other, function (value) {
+            return {
+              rclass: "STRING",
+              stringValue: [{strval: value.values.toString(), isNA: false}]
+            }
+          })
+        }, {
+          rclass: "STRING",
+          stringValue: [{
+            strval: expData.pubMedIds.values.toString(),
+            isNA: false
+          }]
+        }]
+      });
+
       var ProtoBuf = dcodeIO.ProtoBuf;
       ProtoBuf.protoFromFile('./message.proto', function (error, success) {
         if (error) {

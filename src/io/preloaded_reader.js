@@ -10,7 +10,7 @@ phantasus.PreloadedReader.prototype = {
       if (!err) {
         var datasetTitle = "preloaded dataset";
         var experimentData = dataset[0].getExperimentData();
-        if (experimentData) datasetTitle = experimentData.title.values.toString();
+        if (experimentData) datasetTitle = experimentData.title.values.toString() || datasetTitle;
 
         phantasus.datasetHistory.store({
           name: name.name,

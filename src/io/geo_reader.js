@@ -8,7 +8,7 @@ phantasus.GeoReader.prototype = {
       if (!err) {
         var datasetTitle = "GEO dataset";
         var experimentData = dataset[0].getExperimentData();
-        if (experimentData) datasetTitle = experimentData.title.values.toString();
+        if (experimentData) datasetTitle = experimentData.title.values.toString() || datasetTitle;
         var geoAccesion = name.split('-')[0];
 
         phantasus.datasetHistory.store({
