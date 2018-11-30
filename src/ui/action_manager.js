@@ -242,6 +242,13 @@ phantasus.ActionManager = function () {
   });
 
   this.add({
+    name: phantasus.AnnotationConvertTool.prototype.toString(),
+    cb: function (options) {
+      phantasus.initAnnotationConvertTool(options);
+    }
+  });
+
+  this.add({
     which: [67], // C
     commandKey: true,
     name: 'Copy'
