@@ -242,13 +242,6 @@ phantasus.ActionManager = function () {
   });
 
   this.add({
-    name: phantasus.AnnotationConvertTool.prototype.toString(),
-    cb: function (options) {
-      phantasus.initAnnotationConvertTool(options);
-    }
-  });
-
-  this.add({
     which: [67], // C
     commandKey: true,
     name: 'Copy'
@@ -275,21 +268,38 @@ phantasus.ActionManager = function () {
 
   this.add({
     name: 'Annotate',
-    children: ['Annotate Rows', 'Annotate Columns'],
+    children: [
+      'Annotate rows',
+      'Annotate columns'],
     icon: 'fa fa-list'
   });
 
   this.add({
-    name: 'Annotate Rows',
+    name: 'Annotate rows',
+    children: [
+      'From file', 'From database']
+  });
+
+
+
+  this.add({
+    name: 'Annotate columns',
+    cb: function (options) {
+      phantasus.HeatMap.showTool(new phantasus.AnnotateDatasetTool({target: 'Columns'}), options.heatMap);
+    }
+  });
+
+  this.add({
+    name: 'From file',
     cb: function (options) {
       phantasus.HeatMap.showTool(new phantasus.AnnotateDatasetTool({target: 'Rows'}), options.heatMap);
     }
   });
 
   this.add({
-    name: 'Annotate Columns',
+    name: 'From database',
     cb: function (options) {
-      phantasus.HeatMap.showTool(new phantasus.AnnotateDatasetTool({target: 'Columns'}), options.heatMap);
+      phantasus.initAnnotationConvertTool(options);
     }
   });
 

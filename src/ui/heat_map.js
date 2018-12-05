@@ -280,7 +280,6 @@ phantasus.HeatMap = function (options) {
           'Submit to Enrichr',
           'Submit to Shiny GAM',
           phantasus.gseaTool.prototype.toString(),
-          phantasus.AnnotationConvertTool.prototype.toString(),
           'DEBUG: Probe Debug Tool',
           'DEBUG: Expose project'],
         View: ['Zoom In', 'Zoom Out', null, 'Fit To Window', 'Fit Rows To Window', 'Fit Columns To Window', null, '100%', null, 'Options'],
