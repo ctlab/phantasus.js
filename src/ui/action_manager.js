@@ -236,6 +236,7 @@ phantasus.ActionManager = function () {
     name: phantasus.gseaTool.prototype.toString(),
     cb: function (options) {
       new phantasus.gseaTool(
+        options.heatMap,
         options.heatMap.getProject()
       );
     }

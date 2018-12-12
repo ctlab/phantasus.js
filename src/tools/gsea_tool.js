@@ -1,4 +1,4 @@
-phantasus.gseaTool = function (project) {
+phantasus.gseaTool = function (heatmap, project) {
   var self = this;
 
   var fullDataset = project.getFullDataset();
@@ -17,13 +17,16 @@ phantasus.gseaTool = function (project) {
   var annotations = ['(None)'].concat(phantasus.MetadataUtil.getMetadataNames(fullDataset.getColumnMetadata()))
 
   this.$dialog = $('<div style="background:white;" title="' + this.toString() + '"><h4>Please select rows.</h4></div>');
-  this.$el = $('<div class="container-fluid" style="height: 100%">'
-    + '<div class="row" style="height: 100%">'
-    + '<div data-name="configPane" class="col-xs-2"></div>'
-    + '<div class="col-xs-10" style="height: 100%">'
-    + '   <div style="position:relative; height: 100%;" data-name="chartDiv"></div>'
-    + '</div>'
-    + '</div></div>');
+  this.$el = $([
+    '<div class="container-fluid" style="height: 100%">',
+    ' <div class="row" style="height: 100%">',
+    '   <div data-name="configPane" class="col-xs-2"></div>',
+    '   <div class="col-xs-10" style="height: 100%">',
+    '     <div style="position:relative; height: 100%;" data-name="chartDiv"></div>',
+    ' </div>',
+    '</div>',
+    '</div>'].join('')
+  );
 
   var $notifyRow = this.$dialog.find('h4');
 
@@ -45,6 +48,9 @@ phantasus.gseaTool = function (project) {
     options: annotations,
     value: _.first(annotations),
     type: 'select'
+  }, {
+    type: 'button',
+    name: 'export_to_SVG'
   }/*, {
     name: 'chart_width',
     type: 'range',
@@ -76,8 +82,14 @@ phantasus.gseaTool = function (project) {
       self.promise.reject('Cancelled');
     }
 
-    self.request(project).then(self.draw.bind(self), function (e) {
+    self.$configPane.find('button').css('display', 'none');
+    self.request(heatmap, project).then(function (url) {
+      self.url = url;
+      self.draw(url);
+      self.$configPane.find('button').css('display', 'block');
+    }, function (e) {
       self.$chart.empty();
+      self.$configPane.find('button').css('display', 'none');
     });
   }, 500);
 
@@ -86,8 +98,9 @@ phantasus.gseaTool = function (project) {
   project.getRowSelectionModel().on('selectionChanged.chart', onChange);
 
 
-  var $configPane = this.$el.find('[data-name=configPane]');
-  this.formBuilder.$form.appendTo($configPane);
+  this.$configPane = this.$el.find('[data-name=configPane]');
+  this.formBuilder.$form.appendTo(this.$configPane);
+  this.$configPane.find('button').css('display', 'none');
   this.$el.appendTo(this.$dialog);
   this.$chart = this.$el.find("[data-name=chartDiv]");
   this.$dialog.dialog({
@@ -105,6 +118,18 @@ phantasus.gseaTool = function (project) {
     width: 900
   });
 
+  this.$configPane.find('button').on('click', function () {
+    var a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style = "display: none";
+    a.href = self.url;
+    a.download = "gsea-plot.svg";
+    a.click();
+    setTimeout(function () {
+      document.body.removeChild(a);
+    }, 0)
+  });
+
   onChange();
 };
 
@@ -112,7 +137,7 @@ phantasus.gseaTool.prototype = {
   toString: function () {
     return 'GSEA Plot';
   },
-  request: function (project) {
+  request: function (heatmap, project) {
     this.$chart.empty();
     phantasus.Util.createLoadingEl().appendTo(this.$chart);
     this.promise = $.Deferred();
@@ -152,7 +177,8 @@ phantasus.gseaTool.prototype = {
       width: width,
       height: height,
       vertical: vertical,
-      addHeatmap: true
+      addHeatmap: true,
+      pallete: heatmap.heatmap.colorScheme.getColors()
     };
 
     var annotateBy = this.formBuilder.getValue('annotate_by');
@@ -186,5 +212,6 @@ phantasus.gseaTool.prototype = {
     this.$chart.empty();
     var svg = $('<img src="' + url + '" style="max-width: 100%; height: 100%; position: absolute; margin: auto; top: 0; left: 0; right: 0; bottom: 0;">');
     svg.appendTo(this.$chart);
+
   }
 };
