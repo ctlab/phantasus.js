@@ -932,6 +932,9 @@ phantasus.VectorTrack.prototype = {
     var DISPLAY_TEXT_AND_FONT = 'Encode Text Using Font';
     var DISPLAY_STRUCTURE = 'Show Chemical Structure';
     var DISPLAY_CONTINUOUS = 'Continuous';
+    var VIEW_STRING = "View as string";
+    var VIEW_NUMBER = "View as number";
+
     var positions = this.positions;
     var heatmap = this.heatmap;
 
@@ -1197,6 +1200,18 @@ phantasus.VectorTrack.prototype = {
       disabled: heatmap.getVisibleTrackNames(this.isColumns).length <= 1
 
     });
+
+    if (!isColumns) {
+      sectionToItems.Display.push({
+        name: VIEW_STRING,
+        checked: !isNumber
+      });
+      sectionToItems.Display.push({
+        name: VIEW_NUMBER,
+        checked: isNumber
+      });
+    }
+
     sectionToItems.Display.push({
       separator: true
     });
@@ -1424,6 +1439,18 @@ phantasus.VectorTrack.prototype = {
             close: 'Close',
             html: formBuilder.$form,
             focus: heatmap.getFocusEl()
+          });
+        } else if (item === VIEW_STRING || item === VIEW_NUMBER) {
+          var vectorName = _this.name;
+          var dataset = _this.project.getFullDataset();
+          var v = dataset.getRowMetadata().getByName(vectorName);
+
+
+          v.getProperties().set("phantasus.dataType", item === VIEW_STRING ? "string" : "number");
+          _this.project.trigger('trackChanged', {
+            vectors: [v],
+            display: _this.settings.display,
+            columns: isColumns
           });
         } else if (item === ANNOTATE_SELECTION) {
           heatmap.getActionManager().execute(isColumns ? 'Annotate Selected Columns' : 'Annotate' +
