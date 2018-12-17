@@ -19,8 +19,8 @@ phantasus.initAnnotationConvertTool = function (options) {
         phantasus.annotationDBMeta.init = true;
 
         phantasus.annotationDBMeta.dbs = result;
-        new phantasus.AnnotationConvertTool(options.heatMap);
         $el.dialog('destroy').remove();
+        new phantasus.AnnotationConvertTool(options.heatMap);
       })
     });
 
