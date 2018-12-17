@@ -6,7 +6,7 @@ phantasus.gseaTool = function (heatmap, project) {
     .getRowMetadata());
 
   if (numberFields.length === 0) {
-    throw new Error('No number fields available. Cannot rank by');
+    throw new Error('No fields in row annotation appropriate for ranking.');
   }
 
   var rows = numberFields.map(function (field) {
@@ -119,15 +119,7 @@ phantasus.gseaTool = function (heatmap, project) {
   });
 
   this.$configPane.find('button').on('click', function () {
-    var a = document.createElement("a");
-    document.body.appendChild(a);
-    a.style = "display: none";
-    a.href = self.url;
-    a.download = "gsea-plot.svg";
-    a.click();
-    setTimeout(function () {
-      document.body.removeChild(a);
-    }, 0)
+    phantasus.Util.promptBLOBdownload(self.url, "gsea-plot.svg");
   });
 
   onChange();

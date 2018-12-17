@@ -1974,3 +1974,24 @@ phantasus.Util.safeTrim = function (string) {
 phantasus.Util.getURLParameter = function (name) {
   return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
 };
+
+phantasus.Util.saveAsSVG = function (svgEl, name) {
+  svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  var svgData = svgEl.outerHTML;
+  var preface = '<?xml version="1.0" standalone="no"?>\r\n';
+  var svgBlob = new Blob([preface, svgData], {type:"image/svg+xml;charset=utf-8"});
+  var svgUrl = URL.createObjectURL(svgBlob);
+  phantasus.Util.promptBLOBdownload(svgUrl, name);
+};
+
+phantasus.Util.promptBLOBdownload = function (url, name) {
+  var a = document.createElement("a");
+  document.body.appendChild(a);
+  a.style = "display: none";
+  a.href = url;
+  a.download = name;
+  a.click();
+  setTimeout(function () {
+    document.body.removeChild(a);
+  }, 0)
+};
