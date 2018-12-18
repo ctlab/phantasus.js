@@ -161,7 +161,7 @@ phantasus.PcaPlotTool = function (chartOptions) {
   formBuilder.append({
     name: 'export_to_SVG',
     type: 'button'
-  })
+  });
 
 
   function setVisibility() {
@@ -202,10 +202,7 @@ phantasus.PcaPlotTool = function (chartOptions) {
     svgs[1].childNodes.forEach(function (x) {
       svgx.appendChild(x.cloneNode(true));
     });
-    var drags = svgx.getElementsByClassName("drag");
-    while (drags.length > 0) {
-      drags[0].remove()
-    }
+    $(svgx).find('.drag').remove();
     phantasus.Util.saveAsSVG(svgx, "pca-plot.svg");
   });
 

@@ -162,6 +162,10 @@ phantasus.ChartTool = function (chartOptions) {
     max: 800,
     step: 10
   });
+  formBuilder.append({
+    name: 'export_to_SVG',
+    type: 'button'
+  });
 
   var chartTypeToParameter = {
     'row profile': {
@@ -254,6 +258,22 @@ phantasus.ChartTool = function (chartOptions) {
   var $configPane = this.$el.find('[data-name=configPane]');
   formBuilder.$form.appendTo($configPane);
   this.$el.appendTo($dialog);
+
+  this.exportButton = this.$el.find('button[name=export_to_SVG]');
+  this.exportButton.on('click', function () {
+    var svgs = _this.$el.find("svg");
+    if (svgs.length < 1) {
+      throw Error('Chart is not ready. Cannot export')
+    }
+
+    var svgx = svgs[0].cloneNode(true);
+    svgs[0].childNodes.forEach(function (x) {
+      svgx.appendChild(x.cloneNode(true));
+    });
+    phantasus.Util.saveAsSVG(svgx, "chart.svg");
+  });
+
+
   $dialog.dialog({
     dialogClass: 'phantasus',
     close: function (event, ui) {
@@ -453,7 +473,7 @@ phantasus.ChartTool.prototype = {
 
       }
     }
-    var myChart = echarts.init(options.el);
+    var myChart = echarts.init(options.el, null, {renderer: 'svg'});
     myChart.setOption(chart);
 
   },
@@ -562,7 +582,7 @@ phantasus.ChartTool.prototype = {
       series: series
     };
 
-    var myChart = echarts.init(options.el);
+    var myChart = echarts.init(options.el, null, {renderer: 'svg'});
     myChart.setOption(chart);
   },
   /**
@@ -695,7 +715,7 @@ phantasus.ChartTool.prototype = {
       ]
     };
 
-    var myChart = echarts.init(options.el);
+    var myChart = echarts.init(options.el, null, {renderer: 'svg'});
     myChart.setOption(chart);
   },
   draw: function () {
