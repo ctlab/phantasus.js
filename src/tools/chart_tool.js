@@ -267,9 +267,6 @@ phantasus.ChartTool = function (chartOptions) {
     }
 
     var svgx = svgs[0].cloneNode(true);
-    svgs[0].childNodes.forEach(function (x) {
-      svgx.appendChild(x.cloneNode(true));
-    });
     phantasus.Util.saveAsSVG(svgx, "chart.svg");
   });
 
