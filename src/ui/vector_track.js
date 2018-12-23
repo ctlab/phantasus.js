@@ -934,6 +934,7 @@ phantasus.VectorTrack.prototype = {
     var DISPLAY_CONTINUOUS = 'Continuous';
     var VIEW_STRING = "View as string";
     var VIEW_NUMBER = "View as number";
+    var COPY_VALUES = "Copy selected values from " + this.name;
 
     var positions = this.positions;
     var heatmap = this.heatmap;
@@ -967,7 +968,7 @@ phantasus.VectorTrack.prototype = {
       });
     }
     sectionToItems.Selection.push({
-      name: 'Copy',
+      name: COPY_VALUES,
       class: 'copy'
     });
 
@@ -1298,7 +1299,7 @@ phantasus.VectorTrack.prototype = {
             html: formBuilder.$form,
             focus: heatmap.getFocusEl()
           });
-        } else if (item === 'Copy') {
+        } else if (item === COPY_VALUES) {
           heatmap.getActionManager().execute(isColumns ? 'Copy Selected Columns' : 'Copy' +
             ' Selected Rows');
         } else if (item === FIELDS) {
