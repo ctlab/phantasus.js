@@ -218,6 +218,7 @@ phantasus.ActionManager = function () {
       cb: function (options) {
         window.project = options.heatMap.project;
         window.dataset = options.heatMap.project.getFullDataset();
+        window.heatmap = options.heatMap;
       }
     })
   }

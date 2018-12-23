@@ -936,6 +936,11 @@ phantasus.VectorTrack.prototype = {
     var VIEW_NUMBER = "View as number";
     var COPY_VALUES = "Copy selected values from " + this.name;
 
+    var isGrouped = isColumns ?
+      _.size(project.getGroupColumns()) > 0 && _.first(project.getGroupColumns()).name === this.name :
+      _.size(project.getGroupRows()) > 0 && _.first(project.getGroupRows()).name === this.name;
+    var GROUP_BY_VALUES = "Group by this " + (this.isColumns ? "column" : "row");
+
     var positions = this.positions;
     var heatmap = this.heatmap;
 
@@ -1214,6 +1219,11 @@ phantasus.VectorTrack.prototype = {
     }
 
     sectionToItems.Display.push({
+      name: GROUP_BY_VALUES,
+      checked: isGrouped
+    });
+
+    sectionToItems.Display.push({
       separator: true
     });
     sectionToItems.Display.push({
@@ -1456,6 +1466,12 @@ phantasus.VectorTrack.prototype = {
         } else if (item === ANNOTATE_SELECTION) {
           heatmap.getActionManager().execute(isColumns ? 'Annotate Selected Columns' : 'Annotate' +
             ' Selected Rows');
+        } else if (item === GROUP_BY_VALUES) {
+          if (isColumns) {
+            _this.project.setGroupColumns(isGrouped ? [] : [new phantasus.SortKey(_this.name, phantasus.SortKey.SortOrder.UNSORTED)], true);
+          } else {
+            _this.project.setGroupRows(isGrouped ? [] : [new phantasus.SortKey(_this.name, phantasus.SortKey.SortOrder.UNSORTED)], true);
+          }
         } else if (item === RENAME) {
           var formBuilder = new phantasus.FormBuilder();
           formBuilder.append({
