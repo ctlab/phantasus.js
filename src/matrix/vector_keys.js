@@ -47,3 +47,5 @@ phantasus.VectorKeys.JSON_WHITELIST.add(phantasus.VectorKeys.FIELDS);
 phantasus.VectorKeys.JSON_WHITELIST.add(phantasus.VectorKeys.FORMATTER);
 phantasus.VectorKeys.JSON_WHITELIST.add(phantasus.VectorKeys.DATA_TYPE);
 phantasus.VectorKeys.JSON_WHITELIST.add(phantasus.VectorKeys.TITLE);
+
+phantasus.VectorKeys.LEVELS = 'phantasus.levels';

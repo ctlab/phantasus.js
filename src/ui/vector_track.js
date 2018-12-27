@@ -935,6 +935,7 @@ phantasus.VectorTrack.prototype = {
     var VIEW_STRING = "View as string";
     var VIEW_NUMBER = "View as number";
     var COPY_VALUES = "Copy selected values from " + this.name;
+    var CUSTOM_ORDER = "Set custom order (factors)";
 
     var isGrouped = isColumns ?
       _.size(project.getGroupColumns()) > 0 && _.first(project.getGroupColumns()).name === this.name :
@@ -1129,6 +1130,15 @@ phantasus.VectorTrack.prototype = {
         name: 'Custom Range...'
       });
     }
+
+    if (isColumns) {
+      sectionToItems.Display.push({
+        name: CUSTOM_ORDER,
+        checked: this.getFullVector().isFactorized()
+      });
+
+    }
+
     if (this.isRenderAs(phantasus.VectorTrack.RENDER.COLOR)
       || this.isRenderAs(phantasus.VectorTrack.RENDER.TEXT_AND_COLOR) || this.isRenderAs(phantasus.VectorTrack.RENDER.TEXT_AND_FONT)
       || this.isRenderAs(phantasus.VectorTrack.RENDER.BAR)
@@ -1151,6 +1161,7 @@ phantasus.VectorTrack.prototype = {
         });
 
       }
+
       if (this.isRenderAs(phantasus.VectorTrack.RENDER.SHAPE)) {
         sectionToItems.Display.push({
           name: 'Edit Shapes...'
@@ -1537,6 +1548,8 @@ phantasus.VectorTrack.prototype = {
               }
             }
           });
+        } else if (item === CUSTOM_ORDER) {
+          phantasus.factorizeColumn(_this.getFullVector());
         } else if (item === DELETE) {
           phantasus.FormBuilder
             .showOkCancel({

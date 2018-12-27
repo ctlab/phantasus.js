@@ -22,5 +22,11 @@ phantasus.VectorAdapter.prototype = {
   },
   setName: function (name) {
     this.v.setName(name);
+  },
+  isFactorized: function () {
+    return this.v.isFactorized();
+  },
+  getFactorLevels: function () {
+    return this.v.getFactorLevels();
   }
 };

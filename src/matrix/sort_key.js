@@ -123,34 +123,43 @@ phantasus.SortKey.prototype = {
       this.c = this.sortOrder === phantasus.SortKey.SortOrder.ASCENDING ? phantasus.SortKey.ASCENDING_COMPARATOR
         : phantasus.SortKey.DESCENDING_COMPARATOR;
     } else {
-      var dataType = phantasus.VectorUtil.getDataType(this.v);
-      if (dataType === 'number') {
-        this.c = this.sortOrder === phantasus.SortKey.SortOrder.ASCENDING ? phantasus.SortKey.NUMBER_ASCENDING_COMPARATOR
-          : phantasus.SortKey.NUMBER_DESCENDING_COMPARATOR;
-      } else if (dataType === '[number]') {
-        var summary = this.v.getProperties().get(
-          phantasus.VectorKeys.ARRAY_SUMMARY_FUNCTION)
-          || phantasus.SortKey.ARRAY_MAX_SUMMARY_FUNCTION;
-        this.c = this.sortOrder === phantasus.SortKey.SortOrder.ASCENDING ? phantasus.SortKey
-            .ARRAY_ASCENDING_COMPARATOR(summary)
-          : phantasus.SortKey.ARRAY_DESCENDING_COMPARATOR(summary);
-      } else {
-        this.c = this.sortOrder === phantasus.SortKey.SortOrder.ASCENDING ? phantasus.SortKey.ASCENDING_COMPARATOR
-          : phantasus.SortKey.DESCENDING_COMPARATOR;
-      }
-      if (this.customComparator != null) {
-        var oldC = this.c;
-        var customComparator = this.customComparator;
+      if (this.v.isFactorized()) {
+        var levels = this.v.getFactorLevels();
         if (this.sortOrder === phantasus.SortKey.SortOrder.ASCENDING) {
-          this.c = function (a, b) {
-            var val = customComparator(a, b);
-            return val === 0 ? oldC(a, b) : val;
-          };
+          this.c = function (a,b) { return _.indexOf(levels, a) - _.indexOf(levels, b); }
         } else {
-          this.c = function (a, b) {
-            var val = customComparator(b, a);
-            return val === 0 ? oldC(a, b) : val;
-          };
+          this.c = function (a,b) { return _.indexOf(levels, b) - _.indexOf(levels, a); }
+        }
+      } else {
+        var dataType = phantasus.VectorUtil.getDataType(this.v);
+        if (dataType === 'number') {
+          this.c = this.sortOrder === phantasus.SortKey.SortOrder.ASCENDING ? phantasus.SortKey.NUMBER_ASCENDING_COMPARATOR
+            : phantasus.SortKey.NUMBER_DESCENDING_COMPARATOR;
+        } else if (dataType === '[number]') {
+          var summary = this.v.getProperties().get(
+            phantasus.VectorKeys.ARRAY_SUMMARY_FUNCTION)
+            || phantasus.SortKey.ARRAY_MAX_SUMMARY_FUNCTION;
+          this.c = this.sortOrder === phantasus.SortKey.SortOrder.ASCENDING ? phantasus.SortKey
+              .ARRAY_ASCENDING_COMPARATOR(summary)
+            : phantasus.SortKey.ARRAY_DESCENDING_COMPARATOR(summary);
+        } else {
+          this.c = this.sortOrder === phantasus.SortKey.SortOrder.ASCENDING ? phantasus.SortKey.ASCENDING_COMPARATOR
+            : phantasus.SortKey.DESCENDING_COMPARATOR;
+        }
+        if (this.customComparator != null) {
+          var oldC = this.c;
+          var customComparator = this.customComparator;
+          if (this.sortOrder === phantasus.SortKey.SortOrder.ASCENDING) {
+            this.c = function (a, b) {
+              var val = customComparator(a, b);
+              return val === 0 ? oldC(a, b) : val;
+            };
+          } else {
+            this.c = function (a, b) {
+              var val = customComparator(b, a);
+              return val === 0 ? oldC(a, b) : val;
+            };
+          }
         }
       }
     }
