@@ -270,3 +270,9 @@
   display: inline-block;
   vertical-align: middle;
 }
+
+.single-form-column form,
+.single-form-column .form-group,
+.single-form-column .form-group > div{
+  height: 100%;
+}

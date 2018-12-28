@@ -178,6 +178,7 @@ phantasus.JoinedVector = function (v1, v2) {
   this.v2 = v2;
   phantasus.VectorAdapter.call(this, v1);
   this.properties = new phantasus.Map();
+  this.levels = null;
 };
 phantasus.JoinedVector.prototype = {
   setValue: function (i, value) {
@@ -193,6 +194,47 @@ phantasus.JoinedVector.prototype = {
   },
   getProperties: function () {
     return this.properties;
+  },
+
+  factorize: function (levels) {
+    if (!levels || _.size(levels) === 0 || !_.isArray(levels)) {
+      return this.defactorize();
+    }
+
+    if (this.isFactorized()) {
+      this.defactorize();
+    }
+
+    var uniqueValuesInVector = _.uniq(phantasus.VectorUtil.getSet(this).values());
+
+    var allLevelsArePresent = levels.every(function (value) {
+      return _.indexOf(uniqueValuesInVector, value) !== -1; // all levels are present in current array
+    }) && uniqueValuesInVector.every(function (value) {
+      return _.indexOf(levels, value) !== -1; // all current values present in levels
+    });
+
+
+    if (!allLevelsArePresent) {
+      throw Error('Cannot factorize vector. Invalid levels');
+    }
+
+    this.levels = levels;
+  },
+
+  defactorize: function () {
+    if (!this.isFactorized()) {
+      return;
+    }
+
+    this.levels = null;
+  },
+
+  isFactorized: function () {
+    return _.size(this.levels)  > 0;
+  },
+
+  getFactorLevels: function () {
+    return this.levels;
   }
 };
 phantasus.Util.extend(phantasus.JoinedVector, phantasus.VectorAdapter);

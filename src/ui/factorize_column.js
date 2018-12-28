@@ -5,7 +5,7 @@ phantasus.factorizeColumn = function (vector) {
   if (vector.isFactorized()) {
     this.values = vector.getFactorLevels();
   } else {
-    this.values = phantasus.VectorUtil.getValues(vector);
+    this.values = phantasus.VectorUtil.getSet(vector).values();
   }
 
   this.$dialog = $('<div style="background:white;" title="' + phantasus.factorizeColumn.prototype.toString() + '"></div>');
@@ -16,7 +16,7 @@ phantasus.factorizeColumn = function (vector) {
     '         <div class="form-group"><button name="move_up" type="button" class="btn btn-default btn-sm">Move selected up ↑</button></div>',
     '         <div class="form-group"><button name="move_down" type="button" class="btn btn-default btn-sm">Move selected down ↓</button></div>',
     '   </div>',
-    '   <div class="col-xs-8" data-name="selector" style="height: 100%"></div>',
+    '   <div class="col-xs-8 single-form-column" data-name="selector" style="height: 100%"></div>',
     ' </div>',
     '</div>',
     '</div>'].join('')

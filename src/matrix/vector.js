@@ -11,6 +11,7 @@
  */
 phantasus.Vector = function (name, size) {
   this.array = [];
+  this.levels = null;
   phantasus.AbstractVector.call(this, name, size);
 };
 /**
@@ -87,7 +88,7 @@ phantasus.Vector.prototype = {
       throw Error('Cannot factorize vector. Invalid levels');
     }
 
-    this.getProperties().set(phantasus.VectorKeys.LEVELS, levels);
+    this.levels = levels;
   },
 
   defactorize: function () {
@@ -95,15 +96,15 @@ phantasus.Vector.prototype = {
       return;
     }
 
-    this.getProperties().remove(phantasus.VectorKeys.LEVELS);
+    this.levels = null;
   },
 
   isFactorized: function () {
-    return this.getProperties().has(phantasus.VectorKeys.LEVELS);
+    return _.size(this.levels)  > 0;
   },
 
   getFactorLevels: function () {
-    return this.getProperties().get(phantasus.VectorKeys.LEVELS);
+    return this.levels;
   }
 };
 phantasus.Util.extend(phantasus.Vector, phantasus.AbstractVector);
