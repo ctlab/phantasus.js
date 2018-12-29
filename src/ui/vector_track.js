@@ -935,7 +935,7 @@ phantasus.VectorTrack.prototype = {
     var VIEW_STRING = "View as string";
     var VIEW_NUMBER = "View as number";
     var COPY_VALUES = "Copy selected values from " + this.name;
-    var CUSTOM_ORDER = "Set custom order (factors)";
+    var CUSTOM_ORDER = "Change sort order";
 
     var isGrouped = isColumns ?
       _.size(project.getGroupColumns()) > 0 && _.first(project.getGroupColumns()).name === this.name :
@@ -1131,14 +1131,6 @@ phantasus.VectorTrack.prototype = {
       });
     }
 
-    if (isColumns) {
-      sectionToItems.Display.push({
-        name: CUSTOM_ORDER,
-        checked: this.getFullVector().isFactorized()
-      });
-
-    }
-
     if (this.isRenderAs(phantasus.VectorTrack.RENDER.COLOR)
       || this.isRenderAs(phantasus.VectorTrack.RENDER.TEXT_AND_COLOR) || this.isRenderAs(phantasus.VectorTrack.RENDER.TEXT_AND_FONT)
       || this.isRenderAs(phantasus.VectorTrack.RENDER.BAR)
@@ -1209,6 +1201,20 @@ phantasus.VectorTrack.prototype = {
     sectionToItems.Display.push({
       separator: true
     });
+
+    sectionToItems.Display.push({
+      name: GROUP_BY_VALUES,
+      checked: isGrouped
+    });
+
+    sectionToItems.Display.push({
+      name: CUSTOM_ORDER,
+      checked: this.getFullVector().isFactorized()
+    });
+
+    sectionToItems.Display.push({
+      separator: true
+    });
     sectionToItems.Display.push({
       name: HIDE
     });
@@ -1228,11 +1234,6 @@ phantasus.VectorTrack.prototype = {
         checked: isNumber
       });
     }
-
-    sectionToItems.Display.push({
-      name: GROUP_BY_VALUES,
-      checked: isGrouped
-    });
 
     sectionToItems.Display.push({
       separator: true

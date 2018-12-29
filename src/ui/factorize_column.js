@@ -95,7 +95,7 @@ phantasus.factorizeColumn = function (vector) {
         vector.factorize(self.values);
         self.$dialog.dialog('destroy').remove();
       },
-      'Remove factor': function () {
+      'Reset': function () {
         vector.defactorize();
         self.$dialog.dialog('destroy').remove();
       },
@@ -112,6 +112,6 @@ phantasus.factorizeColumn = function (vector) {
 
 phantasus.factorizeColumn.prototype = {
   toString: function () {
-    return "Factorise";
+    return "Change sort order";
   }
 };

@@ -178,7 +178,7 @@ phantasus.JoinedVector = function (v1, v2) {
   this.v2 = v2;
   phantasus.VectorAdapter.call(this, v1);
   this.properties = new phantasus.Map();
-  this.levels = null;
+  this.levels = v1.getFactorLevels().concat(v2.getFactorLevels());
 };
 phantasus.JoinedVector.prototype = {
   setValue: function (i, value) {
