@@ -276,3 +276,26 @@
 .single-form-column .form-group > div{
   height: 100%;
 }
+
+.sortable-list {
+  list-style-type: none;
+  margin: 0;
+  width: 100%;
+  padding: 0;
+  height: 90%;
+  border: 1px solid #ccc;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+  overflow: auto;
+}
+
+.sortable-list li {
+  border-bottom: 1px dotted Gray;
+  cursor: move;
+}
+
+.sortable-list li.selected {
+  background-color: #0571b0;
+  color: white;
+}
+
