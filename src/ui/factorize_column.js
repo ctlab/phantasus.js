@@ -8,10 +8,7 @@ phantasus.factorizeColumn = function (vector) {
     this.values = phantasus.VectorUtil.getSet(vector).values();
   }
 
-  var tooltipHelp = [
-    'Drag elements',
-    'Use Ctrl+Click or Shift+Click to select multiple items'
-  ].join('<br/>');
+  var tooltipHelp = 'Drag items. Use Ctrl+Click or Shift+Click to select multiple items';
 
   var valuesHTML = this.values.map(function (value) {
     return '<li >' + value + '</li>'
