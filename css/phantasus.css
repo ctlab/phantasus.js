@@ -290,7 +290,7 @@
 }
 
 .sortable-list li {
-  border-bottom: 1px dotted Gray;
+  padding-left: 5px;
   cursor: move;
 }
 
