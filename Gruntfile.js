@@ -17,7 +17,7 @@ module.exports = function (grunt) {
         files: {
           'js/phantasus-external-other.min.js': ['js/phantasus-external-other.js'],
           'js/phantasus-external-pdfkit-xlsx.min.js': ['js/phantasus-external-pdfkit-xlsx.js'],
-          'js/phantasus-external-plotly-echarts.min.js': ['js/phantasus-external-plotly-echarts.js']
+          'js/phantasus-external-plotly.min.js': ['js/phantasus-external-plotly.js']
         }
       }
     },
@@ -64,9 +64,9 @@ module.exports = function (grunt) {
       },
       extJs3: {
         nonull: true,
-        dest: 'js/phantasus-external-plotly-echarts.js',
+        dest: 'js/phantasus-external-plotly.js',
         src: [
-          'js/plotly-latest.min.js', 'js/echarts.min.js', 'js/d3-labeler.js', 'js/plotly.annotate.js']
+          'js/plotly-latest.min.js', 'js/d3-labeler.js', 'js/plotly.annotate.js']
       },
       phantasus: {
         options: {

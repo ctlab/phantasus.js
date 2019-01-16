@@ -246,6 +246,7 @@ phantasus.HeatMap = function (options) {
       popupEnabled: true,
       symmetric: false,
       keyboard: true,
+      dummy: false,
       inlineTooltip: true,
       // Prevent mousewheel default (stops accidental page back on Mac), but also prevents page
       // scrolling
@@ -539,7 +540,9 @@ phantasus.HeatMap = function (options) {
   }
   var heatMapLoaded = function () {
     // console.log('heatMapLoaded', _this.options.name);
-    phantasus.DatasetUtil.toESSessionPromise(options.dataset);
+    if (!options.dummy) {
+      phantasus.DatasetUtil.toESSessionPromise(options.dataset);
+    }
     if (typeof window !== 'undefined') {
       $(window).on('orientationchange.phantasus resize.phantasus', _this.resizeListener = function () {
         _this.revalidate();
@@ -2115,7 +2118,9 @@ phantasus.HeatMap.prototype = {
         });
     this.getProject().on('trackChanged', function (e) {
       //console.log('Track changed');
-      phantasus.DatasetUtil.toESSessionPromise(dataset);
+      if (!options.dummy) {
+        phantasus.DatasetUtil.toESSessionPromise(dataset);
+      }
     });
     this.getProject().on('trackChanged', function (e) {
       var columns = e.columns;

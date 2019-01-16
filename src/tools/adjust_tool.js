@@ -280,6 +280,9 @@ phantasus.AdjustDataTool.prototype = {
       }));
     }
 
+    if (options.rawDataset) {
+      return dataset;
+    }
 
     return new phantasus.HeatMap({
       name: heatMap.getName(),

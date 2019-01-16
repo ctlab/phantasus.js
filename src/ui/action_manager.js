@@ -350,7 +350,7 @@ phantasus.ActionManager = function () {
     icon: 'fa fa-anchor'
   });
 
-  if (typeof echarts !== 'undefined') {
+  if (typeof Plotly !== 'undefined') {
     this.add({
       name: 'Chart',
       cb: function (options) {
@@ -363,8 +363,7 @@ phantasus.ActionManager = function () {
       },
       icon: 'fa fa-line-chart'
     });
-  }
-  if (typeof Plotly !== 'undefined') {
+
     this.add({
       name: 'PCA Plot',
       cb: function (options) {
