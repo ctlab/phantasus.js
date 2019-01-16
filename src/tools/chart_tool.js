@@ -530,7 +530,6 @@ phantasus.ChartTool.prototype = {
     var showPoints = this.formBuilder.getValue('show_points');
     var addProfile = this.formBuilder.getValue('add_profile');
     var adjustData = this.formBuilder.getValue('adjust_data');
-    console.log(adjustData);
 
     var axisLabel = this.formBuilder.getValue('axis_label');
     var colorBy = this.formBuilder.getValue('color');
