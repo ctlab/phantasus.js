@@ -2118,7 +2118,7 @@ phantasus.HeatMap.prototype = {
         });
     this.getProject().on('trackChanged', function (e) {
       //console.log('Track changed');
-      if (!options.dummy) {
+      if (!_this.options.dummy) {
         phantasus.DatasetUtil.toESSessionPromise(dataset);
       }
     });
