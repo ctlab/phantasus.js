@@ -211,8 +211,18 @@ phantasus.ChartTool = function (chartOptions) {
   this.tooltip = [];
   var draw = _.debounce(this.draw.bind(this), 100);
   formBuilder.$form.on('change', 'select', function (e) {
+    if ($(this).attr('name') === 'tooltip') {
+      var tooltipVal = _this.formBuilder.getValue('tooltip');
+      _this.tooltip.length = 0; // clear array
+      if (tooltipVal != null) {
+        tooltipVal.forEach(function (tip) {
+          _this.tooltip.push(phantasus.ChartTool.getVectorInfo(tip));
+        });
+      }
+    } else {
       setVisibility();
       draw();
+    }
   });
 
   formBuilder.$form.on('click', 'input[type=checkbox]', function (e) {
