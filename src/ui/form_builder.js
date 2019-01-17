@@ -401,6 +401,7 @@ phantasus.FormBuilder.prototype = {
     var value = field.value;
     var showLabel = field.showLabel;
     var tooltipHelp = field.tooltipHelp;
+    var selectedFormat = field.selectedFormat || 'count';
     var style = field.style || '';
     var col = '';
     var labelColumn = '';
@@ -550,7 +551,7 @@ phantasus.FormBuilder.prototype = {
       // type = 'bootstrap-select';
       // }
       if (type == 'bootstrap-select') {
-        html.push('<select style="' + style + '" data-size="5" data-live-search="' + (field.search ? true : false) + '" data-selected-text-format="count" name="'
+        html.push('<select style="' + style + '" data-size="5" data-live-search="' + (field.search ? true : false) + '" data-selected-text-format="' + selectedFormat + '" name="'
           + name + '" id="' + id
           + '" data-actions-box="' + (field.selectAll ? true : false) + '" class="selectpicker' + (this.formStyle !== 'inline' ? ' form-control' : '') + '"');
       } else {

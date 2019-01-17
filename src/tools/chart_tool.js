@@ -177,7 +177,8 @@ phantasus.ChartTool = function (chartOptions) {
     }],
     type: 'bootstrap-select',
     multiple: true,
-    search: true
+    search: true,
+    selectedFormat: 'count > 2'
   });
 
   formBuilder.append({
@@ -749,7 +750,10 @@ phantasus.ChartTool.prototype = {
 
         var valueToIndices = phantasus.VectorUtil.createValueToIndicesMap(vector, true);
         valueToIndices.forEach(function (indices, value) {
-          datasets.push(new phantasus.SlicedDatasetView(dataset, groupByInfo.isColumns ? null : indices, groupByInfo.isColumns ? indices : null));
+          datasets.push(new phantasus.SlicedDatasetView(dataset,
+            groupByInfo.isColumns ? null : indices,
+            groupByInfo.isColumns ? indices : null)
+          );
           ids.push(value);
         });
       } else {
