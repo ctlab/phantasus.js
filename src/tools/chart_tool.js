@@ -581,13 +581,13 @@ phantasus.ChartTool.prototype = {
     options.layout.width = $parent.width();
     options.layout.height = this.$dialog.height() - 30;
 
-    var traces = boxData.map(function (box) {
+    var traces = boxData.map(function (box, index) {
       var trace = {
         y: box,
         type: 'box',
         hoverinfo: 'y+text',
         boxpoints: showPoints,
-        name: ''
+        name: ids[index]
       };
 
       if (showPoints === 'all') {
@@ -676,6 +676,7 @@ phantasus.ChartTool.prototype = {
       return;
     }
 
+    var groupBy = this.formBuilder.getValue('group_by');
     var colorByInfo = phantasus.ChartTool.getVectorInfo(colorBy);
     var sizeByInfo = phantasus.ChartTool.getVectorInfo(sizeBy);
     var colorModel = !colorByInfo.isColumns ? this.project.getRowColorModel()
@@ -739,8 +740,22 @@ phantasus.ChartTool.prototype = {
 
       var datasets = [];//1-d array of datasets
       var ids = []; // 1-d array of grouping values
-      datasets.push(dataset);
-      ids.push('');
+
+      if (groupBy) {
+        var groupByInfo = phantasus.ChartTool.getVectorInfo(groupBy);
+        var vector = groupByInfo.isColumns ?
+          dataset.getColumnMetadata().getByName(groupByInfo.field) :
+          dataset.getRowMetadata().getByName(groupByInfo.field);
+
+        var valueToIndices = phantasus.VectorUtil.createValueToIndicesMap(vector, true);
+        valueToIndices.forEach(function (indices, value) {
+          datasets.push(new phantasus.SlicedDatasetView(dataset, groupByInfo.isColumns ? null : indices, groupByInfo.isColumns ? indices : null));
+          ids.push(value);
+        });
+      } else {
+        datasets.push(dataset);
+        ids.push('');
+      }
 
       this._createBoxPlot({
         showPoints: boxShowPoints,
