@@ -149,7 +149,7 @@ phantasus.ChartTool = function (chartOptions) {
   formBuilder.append({
     name: 'color',
     type: 'bootstrap-select',
-    options: options
+    options: unitedColumnsRowsOptions
   });
 
   formBuilder.append({
@@ -198,7 +198,6 @@ phantasus.ChartTool = function (chartOptions) {
     if (chartType === 'column profile' || chartType === 'row profile') {
       formBuilder.setOptions('axis_label', chartType === 'column profile' ? rowOptions : columnOptions,
         true);
-      formBuilder.setOptions('color', chartType === 'column profile' ? columnOptions : rowOptions, true);
       formBuilder.setOptions('size', chartType === 'row profile' ? numericColumnOptions : numericRowOptions, true);
     }
 
@@ -384,9 +383,10 @@ phantasus.ChartTool.prototype = {
     var traces = [];
     var ticktext = [];
     var tickvals = [];
+    var color = undefined;
 
     if (colorByVector) {
-      color = _.map(phantasus.VectorUtil.toArray(colorByVector), function (value) {
+      _.each(phantasus.VectorUtil.toArray(colorByVector), function (value) {
         if (!uniqColors[value]) {
           if (colorModel.containsDiscreteColor(colorByVector, value)
             && colorByVector.getProperties().get(phantasus.VectorKeys.DISCRETE)) {
@@ -429,7 +429,18 @@ phantasus.ChartTool.prototype = {
       var y = [];
       var text = [];
       var size = sizeByVector ? [] : 6;
-      var color = colorByVector ? uniqColors[colorByVector.getValue(i)] : undefined;
+
+      if (colorByVector) {
+        if (colorByInfo.isColumns === isColumnChart) {
+          color = uniqColors[colorByVector.getValue(i)];
+        } else {
+          color = [];
+          for (var j = 0, ncols = dataset.getColumnCount(); j < ncols; j++) {
+            color.push(uniqColors[colorByVector.getValue(j)])
+          }
+        }
+      }
+
 
       for (var j = 0, ncols = dataset.getColumnCount(); j < ncols; j++) {
         x.push(j);
@@ -467,6 +478,7 @@ phantasus.ChartTool.prototype = {
       xmax = Math.max(xmax, _.max(x));
       ymin = Math.min(ymin, _.min(y));
       ymax = Math.max(ymax, _.max(y));
+
       var trace = {
           x: x,
           y: y,
@@ -483,6 +495,14 @@ phantasus.ChartTool.prototype = {
           type: 'scatter',
           showlegend: false
       };
+
+      if (colorByVector && colorByInfo.isColumns !== isColumnChart) {
+        trace.marker.size = sizeByVector ? trace.marker.size : 10;
+        trace.line = {
+          color: 'rgba(125,125,125,0.35)',
+        }
+      }
+
       traces.push(trace);
     }
 
@@ -499,7 +519,10 @@ phantasus.ChartTool.prototype = {
       }
 
       _.each(traces, function (trace) {
+        if (trace.showlegend) return;
         trace.opacity = 0.3;
+        trace.line = trace.line || {};
+        trace.line.color = colorByInfo.isColumns !== isColumnChart ? 'rgb(125,125,125);' : trace.line.color;
       });
 
       traces.push({
@@ -508,15 +531,18 @@ phantasus.ChartTool.prototype = {
         name: addProfile,
         tickmode: 'array',
         marker: {
-          color: '#0571b0',
-          shape: 'cross'
+          color: _.isArray(color) && _.size(color) > 1 ? color : 'rgb(100,100,100)',
+          shape: 'cross',
+          size: 10
         },
         line: {
+          color: 'rgb(100,100,100)',
           width: 4
         },
-        mode: 'lines+marker',
+        mode: 'lines+markers',
         type: 'scatter',
-        showlegend: true
+        showlegend: true,
+        legendgroup: 'added_profile'
       });
     }
 
@@ -560,6 +586,7 @@ phantasus.ChartTool.prototype = {
     var showPoints = options.showPoints;
     var myPlot = options.myPlot;
     var datasets = options.datasets;
+    var colors = options.colors;
     var ids = options.ids;
     var size = 6;
     var boxData = [];
@@ -595,7 +622,10 @@ phantasus.ChartTool.prototype = {
         type: 'box',
         hoverinfo: 'y+text',
         boxpoints: showPoints,
-        name: ids[index]
+        name: ids[index],
+        marker: {
+          color: colors[index]
+        }
       };
 
       if (showPoints === 'all') {
@@ -687,8 +717,11 @@ phantasus.ChartTool.prototype = {
     var groupBy = this.formBuilder.getValue('group_by');
     var colorByInfo = phantasus.ChartTool.getVectorInfo(colorBy);
     var sizeByInfo = phantasus.ChartTool.getVectorInfo(sizeBy);
-    var colorModel = !colorByInfo.isColumns ? this.project.getRowColorModel()
-      : this.project.getColumnColorModel();
+
+    var colorModel = !colorByInfo.isColumns ?
+      this.project.getRowColorModel() :
+      this.project.getColumnColorModel();
+
     var axisLabelInfo = phantasus.ChartTool.getVectorInfo(axisLabel);
     var axisLabelVector = axisLabelInfo.isColumns ?
       dataset.getColumnMetadata().getByName(axisLabelInfo.field) :
@@ -706,7 +739,7 @@ phantasus.ChartTool.prototype = {
     if (sizeByVector) {
       var minMax = phantasus.VectorUtil.getMinMax(sizeByVector);
       sizeByScale = d3.scale.linear().domain(
-        [minMax.min, minMax.max]).range([3, 16])
+        [minMax.min, minMax.max]).range([10, 25])
         .clamp(true);
     }
 
@@ -748,12 +781,34 @@ phantasus.ChartTool.prototype = {
 
       var datasets = [];//1-d array of datasets
       var ids = []; // 1-d array of grouping values
+      var colors = [undefined];
 
       if (groupBy) {
         var groupByInfo = phantasus.ChartTool.getVectorInfo(groupBy);
         var vector = groupByInfo.isColumns ?
           dataset.getColumnMetadata().getByName(groupByInfo.field) :
           dataset.getRowMetadata().getByName(groupByInfo.field);
+
+        var boxColorModel = !groupByInfo.isColumns ?
+          this.project.getRowColorModel() :
+          this.project.getColumnColorModel();
+
+        var uniqColors = {};
+        colors = [];
+        _.each(phantasus.VectorUtil.toArray(vector), function (value) {
+          if (!uniqColors[value]) {
+            if (boxColorModel.containsDiscreteColor(vector, value)
+              && vector.getProperties().get(phantasus.VectorKeys.DISCRETE)) {
+              uniqColors[value] = boxColorModel.getMappedValue(vector, value);
+            } else if (boxColorModel.isContinuous(vector)) {
+              uniqColors[value] = boxColorModel.getContinuousMappedValue(vector, value);
+            } else {
+              uniqColors[value] = phantasus.VectorColorModel.CATEGORY_ALL[_.size(uniqColors) % 60];
+            }
+          }
+
+          return uniqColors[value]
+        });
 
         var valueToIndices = phantasus.VectorUtil.createValueToIndicesMap(vector, true);
         valueToIndices.forEach(function (indices, value) {
@@ -762,6 +817,7 @@ phantasus.ChartTool.prototype = {
             groupByInfo.isColumns ? indices : null)
           );
           ids.push(value);
+          colors.push(uniqColors[value]);
         });
       } else {
         datasets.push(dataset);
@@ -772,6 +828,7 @@ phantasus.ChartTool.prototype = {
         showPoints: boxShowPoints,
         myPlot: myPlot,
         datasets: datasets,
+        colors: colors,
         ids: ids,
         layout: layout,
         config: config
