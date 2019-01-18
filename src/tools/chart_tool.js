@@ -12,7 +12,7 @@ phantasus.ChartTool = function (chartOptions) {
   this.$el = $('<div class="container-fluid">'
     + '<div class="row" style="height: 100%">'
     + '<div data-name="configPane" class="col-xs-2"></div>'
-    + '<div class="col-xs-10" style="height: 100%"><div style="position:relative; height: 100%" data-name="chartDiv"></div></div>'
+    + '<div class="col-xs-10" style="height: 90%"><div style="position:relative; height: 100%" data-name="chartDiv"></div></div>'
     + '</div></div>');
 
   var formBuilder = new phantasus.FormBuilder({
@@ -168,17 +168,14 @@ phantasus.ChartTool = function (chartOptions) {
   formBuilder.append({
     name: "adjust_data",
     title: "Adjust Data",
-    options: [{
-      name: 'log2',
-      value: 'log2'
+    type: 'collapsed-checkboxes',
+    showLabel: false,
+    checkboxes: [{
+      name: 'log2'
     }, {
-      name: 'Z-Score',
-      value: 'z-score',
-    }],
-    type: 'bootstrap-select',
-    multiple: true,
-    search: true,
-    selectedFormat: 'count > 2'
+      name: 'z-score',
+      title: 'Z-Score'
+    }]
   });
 
   formBuilder.append({

@@ -359,6 +359,18 @@ phantasus.FormBuilder.getValue = function ($element) {
   if ($element.data('type') === 'file') {
     return $element.data('files');
   }
+  if ($element.data('type') === 'collapsed-checkboxes') {
+    var result = [];
+    $element.find('input').each(function (a, checkbox) {
+      var $checkbox = $(checkbox);
+
+      if ($checkbox.prop('checked')) {
+        result.push($checkbox.prop('name'));
+      }
+    });
+
+    return result;
+  }
   return $element.attr('type') === 'checkbox' ? $element.prop('checked') : $element.val();
 };
 
@@ -476,6 +488,42 @@ phantasus.FormBuilder.prototype = {
         html.push(value[0].toUpperCase() + value.substring(1));
         html.push('</label></div>');
       }
+    } else if ('collapsed-checkboxes' === type) {
+      var checkboxes = field.checkboxes;
+      html.push('<div id="' + id + '" data-name="' + name + '" data-type="collapsed-checkboxes">');
+      html.push('<button style="' + style + '" type="button" class="btn btn-default btn-sm" data-toggle="collapse" data-target="#' + id + '_collapse">');
+      if (field.icon) {
+        html.push('<span class="' + field.icon + '"></span> ');
+      }
+      html.push(value ? value : title);
+      html.push('</button>');
+
+      html.push('<div class="collapse" id="' + id + '_collapse">' +
+        '  <div class="well">');
+
+      checkboxes.forEach(function (checkbox) {
+        var name = checkbox.name;
+        var checkboxId = id + name;
+        var value = checkbox.value;
+        var disabled = checkbox.disabled;
+        var title = checkbox.title || name;
+
+        html.push('<div class="checkbox"><label>');
+        html.push('<input style="' + style + '" name="' + name + '" id="' + checkboxId
+          + '" type="checkbox"');
+        if (value) {
+          html.push(' checked');
+        }
+        if (disabled) {
+          html.push(' disabled');
+        }
+        html.push('> ');
+        html.push(title);
+        html.push('</label></div>');
+      });
+
+      html.push('</div></div>');
+      html.push('</div>');
     } else if ('checkbox' === type) {
       html.push('<div class="checkbox"><label>');
       html.push('<input style="' + style + '" name="' + name + '" id="' + id
@@ -992,6 +1040,9 @@ phantasus.FormBuilder.prototype = {
     var $v = this.$form.find('[name=' + name + ']');
     if ($v.length === 0) {
       $v = this.$form.find('[name=' + name + '_picker]');
+    }
+    if ($v.length === 0) {
+      $v = this.$form.find('[data-name=' + name + ']');
     }
     return phantasus.FormBuilder.getValue($v);
   },
