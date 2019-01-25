@@ -1995,3 +1995,13 @@ phantasus.Util.promptBLOBdownload = function (url, name) {
     document.body.removeChild(a);
   }, 0)
 };
+
+_.chunk = function(array, count) {
+  if (count == null || count < 1) return [];
+  var result = [];
+  var i = 0, length = array.length;
+  while (i < length) {
+    result.push(array.slice(i, i += count));
+  }
+  return result;
+};
