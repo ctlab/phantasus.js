@@ -717,7 +717,6 @@ phantasus.FormBuilder.prototype = {
       if (allowedInputs.all || allowedInputs.computer) options.push('My Computer');
       if (allowedInputs.all || allowedInputs.url) options.push('URL');
       if (allowedInputs.all || allowedInputs.geo) options.push('GEO Datasets');
-      if ((allowedInputs.all || allowedInputs.dropbox) && typeof Dropbox !== 'undefined') options.push('Dropbox');
       if (allowedInputs.all || allowedInputs.saved) options.push('Saved on server datasets');
       if (field.text != null) {
         options.push(field.text);
@@ -733,9 +732,7 @@ phantasus.FormBuilder.prototype = {
         if (isChoiceObject && choice.disabled) {
           html.push(' disabled');
         }
-        if (optionValue === 'Dropbox') {
-          html.push(' data-icon="fa fa-dropbox"');
-        } else if (optionValue === 'My Computer') {
+        if (optionValue === 'My Computer') {
           html.push(' data-icon="fa fa-desktop"');
         } else if (optionValue === 'URL') {
           html.push(' data-icon="fa fa-external-link"');
@@ -813,41 +810,23 @@ phantasus.FormBuilder.prototype = {
             var showTextInput = val === field.text;
             var showPreInput = val === 'Saved on server datasets';
 
-            if ('Dropbox' === val) {
-              var options = {
-                success: function (results) {
-                  var val = !isMultiple ? results[0].link
-                    : results.map(function (result) {
-                    return result.link;
-                  });
-                _this.setValue(name, val);
-                _this.trigger('change', {
-                  name: name,
-                  value: val
-                });
-              },
-              linkType: 'direct',
-              multiselect: isMultiple
-            };
-            Dropbox.choose(options);
-            _this.$form.find('[name=' + name + '_picker]').selectpicker('val', '');
-          } else if ('My Computer' === val) {
-            _this.$form.find('[name=' + name + '_file]')
-            .click();
-            _this.$form.find('[name=' + name + '_picker]').selectpicker('val', '');
-          }
+            if ('My Computer' === val) {
+              _this.$form.find('[name=' + name + '_file]')
+              .click();
+              _this.$form.find('[name=' + name + '_picker]').selectpicker('val', '');
+            }
 
-          _this.$form.find('#' + name + '_url')
-              .css('display', showUrlInput ? 'block' : 'none');
+            _this.$form.find('#' + name + '_url')
+                .css('display', showUrlInput ? 'block' : 'none');
 
-          _this.$form.find('[name=' + name + '_text]')
-              .css('display', showTextInput ? 'block' : 'none');
+            _this.$form.find('[name=' + name + '_text]')
+                .css('display', showTextInput ? 'block' : 'none');
 
-          _this.$form.find('#' + name + '_geo')
-              .css('display', showGSEInput ? 'block' : 'none');
+            _this.$form.find('#' + name + '_geo')
+                .css('display', showGSEInput ? 'block' : 'none');
 
-          _this.$form.find('#' + name + '_pre')
-              .css('display', showPreInput ? 'block' : 'none');
+            _this.$form.find('#' + name + '_pre')
+                .css('display', showPreInput ? 'block' : 'none');
         });
 
       // URL

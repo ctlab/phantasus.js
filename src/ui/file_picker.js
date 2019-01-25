@@ -10,7 +10,6 @@ phantasus.FilePicker = function (options) {
   var myComputer = _.uniqueId('phantasus');
   var url = _.uniqueId('phantasus');
   var googleId = _.uniqueId('phantasus');
-  var dropbox = _.uniqueId('phantasus');
   var preloaded = _.uniqueId('phantasus');
   html.push('<ul style="margin-bottom:10px;" class="nav nav-pills phantasus">');
   html.push('<li role="presentation" class="active"><a href="#' + myComputer + '"' +
@@ -25,11 +24,6 @@ phantasus.FilePicker = function (options) {
       ' aria-controls="' + googleId + '" role="tab" data-toggle="tab"><i class="fa' +
       ' fa-google"></i>' +
       ' Google</a></li>');
-  }
-  if (typeof Dropbox !== 'undefined') {
-    html.push('<li role="presentation"><a href="#' + dropbox + '"' +
-      ' aria-controls="' + dropbox + '" role="tab" data-toggle="tab"><i class="fa fa-dropbox"></i>' +
-      ' Dropbox</a></li>');
   }
 
   var $sampleDatasetsEl = $('<div class="phantasus-preloaded"></div>');
@@ -74,13 +68,6 @@ phantasus.FilePicker = function (options) {
   html.push('</div>');
   html.push('</div>');
 
-  if (typeof Dropbox !== 'undefined') {
-    html.push('<div role="tabpanel" class="tab-pane" id="' + dropbox + '">');
-    html.push('<div class="phantasus-landing-panel">');
-    html.push('<button name="dropbox" class="btn btn-default">Browse Dropbox</button>');
-    html.push('</div>');
-    html.push('</div>');
-  }
   if (typeof gapi !== 'undefined') {
     html.push('<div role="tabpanel" class="tab-pane" id="' + googleId + '">');
     html.push('<div class="phantasus-landing-panel">');
@@ -123,18 +110,6 @@ phantasus.FilePicker = function (options) {
     }
   });
 
-  var $dropbox = $el.find('[name=dropbox]');
-  $dropbox.on('click', function (e) {
-    Dropbox.choose({
-      success: function (results) {
-        var val = results[0].link;
-        options.fileCallback(val);
-      },
-      linkType: 'direct',
-      multiselect: false
-
-    });
-  });
 
   var $google = $el.find('[name=google]');
   $google.on('click', function () {
