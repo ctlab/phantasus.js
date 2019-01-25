@@ -257,15 +257,16 @@ phantasus.ChartTool = function (chartOptions) {
   $dialog.dialog({
     dialogClass: 'phantasus',
     close: function (event, ui) {
+      event.stopPropagation();
+      $(this).dialog('destroy');
       project.off('trackChanged.chart', trackChanged);
       project.getRowSelectionModel().off('selectionChanged.chart', draw);
       project.getColumnSelectionModel().off('selectionChanged.chart',
         draw);
-      _this.$el.empty();
     },
 
     resizable: true,
-    height: 800,
+    height: 580,
     width: 900
   });
   this.$dialog = $dialog;
