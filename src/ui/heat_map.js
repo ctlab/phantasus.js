@@ -254,8 +254,17 @@ phantasus.HeatMap = function (options) {
       $loadingImage: phantasus.Util.createLoadingEl(),
       menu: {
         File: [
-          'Open', 'Annotate', null, 'Save Image', 'Save Dataset', 'Save Session', null, 'Close Tab', null, 'Rename' +
-          ' Tab'],
+          'Open',
+          'Annotate',
+          phantasus.aboutDataset.prototype.toString(),
+          null,
+          'Save Image',
+          'Save Dataset',
+          'Save Session',
+          null,
+          'Close Tab',
+          null,
+          'Rename Tab'],
         Tools: [
           'New Heat Map',
           null,

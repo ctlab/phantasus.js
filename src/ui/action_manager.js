@@ -350,6 +350,15 @@ phantasus.ActionManager = function () {
     icon: 'fa fa-anchor'
   });
 
+  this.add({
+    name: phantasus.aboutDataset.prototype.toString(),
+    cb: function (options) {
+      phantasus.aboutDataset({
+        project: options.heatMap.getProject()
+      })
+    },
+  });
+
   if (typeof Plotly !== 'undefined') {
     this.add({
       name: 'Chart',
