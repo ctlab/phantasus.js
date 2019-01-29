@@ -351,6 +351,43 @@ phantasus.ActionManager = function () {
   });
 
   this.add({
+    ellipsis: true,
+    name: 'Get permanent link',
+    cb: function (options) {
+      var dataset = options.heatMap.getProject().getFullDataset();
+      dataset.getESSession().then(function (es) {
+        var key = es.getKey();
+        var location = window.location;
+        var newLocation = location.origin + location.pathname + '?session=' + key;
+
+        var formBuilder = new phantasus.FormBuilder();
+        formBuilder.append({
+          name: 'Link',
+          readonly: true,
+          value: newLocation
+        });
+
+        formBuilder.append({
+          name: 'copy',
+          type: 'button'
+        });
+
+        formBuilder.$form.find('button').on('click', function () {
+          formBuilder.$form.find('input')[0].select();
+          document.execCommand('copy');
+        });
+
+        phantasus.FormBuilder.showInModal({
+          title: 'Get permanent link to a dataset',
+          close: 'Close',
+          html: formBuilder.$form,
+          focus: options.heatMap.getFocusEl()
+        });
+      })
+    }
+  });
+
+  this.add({
     name: phantasus.aboutDataset.prototype.toString(),
     cb: function (options) {
       phantasus.aboutDataset({

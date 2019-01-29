@@ -953,6 +953,9 @@ phantasus.FormBuilder.prototype = {
       if (disabled) {
         html.push(' disabled');
       }
+      if (field.readonly) {
+        html.push(' readonly');
+      }
       if (field.autocomplete != null) {
         html.push(' autocomplete="' + field.autocomplete + '"');
       }

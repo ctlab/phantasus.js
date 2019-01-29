@@ -261,6 +261,7 @@ phantasus.HeatMap = function (options) {
           'Save Image',
           'Save Dataset',
           'Save Session',
+          'Get permanent link',
           null,
           'Close Tab',
           null,
@@ -413,7 +414,7 @@ phantasus.HeatMap = function (options) {
           new phantasus.TabManager({
             landingPage: function () {
               if (_this.options.landingPage == null) {
-                _this.options.landingPage = new phantasus.LandingPage({tabManager: _this.tabManager});
+                _this.options.landingPage = new phantasus.LandingPage({tabManager: _this.tabManager, autoInit: false});
                 _this.options.landingPage.$el.prependTo(_this.$el);
               }
               return _this.options.landingPage;

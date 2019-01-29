@@ -201,6 +201,8 @@ phantasus.DatasetUtil.read = function (fileOrUrl, options) {
       name: fileOrUrl,
       exactName: options.exactName
     }
+  } else if (options.session) {
+    datasetReader = new phantasus.SavedSessionReader();
   }
   else if (ext === '' && str != null && str.indexOf('blob:') === 0) {
     datasetReader = new phantasus.TxtReader(); // copy from clipboard

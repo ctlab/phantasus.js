@@ -6,7 +6,8 @@
  */
 phantasus.LandingPage = function (pageOptions) {
   pageOptions = $.extend({}, {
-    el: $('#vis')
+    el: $('#vis'),
+    autoInit: true
   }, pageOptions);
   this.pageOptions = pageOptions;
   var _this = this;
@@ -76,8 +77,91 @@ phantasus.LandingPage = function (pageOptions) {
   });
 
   phantasus.datasetHistory.render(this.$historyDatsetsEl);
-}
-;
+
+  if (this.pageOptions.autoInit) {
+    var searchString = window.location.search;
+    if (searchString.length === 0) {
+      searchString = window.location.hash;
+    }
+    this.$el.prependTo($(document.body));
+    if (searchString.length === 0) {
+      this.show();
+    } else {
+      searchString = searchString.substring(1);
+      var keyValuePairs = searchString.split('&');
+      var params = {};
+      for (var i = 0; i < keyValuePairs.length; i++) {
+        var pair = keyValuePairs[i].split('=');
+        params[pair[0]] = decodeURIComponent(pair[1]);
+      }
+      // console.log(params);
+      if (params.json) {
+        var options = JSON.parse(decodeURIComponent(params.json));
+        _this.open(options);
+      } else if (params.url) { // url to config
+        var $loading = phantasus.Util.createLoadingEl();
+        $loading.appendTo($('#vis'));
+        phantasus.Util.getText(params.url).done(function (text) {
+          var options = JSON.parse(text);
+          _this.open(options);
+        }).fail(function (err) {
+          console.log('Unable to get config file');
+          _this.show();
+        }).always(function () {
+          $loading.remove();
+        });
+      } else if (params.geo) {
+        var options = {
+          dataset: {
+            file: params.geo.toUpperCase(),
+            options: {
+              interactive: true,
+              isGEO: true
+            }
+          }
+        };
+        this.open(options);
+      } else if (params.session) {
+        var options = {
+          dataset: {
+            file: params.session,
+            options: {
+              interactive: true,
+              session: true
+            }
+          }
+        };
+        _this.open(options);
+      } else if (params.preloaded) {
+        var req = ocpu.call('preloadedDirExists', {}, function (session) {
+          session.getObject(function (success) {
+            console.log(success);
+            if (JSON.parse(success)[0]) {
+              var options = {
+                dataset: {
+                  file: params.preloaded,
+                  options: {
+                    interactive: true,
+                    preloaded: true
+                  }
+                }
+              };
+              _this.open(options);
+            } else {
+              throw new Error("There are no preloaded datasets on this server");
+            }
+          });
+        });
+        req.fail(function () {
+          throw new Error(req.responseText);
+        })
+
+      } else {
+        this.show();
+      }
+    }
+  }
+};
 
 phantasus.LandingPage.prototype = {
   open: function (openOptions) {
@@ -110,6 +194,7 @@ phantasus.LandingPage.prototype = {
         })
       });
       req.fail(function () {
+        _this.show();
         throw new Error("Checking GPLs call to OpenCPU failed" + req.responseText);
       });
     };
@@ -141,7 +226,29 @@ phantasus.LandingPage.prototype = {
         })
       });
       req.fail(function () {
+        _this.show();
         throw new Error("Checking inside names call to OpenCPU failed" + req.responseText);
+      });
+    };
+
+    var createSessionHeatMap = function (options) {
+      //http://localhost:3000/?session=x06c106048e7cb1
+      var req = ocpu.call('sessionExists', { sessionName : options.dataset.file }, function(session) {
+        session.getObject(function(success) {
+          var result = JSON.parse(success);
+
+          if (!result.result) {
+            _this.show();
+            throw new Error("Dataset" + " " + options.dataset.file + " does not exist");
+          }
+
+          var specificOptions = options;
+          new phantasus.HeatMap(specificOptions);
+        })
+      });
+      req.fail(function () {
+        _this.show();
+        throw new Error("Failed to check if the session exists:" + req.responseText);
       });
     };
 
@@ -160,7 +267,8 @@ phantasus.LandingPage.prototype = {
         createGEOHeatMap(options);
       } else if (options.dataset.options && options.dataset.options.preloaded) {
         createPreloadedHeatMap(options);
-
+      } else if (options.dataset.options && options.dataset.options.session) {
+        createSessionHeatMap(options);
       }
       else {
         // console.log("before loading heatmap from landing_page", options);
