@@ -234,6 +234,14 @@ phantasus.ActionManager = function () {
   });
 
   this.add({
+    name: phantasus.fgseaTool.prototype.toString(),
+    cb: function (options) {
+      phantasus.initFGSEATool(options);
+    },
+    icon: 'fa fa-table'
+  });
+
+  this.add({
     name: phantasus.gseaTool.prototype.toString(),
     cb: function (options) {
       new phantasus.gseaTool(

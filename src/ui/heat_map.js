@@ -290,6 +290,7 @@ phantasus.HeatMap = function (options) {
           'PCA Plot',
           'Submit to Enrichr',
           'Submit to Shiny GAM',
+          phantasus.fgseaTool.prototype.toString(),
           phantasus.gseaTool.prototype.toString(),
           'DEBUG: Probe Debug Tool',
           'DEBUG: Expose project'],
