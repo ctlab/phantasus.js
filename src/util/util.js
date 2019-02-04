@@ -1996,7 +1996,7 @@ phantasus.Util.promptBLOBdownload = function (url, name) {
   }, 0)
 };
 
-_.chunk = function(array, count) {
+phantasus.Util.chunk = function(array, count) {
   if (count == null || count < 1) return [];
   var result = [];
   var i = 0, length = array.length;
