@@ -224,7 +224,7 @@ phantasus.fgseaTool.prototype = {
   },
   generateTSV: function () {
     var headerNames = Object.keys(_.first(this.fgsea));
-    var result = headerNames.join(',') + '\n';
+    var result = headerNames.join('\t') + '\n';
 
     result += this.fgsea.map(function (pathway) {
       return Object.values(pathway).map(function (value) {
