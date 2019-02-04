@@ -207,7 +207,7 @@ phantasus.fgseaTool.prototype = {
       });
 
       req.fail(function () {
-
+        throw new Error('Failed to get pathway details: ' + req.responseText);
       });
     });
 

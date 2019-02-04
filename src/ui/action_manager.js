@@ -368,28 +368,42 @@ phantasus.ActionManager = function () {
         var location = window.location;
         var newLocation = location.origin + location.pathname + '?session=' + key;
 
-        var formBuilder = new phantasus.FormBuilder();
-        formBuilder.append({
-          name: 'Link',
-          readonly: true,
-          value: newLocation
+        var publishReq = ocpu.call('publishSession', { sessionName: key }, function (tempSession) {
+          tempSession.getObject(function (json) {
+            var parsedJSON = JSON.parse(json);
+            if (!parsedJSON.result) {
+              throw new Error('Failed to make session accessible');
+            }
+
+
+            var formBuilder = new phantasus.FormBuilder();
+            formBuilder.append({
+              name: 'Link',
+              readonly: true,
+              value: newLocation
+            });
+
+            formBuilder.append({
+              name: 'copy',
+              type: 'button'
+            });
+
+            formBuilder.$form.find('button').on('click', function () {
+              formBuilder.$form.find('input')[0].select();
+              document.execCommand('copy');
+            });
+
+            phantasus.FormBuilder.showInModal({
+              title: 'Get permanent link to a dataset',
+              close: 'Close',
+              html: formBuilder.$form,
+              focus: options.heatMap.getFocusEl()
+            });
+          });
         });
 
-        formBuilder.append({
-          name: 'copy',
-          type: 'button'
-        });
-
-        formBuilder.$form.find('button').on('click', function () {
-          formBuilder.$form.find('input')[0].select();
-          document.execCommand('copy');
-        });
-
-        phantasus.FormBuilder.showInModal({
-          title: 'Get permanent link to a dataset',
-          close: 'Close',
-          html: formBuilder.$form,
-          focus: options.heatMap.getFocusEl()
+        publishReq.fail(function () {
+          throw new Error('Failed to make session accessible: ' + publishReq.responseText);
         });
       })
     }
