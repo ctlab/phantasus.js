@@ -85,8 +85,9 @@ phantasus.fgseaTool = function (heatMap) {
     },
     buttons: {
       "Submit": function () {
-        self.execute(heatMap);
+        var promise = self.execute(heatMap);
         self.$dialog.dialog('close');
+        phantasus.Util.customToolWaiter(promise, phantasus.fgseaTool.prototype.toString(), heatMap);
       },
       "Cancel": function () {
         self.$dialog.dialog('close');
@@ -107,6 +108,7 @@ phantasus.fgseaTool.prototype = {
   },
   execute: function (heatMap) {
     var self = this;
+    var promise = $.Deferred();
     this.parentHeatmap = heatMap;
 
     var dataset = heatMap.getProject().getSelectedDataset();
@@ -129,21 +131,43 @@ phantasus.fgseaTool.prototype = {
       session.getObject(function (result) {
         self.fgsea = JSON.parse(result);
         if (_.size(self.fgsea) === 0) {
+          promise.reject();
           throw new Error("FGSEA returned 0 rows. Nothing to show");
         }
 
+
+        promise.resolve();
         self.openTab();
       });
     }, false, "::es")
       .fail(function () {
+        promise.reject();
         throw new Error("Failed to perform FGSEA. Error:" + req.responseText);
       });
+
+    return promise;
   },
   openTab: function () {
     var self = this;
     var template = [
-      '<div><button class="button">Save as TSV</button></div>',
-      '<div>' + this.generateTableHTML() + '</div>'
+      '<div class="container-fluid">',
+        '<div class="row">',
+          '<div class="col-sm-12">',
+            '<label class="control-label">Actions:</label>',
+            '<div><button class="btn btn-default">Save as TSV</button></div>',
+          '</div>',
+        '</div>',
+        '<div class="row">',
+          '<div class="col-sm-9">',
+            '<label class="control-label">FGSEA:</label>',
+            '<div>' + this.generateTableHTML() + '</div>',
+          '</div>',
+          '<div class="col-sm-3">',
+            '<label class="control-label">Pathway detail:</label>',
+            '<div id="pathway-detail" style="word-break: break-all">Hint: Click on pathway name to get list of genes in it</div>',
+          '</div>',
+        '</div>',
+      '</div>'
     ].join('');
 
     this.$el = $(template);
@@ -151,6 +175,40 @@ phantasus.fgseaTool.prototype = {
     this.$saveButton.on('click', function () {
       var blob = new Blob([self.generateTSV()], {type: "text/plain;charset=utf-8"});
       saveAs(blob, self.parentHeatmap.getName() + "_FGSEA.txt");
+    });
+
+    this.$pathwayDetail = this.$el.find('#pathway-detail');
+
+    this.$table = this.$el.find('table');
+    this.$table.on('click', 'tbody tr', function (e) {
+      var pathway = $(e.currentTarget).children().first().text();
+      var request = {
+        dbName: self.dbName,
+        pathwayName: pathway
+      };
+
+      self.$pathwayDetail.empty();
+      phantasus.Util.createLoadingEl().appendTo(self.$pathwayDetail);
+
+      var req = ocpu.call('queryPathway', request, function (session) {
+        session.getObject(function (success) {
+          var pathwayGenes = JSON.parse(success);
+          self.$pathwayDetail.empty();
+
+          var pathwayDetail = $([
+            '<div>',
+              '<strong>Pathway name:</strong>' + pathway + '<br>',
+              '<strong>Pathway genes:</strong>' + pathwayGenes.join(','),
+            '</div>'
+          ].join(''));
+
+          pathwayDetail.appendTo(self.$pathwayDetail);
+        });
+      });
+
+      req.fail(function () {
+
+      });
     });
 
     this.tab = this.parentHeatmap.tabManager.add({
@@ -194,7 +252,7 @@ phantasus.fgseaTool.prototype = {
           return result;
         }).join('');
 
-        return '<tr>' + tableRow + '</tr>';
+        return '<tr class="c-pointer">' + tableRow + '</tr>';
       })
       .join('');
 

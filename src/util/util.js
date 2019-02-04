@@ -2005,3 +2005,17 @@ _.chunk = function(array, count) {
   }
   return result;
 };
+
+phantasus.Util.customToolWaiter = function (promise, toolName, heatMap) {
+  var $dialogContent = $('<div><span>' + toolName + '...</span></div>');
+
+  var $dialog = phantasus.FormBuilder.showInDraggableDiv({
+    $content: $dialogContent,
+    appendTo: heatMap.getContentEl(),
+    width: 'auto'
+  });
+
+  promise.always(function () {
+    $dialog.remove();
+  });
+};
