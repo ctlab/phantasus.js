@@ -35,7 +35,7 @@ module.exports = function (grunt) {
           'css/jquery-ui.min.css',
           'css/font-awesome.min.css',
           'css/slick.grid.css', 'css/phantasus.grid.css',
-          'css/animate.css', 'css/phantasus.css'],
+          'css/animate.css', 'css/phantasus.css', 'css/datatables.min.css'],
         dest: 'css/phantasus.all.css'
       },
       extJs: {
@@ -66,7 +66,7 @@ module.exports = function (grunt) {
         nonull: true,
         dest: 'js/phantasus-external-plotly.js',
         src: [
-          'js/plotly-latest.min.js', 'js/d3-labeler.js', 'js/plotly.annotate.js']
+          'js/plotly-latest.min.js', 'js/d3-labeler.js', 'js/plotly.annotate.js', 'js/datatables.min.js']
       },
       phantasus: {
         options: {
