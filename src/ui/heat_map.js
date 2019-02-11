@@ -296,7 +296,6 @@ phantasus.HeatMap = function (options) {
           'DEBUG: Expose project'],
         View: ['Zoom In', 'Zoom Out', null, 'Fit To Window', 'Fit Rows To Window', 'Fit Columns To Window', null, '100%', null, 'Options'],
         Edit: [
-          'Copy Image',
           'Copy Selected Dataset',
           null,
           'Move Selected Rows To Top',
@@ -1470,11 +1469,6 @@ phantasus.HeatMap.prototype = {
         var items = [];
         phantasus.Popup.showPopup(
           [
-
-            {
-              name: 'Copy Image',
-              class: 'copy'
-            },
             {
               name: 'Save Image (' + phantasus.Util.COMMAND_KEY + 'S)'
             },
@@ -1509,8 +1503,6 @@ phantasus.HeatMap.prototype = {
                   'text/plain',
                   text);
               }
-            } else if (item === 'Copy Image') {
-              _this.getActionManager().execute('Copy Image', {event: event});
             } else {
               //console.log(item + ' unknown.');
             }

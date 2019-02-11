@@ -136,40 +136,6 @@ phantasus.ActionManager = function () {
 
   //
   this.add({
-    name: 'Copy Image',
-    icon: 'fa fa-clipboard',
-    cb: function (options) {
-      var bounds = options.heatMap.getTotalSize();
-      var height = bounds.height;
-      var width = bounds.width;
-      var canvas = $('<canvas></canvas>')[0];
-      var backingScale = phantasus.CanvasUtil.BACKING_SCALE;
-      canvas.height = backingScale * height;
-      canvas.style.height = height + 'px';
-      canvas.width = backingScale * width;
-      canvas.style.width = width + 'px';
-      var context = canvas.getContext('2d');
-      phantasus.CanvasUtil.resetTransform(context);
-      options.heatMap.snapshot(context);
-      var url = canvas.toDataURL();
-      // canvas.toBlob(function (blob) {
-      // 	url = URL.createObjectURL(blob);
-      // 	event.clipboardData
-      // 	.setData(
-      // 		'text/html',
-      // 		'<img src="' + url + '">');
-      // });
-
-      phantasus.Util.setClipboardData([
-        {
-        format: 'text/html',
-        data: '<img src="' + url + '">'
-      }], true);
-    }
-  });
-
-  //
-  this.add({
     name: 'Close Tab',
     cb: function (options) {
       options.heatMap.getTabManager().remove(options.heatMap.tabId);
@@ -933,11 +899,7 @@ phantasus.ActionManager = function () {
         text.push(toStringFunction(v
           .getValue(index)));
       });
-    phantasus.Util.setClipboardData([
-      {
-      format: 'text/plain',
-      data: text.join('\n')
-    }]);
+    phantasus.Util.setClipboardData(text.join('\n'));
   };
   this.add({
     name: 'Copy Selected Rows',
@@ -1085,11 +1047,7 @@ phantasus.ActionManager = function () {
 
       var text = new phantasus.GctWriter()
         .write(dataset);
-      phantasus.Util.setClipboardData([
-        {
-        format: 'text/plain',
-        data: text
-      }]);
+      phantasus.Util.setClipboardData(text);
 
     }
   });

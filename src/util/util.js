@@ -510,61 +510,33 @@ phantasus.Util.autocompleteArrayMatcher = function (token, cb, array, fields, ma
 
 /**
  *
- * @param array. Array of format,data
+ * @param text. text
  */
-phantasus.Util.setClipboardData = function (clipboardData, delay) {
-  var isRTL = document.documentElement.getAttribute('dir') == 'rtl';
-  var fakeElem = document.createElement('div');
-  fakeElem.contentEditable = true;
-
+phantasus.Util.setClipboardData = function (text) {
+  const isRTL = document.documentElement.getAttribute('dir') == 'rtl';
+  var fakeElem = document.createElement('textarea');
+  var container = document.body;
   // Prevent zooming on iOS
   fakeElem.style.fontSize = '12pt';
   // Reset box model
-
   fakeElem.style.border = '0';
   fakeElem.style.padding = '0';
   fakeElem.style.margin = '0';
   // Move element out of screen horizontally
   fakeElem.style.position = 'absolute';
-  fakeElem.style[isRTL ? 'right' : 'left'] = '-999999px';
+  fakeElem.style[ isRTL ? 'right' : 'left' ] = '-9999px';
   // Move element to the same position vertically
-  fakeElem.style.top = (window.pageYOffset || document.documentElement.scrollTop) + 'px';
+  let yPosition = window.pageYOffset || document.documentElement.scrollTop;
+  fakeElem.style.top = yPosition+'px';
+
   fakeElem.setAttribute('readonly', '');
-  //fakeElem.innerHTML = html;
-  var f = function (e) {
-    clipboardData.forEach(function (elem) {
-      e.clipboardData.setData(elem.format, elem.data);
-    });
+  fakeElem.value = text;
 
-    e.preventDefault();
-    e.stopPropagation();
-    e.stopImmediatePropagation();
-    fakeElem.removeEventListener('copy', f);
-  };
-  fakeElem.addEventListener('copy', f);
-
-  document.body.appendChild(fakeElem);
-  // if (fakeElem.hasAttribute('contenteditable')) {
-  fakeElem.focus();
-  // }
-  var selection = window.getSelection();
-  var range = document.createRange();
-  range.selectNodeContents(fakeElem);
-  selection.removeAllRanges();
-  selection.addRange(range);
-  if (delay) {
-    setTimeout(function () {
-      if (!document.execCommand('copy')) {
-        console.log('copy failed');
-      }
-      document.body.removeChild(fakeElem);
-    }, 20);
-  } else {
-    if (!document.execCommand('copy')) {
-      console.log('copy failed');
-    }
-    document.body.removeChild(fakeElem);
-  }
+  container.appendChild(fakeElem);
+  fakeElem.select();
+  fakeElem.setSelectionRange(0, fakeElem.value.length);
+  document.execCommand('copy');
+  document.body.removeChild(fakeElem);
 };
 
 /**
