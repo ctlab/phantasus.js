@@ -4,7 +4,7 @@ phantasus.aboutDataset = function (options) {
   var dataset = this.project.getFullDataset();
 
   var deepMapper = function (value, index) {
-    if (_.isObject(value) && _.size(value) > 1) {
+    if (!value.values) {
       return _.map(value, deepMapper).join('');
     }
 
