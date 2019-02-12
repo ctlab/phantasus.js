@@ -84,7 +84,7 @@ phantasus.fgseaTool = function (heatMap) {
     name: 'omit_ambigious_genes',
     type: 'checkbox',
     tooltipHelp: 'Current column contains cells with multiple values separated by \'///\'.',
-    value: false
+    value: true
   }].forEach(function (a) {
     self.formBuilder.append(a);
   });
