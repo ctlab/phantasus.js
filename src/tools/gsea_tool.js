@@ -79,6 +79,7 @@ phantasus.gseaTool = function (heatmap, project) {
     }
 
     if (self.promise) {
+      self.promise.cancelled = true;
       self.promise.reject('Cancelled');
     }
 
@@ -133,6 +134,7 @@ phantasus.gseaTool.prototype = {
     this.$chart.empty();
     phantasus.Util.createLoadingEl().appendTo(this.$chart);
     this.promise = $.Deferred();
+    var promise = this.promise;
 
     var selectedDataset = project.getSelectedDataset();
     var parentDataset = selectedDataset.dataset;
@@ -203,17 +205,24 @@ phantasus.gseaTool.prototype = {
       request.es = esSession;
 
       ocpu.call('gseaPlot', request, function (session) {
+        if (promise.cancelled) {
+          return;
+        }
+
         session.getObject(function (filenames) {
+          if (promise.cancelled) {
+            return;
+          }
+
           var svgPath = JSON.parse(filenames)[0];
           var absolutePath = phantasus.Util.getFilePath(session, svgPath);
           phantasus.BlobFromPath.getFileObject(absolutePath, function (blob) {
-            self.imageURL = URL.createObjectURL(blob);
-            self.promise.resolve(self.imageURL);
+            promise.resolve(URL.createObjectURL(blob));
           });
         });
       }, false, "::es")
         .fail(function () {
-          self.promise.reject();
+          promise.reject();
         });
     })
 
