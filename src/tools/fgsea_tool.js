@@ -134,6 +134,14 @@ phantasus.fgseaTool = function (heatMap) {
 phantasus.fgseaTool.prototype = {
   init: false,
   dbs: [],
+  precision: {
+    pval: 3,
+    padj: 3,
+    log2err: 3,
+    ES: 3,
+    NES: 3,
+    size: undefined
+  },
   toString: function () {
     return "Perform FGSEA"
   },
@@ -238,7 +246,7 @@ phantasus.fgseaTool.prototype = {
     this.$saveButton = this.$el.find('button');
     this.$saveButton.on('click', function () {
       var blob = new Blob([self.generateTSV()], {type: "text/plain;charset=utf-8"});
-      saveAs(blob, self.parentHeatmap.getName() + "_FGSEA.txt");
+      saveAs(blob, self.parentHeatmap.getName() + "_FGSEA.tsv");
     });
 
     this.$pathwayDetail = this.$el.find('#pathway-detail');
@@ -317,8 +325,7 @@ phantasus.fgseaTool.prototype = {
 
     var tbody = this.fgsea
       .map(function (pathway) {
-        var values = Object.values(pathway);
-        var tableRow = values.map(function (value) {
+        var tableRow = _.map(pathway, function (value, colname) {
           var result = '<td>';
 
           if (_.isArray(value)) {
@@ -327,6 +334,8 @@ phantasus.fgseaTool.prototype = {
             } else {
               result += value.join(' ');
             }
+          } else if (_.isNumber(value)) {
+            result += value.toPrecision(phantasus.fgseaTool.prototype.precision[colname]);
           } else {
             result += value.toString();
           }
