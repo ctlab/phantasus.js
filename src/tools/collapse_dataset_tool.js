@@ -132,7 +132,7 @@ phantasus.CollapseDatasetTool.prototype = {
             isRows: rows,
             fn: f.rString(),
             fields: collapseToFields,
-            removeEmpty: omitUnannotatedGenes
+            removeEmpty: omitUnannotated
           };
 
           ocpu
