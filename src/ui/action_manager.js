@@ -196,7 +196,7 @@ phantasus.ActionManager = function () {
         options.heatMap.getProject()
       );
     },
-    icon: 'fa fa-table'
+    icon: 'fa'
   });
 
   this.add({
@@ -204,7 +204,7 @@ phantasus.ActionManager = function () {
     cb: function (options) {
       phantasus.initFGSEATool(options);
     },
-    icon: 'fa fa-table'
+    icon: 'fa'
   });
 
   this.add({
@@ -256,7 +256,38 @@ phantasus.ActionManager = function () {
       'From file', 'From database']
   });
 
+  this.add({
+    name: 'Differential expression',
+    children: [
+      'Limma',
+      'Marker Selection'],
+    icon: 'fa fa-list'
+  });
 
+  this.add({
+    name: 'Clustering',
+    children: [
+      'K-means',
+      'Hierarchical Clustering'],
+    icon: 'fa'
+  });
+
+  this.add({
+    name: 'Plots',
+    children: [
+      'Chart',
+      'PCA Plot',
+      phantasus.gseaTool.prototype.toString()],
+    icon: 'fa fa-line-chart'
+  });
+
+  this.add({
+    name: 'Pathway analysis',
+    children: [
+      'Submit to Enrichr',
+      phantasus.fgseaTool.prototype.toString()],
+    icon: 'fa fa-table'
+  });
 
   this.add({
     name: 'Annotate columns',
@@ -395,7 +426,7 @@ phantasus.ActionManager = function () {
             options.heatMap.getVisibleTrackNames, options.heatMap)
         });
       },
-      icon: 'fa fa-line-chart'
+      icon: 'fa'
     });
 
     this.add({
@@ -405,7 +436,7 @@ phantasus.ActionManager = function () {
           project: options.heatMap.getProject()
         });
       },
-      icon: 'fa fa-line-chart'
+      icon: 'fa'
     });
   }
 
