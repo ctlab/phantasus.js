@@ -32,15 +32,15 @@ phantasus.GeoReader.prototype = {
       session.getMessages(function (success) {
         console.log('loadGEO messages', '::', success);
       });
-      phantasus.ParseDatasetFromProtoBin.parse(session, afterLoaded, { isGEO : true });
+      phantasus.ParseDatasetFromProtoBin.parse(session, afterLoaded, { isGEO : true, pathFunction: phantasus.GeoReader.prototype.getPath });
     });
     req.fail(function () {
       callback(req.responseText);
     });
 
   },
-  _parse: function (text) {
-
+  getPath: function (fragment) {
+    return window.libraryPrefix.slice(0, -1) + fragment;
   }
 };
 

@@ -3,7 +3,10 @@ phantasus.ParseDatasetFromProtoBin = function () {
 
 phantasus.ParseDatasetFromProtoBin.parse = function (session, callback, options) {
   session.getObject(function(success) {
-    var filePath = phantasus.Util.getFilePath(session, JSON.parse(success)[0]);
+    var response = JSON.parse(success)[0];
+    var filePath = options.pathFunction ?
+      options.pathFunction(response) :
+      phantasus.Util.getFilePath(session, response);
 
     var r = new FileReader();
 
