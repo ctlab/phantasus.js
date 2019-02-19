@@ -5,6 +5,10 @@ phantasus.PreloadedReader.prototype = {
   read: function(name, callback) {
     console.log("preloaded read", name);
     name = typeof name === "string" ? { name : name } : name;
+    var cacheURL = this.getPath('/preloaded/' + name.name + '.bin');
+
+    //load and discard data so cached
+    fetch(cacheURL).then(function () {}, function () {});
 
     var afterLoaded = function (err, dataset) {
       if (!err) {
@@ -29,10 +33,13 @@ phantasus.PreloadedReader.prototype = {
     };
 
     var req = ocpu.call('loadPreloaded', name, function(session) {
-      phantasus.ParseDatasetFromProtoBin.parse(session, afterLoaded, { preloaded : true });
+      phantasus.ParseDatasetFromProtoBin.parse(session, afterLoaded, { preloaded : true, pathFunction: phantasus.PreloadedReader.prototype.getPath });
     });
     req.fail(function () {
       callback(req.responseText);
     })
+  },
+  getPath: function (fragment) {
+    return window.libraryPrefix.slice(0, -1) + fragment;
   }
 };

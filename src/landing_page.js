@@ -133,29 +133,16 @@ phantasus.LandingPage = function (pageOptions) {
         };
         _this.open(options);
       } else if (params.preloaded) {
-        var req = ocpu.call('preloadedDirExists', {}, function (session) {
-          session.getObject(function (success) {
-            console.log(success);
-            if (JSON.parse(success)[0]) {
-              var options = {
-                dataset: {
-                  file: params.preloaded,
-                  options: {
-                    interactive: true,
-                    preloaded: true
-                  }
-                }
-              };
-              _this.open(options);
-            } else {
-              throw new Error("There are no preloaded datasets on this server");
+        var options = {
+          dataset: {
+            file: params.preloaded,
+            options: {
+              interactive: true,
+              preloaded: true
             }
-          });
-        });
-        req.fail(function () {
-          throw new Error(req.responseText);
-        })
-
+          }
+        };
+        _this.open(options);
       } else {
         this.show();
       }
@@ -200,35 +187,7 @@ phantasus.LandingPage.prototype = {
     };
 
     var createPreloadedHeatMap = function(options) {
-      var req = ocpu.call('checkPreloadedNames', { name : options.dataset.file }, function(session) {
-        session.getMessages(function(success) {
-          console.log('checkPreloadedNames messages', success);
-        });
-        session.getObject(function(success) {
-          var names = JSON.parse(success);
-          // console.log(names);
-
-          if (names.length === 0) {
-            _this.show();
-            throw new Error("Dataset" + " " + options.dataset.file + " does not exist");
-
-          }
-
-          for (var j = 0; j < names.length; j++) {
-            var specificOptions = options;
-
-            specificOptions.dataset.options.exactName = names[j];
-            // console.log("specific", specificOptions);
-
-            new phantasus.HeatMap(specificOptions);
-          }
-
-        })
-      });
-      req.fail(function () {
-        _this.show();
-        throw new Error("Checking inside names call to OpenCPU failed" + req.responseText);
-      });
+      new phantasus.HeatMap(options);
     };
 
     var createSessionHeatMap = function (options) {
