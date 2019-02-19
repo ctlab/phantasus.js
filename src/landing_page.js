@@ -362,7 +362,7 @@ phantasus.LandingPage.prototype = {
     }
 
     var fileName = phantasus.Util.getFileName(value);
-    if (fileName.toLowerCase().indexOf('.json') === fileName.length - 5) {
+    if (fileName.toLowerCase().endsWith('.json')) {
       phantasus.Util.getText(value).done(function (text) {
         _this.open(JSON.parse(text));
       }).fail(function (err) {
