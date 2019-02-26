@@ -247,7 +247,7 @@ phantasus.HeatMapTooltipProvider.vectorToString = function (vector, index, tipTe
   };
   if (vector != null) {
     var primaryVal = vector.getValue(index);
-    if (primaryVal != null && primaryVal != '') {
+    if (primaryVal != null && primaryVal !== '') {
       var primaryFields = vector.getProperties().get(
         phantasus.VectorKeys.FIELDS);
       if (primaryFields != null) {

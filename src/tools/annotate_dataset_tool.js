@@ -16,8 +16,7 @@ phantasus.AnnotateDatasetTool.prototype = {
       required: true,
       allowedInputs: {
         computer: true,
-        url: true,
-        dropbox: true
+        url: true
       }
     });
     array.options = {

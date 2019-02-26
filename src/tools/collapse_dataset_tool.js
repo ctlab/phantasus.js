@@ -25,11 +25,11 @@ phantasus.CollapseDatasetTool.prototype = {
     var setValue = function (val) {
       var isRows = val === 'Rows';
       var names = phantasus
-                  .MetadataUtil
-                  .getMetadataNames(
-                    isRows ?
-                    project.getFullDataset().getRowMetadata() :
-                    project.getFullDataset().getColumnMetadata());
+        .MetadataUtil
+        .getMetadataNames(
+          isRows ?
+            project.getFullDataset().getRowMetadata() :
+            project.getFullDataset().getColumnMetadata());
 
       form.setOptions('collapse_to_fields', names);
     };
@@ -68,6 +68,10 @@ phantasus.CollapseDatasetTool.prototype = {
       options: [],
       type: 'select',
       multiple: true
+    }, {
+      name: 'omit_unannotated',
+      type: 'checkbox',
+      value: true
     }];
   },
 
@@ -75,33 +79,50 @@ phantasus.CollapseDatasetTool.prototype = {
     var project = options.project;
     var heatMap = options.heatMap;
     var f = phantasus
-            .CollapseDatasetTool
-            .Functions
-            .fromString(options.input.collapse_method);
+      .CollapseDatasetTool
+      .Functions
+      .fromString(options.input.collapse_method);
 
     var collapseToFields = options.input.collapse_to_fields;
+    var omitUnannotated = options.input.omit_unannotated;
     if (!collapseToFields || collapseToFields.length === 0) {
       throw new Error('Please select one or more fields to collapse to');
     }
 
     var dataset = project.getFullDataset();
     var rows = options.input.collapse === 'Rows';
-
     if (!rows) {
       dataset = new phantasus.TransposedDatasetView(dataset);
     }
 
-    var allFields = phantasus.MetadataUtil.getMetadataNames(dataset.getRowMetadata());
+    if (omitUnannotated) {
+      var fieldMeta = dataset.getRowMetadata();
+      var aoa = collapseToFields
+        .map(function (field) {
+          return phantasus.VectorUtil.toArray(fieldMeta.getByName(field));
+        })
+
+      var keepIndexes = _.zip
+        .apply(null, aoa)
+        .map(function (aos) {
+          return aos.join('');
+        })
+        .reduce(function (acc, value, index) {
+          if (_.size(value) !== 0) acc.push(index);
+          return acc;
+        }, [])
+
+      dataset = new phantasus.SlicedDatasetView(dataset, keepIndexes);
+    }
+
     var collapseMethod = f.selectOne ? phantasus.SelectRow : phantasus.CollapseDataset;
     dataset = collapseMethod(dataset, collapseToFields, f, true);
-
     if (!rows) {
       dataset = phantasus.DatasetUtil.copy(new phantasus.TransposedDatasetView(dataset));
     }
 
     var oldDataset = project.getFullDataset();
     var oldSession = oldDataset.getESSession();
-
     if (oldSession) {
       dataset.setESSession(new Promise(function (resolve, reject) {
         oldSession.then(function (esSession) {
@@ -110,7 +131,8 @@ phantasus.CollapseDatasetTool.prototype = {
             selectOne: Boolean(f.selectOne),
             isRows: rows,
             fn: f.rString(),
-            fields: collapseToFields
+            fields: collapseToFields,
+            removeEmpty: omitUnannotated
           };
 
           ocpu
@@ -126,19 +148,6 @@ phantasus.CollapseDatasetTool.prototype = {
 
     }
 
-
-    var set = new phantasus.Map();
-    _.each(allFields, function (field) {
-      set.set(field, true);
-    });
-    _.each(collapseToFields, function (field) {
-      set.remove(field);
-    });
-    // hide fields that were not part of collapse to
-    // console.log("Collapse ", set);
-    // set.forEach(function (val, name) {
-    //   heatMap.setTrackVisible(name, false, !rows);
-    // });
     return new phantasus.HeatMap({
       name: heatMap.getName(),
       dataset: dataset,

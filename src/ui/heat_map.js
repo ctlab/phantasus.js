@@ -254,14 +254,21 @@ phantasus.HeatMap = function (options) {
       $loadingImage: phantasus.Util.createLoadingEl(),
       menu: {
         File: [
-          'Open', 'Annotate', null, 'Save Image', 'Save Dataset', 'Save Session', null, 'Close Tab', null, 'Rename' +
-          ' Tab'],
+          'Open',
+          'Annotate',
+          phantasus.aboutDataset.prototype.toString(),
+          null,
+          'Save Image',
+          'Save Dataset',
+          'Save Session',
+          'Get permanent link',
+          null,
+          'Close Tab',
+          null,
+          'Rename Tab'],
         Tools: [
           'New Heat Map',
           null,
-          'Hierarchical Clustering',
-          null,
-          'Marker Selection',
           'Nearest Neighbors',
           'Create Calculated Annotation',
           null,
@@ -270,22 +277,18 @@ phantasus.HeatMap = function (options) {
           'Similarity Matrix',
           'Transpose',
           null,
-          'Chart',
-          null,
           'Sort/Group',
           'Filter',
           null,
-          'K-means',
-          'Limma',
-          'PCA Plot',
-          'Submit to Enrichr',
+          'Differential expression',
+          'Clustering',
+          'Plots',
+          'Pathway analysis',
           'Submit to Shiny GAM',
-          phantasus.gseaTool.prototype.toString(),
           'DEBUG: Probe Debug Tool',
           'DEBUG: Expose project'],
         View: ['Zoom In', 'Zoom Out', null, 'Fit To Window', 'Fit Rows To Window', 'Fit Columns To Window', null, '100%', null, 'Options'],
         Edit: [
-          'Copy Image',
           'Copy Selected Dataset',
           null,
           'Move Selected Rows To Top',
@@ -404,7 +407,7 @@ phantasus.HeatMap = function (options) {
           new phantasus.TabManager({
             landingPage: function () {
               if (_this.options.landingPage == null) {
-                _this.options.landingPage = new phantasus.LandingPage({tabManager: _this.tabManager});
+                _this.options.landingPage = new phantasus.LandingPage({tabManager: _this.tabManager, autoInit: false});
                 _this.options.landingPage.$el.prependTo(_this.$el);
               }
               return _this.options.landingPage;
@@ -1459,11 +1462,6 @@ phantasus.HeatMap.prototype = {
         var items = [];
         phantasus.Popup.showPopup(
           [
-
-            {
-              name: 'Copy Image',
-              class: 'copy'
-            },
             {
               name: 'Save Image (' + phantasus.Util.COMMAND_KEY + 'S)'
             },
@@ -1498,8 +1496,6 @@ phantasus.HeatMap.prototype = {
                   'text/plain',
                   text);
               }
-            } else if (item === 'Copy Image') {
-              _this.getActionManager().execute('Copy Image', {event: event});
             } else {
               //console.log(item + ' unknown.');
             }

@@ -160,12 +160,11 @@ phantasus.LimmaTool.prototype = {
               });
               // alert("Limma finished successfully");
               dataset.setESSession(Promise.resolve(session));
-              promise.resolve();
-
               project.trigger("trackChanged", {
                 vectors: vs,
                 display: []
               });
+              promise.resolve();
             })
           };
           phantasus.BlobFromPath.getFileObject(filePath, function (file) {

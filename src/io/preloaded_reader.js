@@ -29,10 +29,13 @@ phantasus.PreloadedReader.prototype = {
     };
 
     var req = ocpu.call('loadPreloaded', name, function(session) {
-      phantasus.ParseDatasetFromProtoBin.parse(session, afterLoaded, { preloaded : true });
+      phantasus.ParseDatasetFromProtoBin.parse(session, afterLoaded, { preloaded : true, pathFunction: phantasus.PreloadedReader.prototype.getPath });
     });
     req.fail(function () {
       callback(req.responseText);
     })
+  },
+  getPath: function (fragment) {
+    return window.libraryPrefix.slice(0, -1) + fragment;
   }
 };

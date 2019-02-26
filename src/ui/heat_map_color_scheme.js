@@ -390,7 +390,14 @@ phantasus.RowStats.prototype = {
         }
       }
       if (this.rowCachedMin === this.rowCachedMax) {
-        this.rowCachedMin--;
+        this.rowCachedMax = this.rowCachedMax*2;
+        this.rowCachedMin = 0;
+
+        if (this.rowCachedMax < this.rowCachedMin) {
+          var a = this.rowCachedMax;
+          this.rowCachedMax = this.rowCachedMin;
+          this.rowCachedMin = a;
+        }
       }
       return true;
     }
