@@ -4,7 +4,7 @@ phantasus.PreloadedReader = function () {
 phantasus.PreloadedReader.prototype = {
   read: function(name, callback) {
     console.log("preloaded read", name);
-    name = typeof name === "string" ? { name : name } : name;
+    name = { name: name.name || name };
 
     var afterLoaded = function (err, dataset) {
       if (!err) {

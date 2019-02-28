@@ -187,6 +187,7 @@ phantasus.LandingPage.prototype = {
     };
 
     var createPreloadedHeatMap = function(options) {
+      options.dataset.options.exactName = options.dataset.file;
       new phantasus.HeatMap(options);
     };
 
