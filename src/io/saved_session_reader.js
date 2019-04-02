@@ -27,9 +27,15 @@ phantasus.SavedSessionReader.prototype = {
             }
           }
         });
+
+        dataset[0].setESSession(new Promise(function (rs) { rs(sessionWithLoadedMeta); }));
       }
 
+      callback(err, dataset);
+    };
 
+    var req = ocpu.call('loadSession', name, function(session) {
+      sessionWithLoadedMeta = session;
       sessionWithLoadedMeta.loc = sessionWithLoadedMeta.loc.split(sessionWithLoadedMeta.key).join(name.sessionName);
       sessionWithLoadedMeta.key = name.sessionName;
       sessionWithLoadedMeta.getLoc = function () {
@@ -40,16 +46,11 @@ phantasus.SavedSessionReader.prototype = {
         return sessionWithLoadedMeta.key;
       };
 
-      dataset[0].setESSession(new Promise(function (rs) { rs(sessionWithLoadedMeta); }));
-
-      callback(err, dataset);
-    };
-
-    var req = ocpu.call('loadSession', name, function(session) {
-      sessionWithLoadedMeta = session;
-
-      phantasus.ParseDatasetFromProtoBin.parse(session, afterLoaded, { preloaded : true });
+      phantasus.ParseDatasetFromProtoBin.parse(session, afterLoaded, {
+        preloaded : true
+      });
     });
+
     req.fail(function () {
       callback(req.responseText);
     })
