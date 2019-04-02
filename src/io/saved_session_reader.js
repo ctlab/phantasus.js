@@ -11,10 +11,13 @@ phantasus.SavedSessionReader.prototype = {
       if (!err) {
         var datasetTitle = "permanent linked dataset";
         var experimentData = dataset[0].getExperimentData();
-        if (experimentData) datasetTitle = experimentData.title.values.toString() || datasetTitle;
+        var seriesName = dataset[0].seriesNames[0];
+
+        if (experimentData) datasetTitle = experimentData.title.values.toString() || seriesName || datasetTitle;
+        else datasetTitle = seriesName || datasetTitle;
 
         phantasus.datasetHistory.store({
-          name: name.name,
+          name: name.sessionName,
           description: datasetTitle,
           openParameters: {
             file: name.sessionName,
@@ -24,9 +27,15 @@ phantasus.SavedSessionReader.prototype = {
             }
           }
         });
+
+        dataset[0].setESSession(new Promise(function (rs) { rs(sessionWithLoadedMeta); }));
       }
 
+      callback(err, dataset);
+    };
 
+    var req = ocpu.call('loadSession', name, function(session) {
+      sessionWithLoadedMeta = session;
       sessionWithLoadedMeta.loc = sessionWithLoadedMeta.loc.split(sessionWithLoadedMeta.key).join(name.sessionName);
       sessionWithLoadedMeta.key = name.sessionName;
       sessionWithLoadedMeta.getLoc = function () {
@@ -37,16 +46,11 @@ phantasus.SavedSessionReader.prototype = {
         return sessionWithLoadedMeta.key;
       };
 
-      dataset[0].setESSession(new Promise(function (rs) { rs(sessionWithLoadedMeta); }));
-
-      callback(err, dataset);
-    };
-
-    var req = ocpu.call('loadSession', name, function(session) {
-      sessionWithLoadedMeta = session;
-
-      phantasus.ParseDatasetFromProtoBin.parse(session, afterLoaded, { preloaded : true });
+      phantasus.ParseDatasetFromProtoBin.parse(session, afterLoaded, {
+        preloaded : true
+      });
     });
+
     req.fail(function () {
       callback(req.responseText);
     })
