@@ -1861,7 +1861,7 @@ phantasus.Util.getMessages = function(session) {
 };
 
 phantasus.Util.setLibrary = function (libraryName) {
-  if (!window.libraryPrefix) window.libraryPrefix = '/phantasus/';
+  if (!window.libraryPrefix) window.libraryPrefix = '/';
 
   ocpu.seturl(window.libraryPrefix + 'ocpu/library/' + libraryName + '/R');
 };

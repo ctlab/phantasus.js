@@ -367,9 +367,6 @@ phantasus.TabManager.prototype = {
   setTabTitle: function (id, title) {
     this._getA(id).attr('title', title);
   },
-  setTabName: function (id, name) {
-    this._getA(id).contents().first().replaceWith(name + '&nbsp;');
-  },
   _getA: function (id) {
     if (id[0] === '#') {
       id = id.substring(1);

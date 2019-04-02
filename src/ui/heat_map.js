@@ -1112,9 +1112,6 @@ phantasus.HeatMap.prototype = {
   },
   setName: function (name) {
     this.options.name = name;
-    if (this.tabId) {
-      this.tabManager.setTabName(this.tabId, name);
-    }
   },
   getName: function () {
     return this.options.name;

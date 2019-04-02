@@ -363,16 +363,16 @@ phantasus.ActionManager = function () {
       dataset.getESSession().then(function (es) {
         var key = es.getKey();
         var location = window.location;
-        var datasetName = options.heatMap.getName();
+        var newLocation = location.origin + location.pathname + '?session=' + key;
 
-        var publishReq = ocpu.call('publishSession', { sessionName: key, datasetName: datasetName }, function (tempSession) {
+        var publishReq = ocpu.call('publishSession', { sessionName: key }, function (tempSession) {
           tempSession.getObject(function (json) {
             var parsedJSON = JSON.parse(json);
-            if (!parsedJSON.result === false) {
+            if (!parsedJSON.result) {
               throw new Error('Failed to make session accessible');
             }
 
-            var newLocation = location.origin + location.pathname + '?session=' + tempSession.key;
+
             var formBuilder = new phantasus.FormBuilder();
             formBuilder.append({
               name: 'Link',
