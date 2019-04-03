@@ -502,6 +502,16 @@ phantasus.PcaPlotTool.prototype = {
 
           Plotly.newPlot(plot, data, layout, config).then(Plotly.annotate);
           _this.exportButton.toggle(true);
+
+          plot.on('plotly_selected', function(eventData) {
+            var indexes = new phantasus.Set();
+            eventData.points.forEach(function (point) {
+              indexes.add(point.pointIndex);
+            });
+
+            _this.project.getColumnSelectionModel().setViewIndices(indexes, true);
+          });
+
         };
 
         if (!_this.pca) {
