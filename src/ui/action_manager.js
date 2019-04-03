@@ -357,7 +357,7 @@ phantasus.ActionManager = function () {
 
   this.add({
     ellipsis: true,
-    name: 'Get permanent link',
+    name: 'Get link to a dataset',
     cb: function (options) {
       var dataset = options.heatMap.getProject().getFullDataset();
       dataset.getESSession().then(function (es) {
@@ -390,8 +390,10 @@ phantasus.ActionManager = function () {
               document.execCommand('copy');
             });
 
+            formBuilder.appendContent('<h4>Please note that link will be valid for 30 days.</h4>');
+
             phantasus.FormBuilder.showInModal({
-              title: 'Get permanent link to a dataset',
+              title: 'Get link to a dataset',
               close: 'Close',
               html: formBuilder.$form,
               focus: options.heatMap.getFocusEl()
