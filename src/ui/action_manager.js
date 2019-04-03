@@ -268,6 +268,7 @@ phantasus.ActionManager = function () {
     name: 'Clustering',
     children: [
       'K-means',
+      'Nearest Neighbors',
       'Hierarchical Clustering'],
     icon: 'fa'
   });

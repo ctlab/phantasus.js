@@ -269,9 +269,7 @@ phantasus.HeatMap = function (options) {
         Tools: [
           'New Heat Map',
           null,
-          'Nearest Neighbors',
           'Create Calculated Annotation',
-          null,
           'Adjust',
           'Collapse',
           'Similarity Matrix',
