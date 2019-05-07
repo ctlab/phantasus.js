@@ -2,47 +2,45 @@ phantasus.ParseDatasetFromProtoBin = function () {
 };
 
 phantasus.ParseDatasetFromProtoBin.parse = function (session, callback, options) {
-  session.getObject(function(success) {
-    var response = JSON.parse(success)[0];
-    var filePath = options.pathFunction ?
-      options.pathFunction(response) :
-      phantasus.Util.getFilePath(session, response);
+  var response = JSON.parse(session.txt)[0];
+  var filePath = options.pathFunction ?
+    options.pathFunction(response) :
+    phantasus.Util.getFilePath(session, response);
 
-    var r = new FileReader();
+  var r = new FileReader();
 
-    r.onload = function (e) {
-      var contents = e.target.result;
-      var ProtoBuf = dcodeIO.ProtoBuf;
-      ProtoBuf.protoFromFile("./message.proto", function (error, success) {
-        if (error) {
-          throw new Error(error);
-        }
-        var builder = success,
-          rexp = builder.build("rexp"),
-          REXP = rexp.REXP,
-          rclass = REXP.RClass;
+  r.onload = function (e) {
+    var contents = e.target.result;
+    var ProtoBuf = dcodeIO.ProtoBuf;
+    ProtoBuf.protoFromFile("./message.proto", function (error, success) {
+      if (error) {
+        throw new Error(error);
+      }
+      var builder = success,
+        rexp = builder.build("rexp"),
+        REXP = rexp.REXP,
+        rclass = REXP.RClass;
 
 
-        var res = REXP.decode(contents);
+      var res = REXP.decode(contents);
 
-        var jsondata = phantasus.Util.getRexpData(res, rclass);
+      var jsondata = phantasus.Util.getRexpData(res, rclass);
 
-        var datasets = [];
-        for (var k = 0; k < Object.keys(jsondata).length; k++) {
-          var dataset = phantasus.ParseDatasetFromProtoBin.getDataset(new Promise(function (resolve) {resolve(session)}),
-                                                                      Object.keys(jsondata)[k],
-                                                                      jsondata[Object.keys(jsondata)[k]],
-                                                                      options);
-          datasets.push(dataset);
-        }
-        callback(null, datasets);
-      });
-    };
-
-    phantasus.BlobFromPath.getFileObject(filePath, function (f) {
-      r.readAsArrayBuffer(f);
+      var datasets = [];
+      for (var k = 0; k < Object.keys(jsondata).length; k++) {
+        var dataset = phantasus.ParseDatasetFromProtoBin.getDataset(new Promise(function (resolve) {resolve(session)}),
+                                                                    Object.keys(jsondata)[k],
+                                                                    jsondata[Object.keys(jsondata)[k]],
+                                                                    options);
+        datasets.push(dataset);
+      }
+      callback(null, datasets);
     });
-  })
+  };
+
+  phantasus.BlobFromPath.getFileObject(filePath, function (f) {
+    r.readAsArrayBuffer(f);
+  });
 };
 
 phantasus.ParseDatasetFromProtoBin.getDataset = function (session, seriesName, jsondata, options) {

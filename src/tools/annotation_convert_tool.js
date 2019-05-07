@@ -13,15 +13,13 @@ phantasus.initAnnotationConvertTool = function (options) {
       width: 300
     });
 
-    var req = ocpu.call("queryAnnotationDBMeta", {}, function (newSession) {
-      newSession.getObject(function (success) {
-        var result = JSON.parse(success);
-        phantasus.annotationDBMeta.init = true;
+    var req = ocpu.call("queryAnnotationDBMeta/print", {}, function (newSession) {
+      var result = JSON.parse(newSession.txt);
+      phantasus.annotationDBMeta.init = true;
 
-        phantasus.annotationDBMeta.dbs = result;
-        $el.dialog('destroy').remove();
-        new phantasus.AnnotationConvertTool(options.heatMap);
-      })
+      phantasus.annotationDBMeta.dbs = result;
+      $el.dialog('destroy').remove();
+      new phantasus.AnnotationConvertTool(options.heatMap);
     });
 
     req.fail(function () {
@@ -160,26 +158,24 @@ phantasus.AnnotationConvertTool.prototype = {
         columnType: columnType,
         keyType: keyType
       };
-      var req = ocpu.call("convertByAnnotationDB", args, function (newSession) {
-        newSession.getObject(function (success) {
-          var result = JSON.parse(success);
+      var req = ocpu.call("convertByAnnotationDB/print", args, function (newSession) {
+        var result = JSON.parse(newSession.txt);
 
-          var v = dataset.getRowMetadata().add(keyType);
-          for (var i = 0; i < dataset.getRowCount(); i++) {
-            v.setValue(i, result[i].toString());
-          }
+        var v = dataset.getRowMetadata().add(keyType);
+        for (var i = 0; i < dataset.getRowCount(); i++) {
+          v.setValue(i, result[i].toString());
+        }
 
-          v.getProperties().set("phantasus.dataType", "string");
+        v.getProperties().set("phantasus.dataType", "string");
 
-          dataset.setESSession(Promise.resolve(newSession));
+        dataset.setESSession(Promise.resolve(newSession));
 
-          project.trigger("trackChanged", {
-            vectors: [v],
-            display: []
-          });
+        project.trigger("trackChanged", {
+          vectors: [v],
+          display: []
+        });
 
-          promise.resolve();
-        })
+        promise.resolve();
       }, false, "::es");
 
       req.fail(function () {

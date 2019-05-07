@@ -204,21 +204,16 @@ phantasus.gseaTool.prototype = {
     fullDataset.getESSession().then(function (esSession) {
       request.es = esSession;
 
-      ocpu.call('gseaPlot', request, function (session) {
+      ocpu.call('gseaPlot/print', request, function (session) {
         if (promise.cancelled) {
           return;
         }
+        
 
-        session.getObject(function (filenames) {
-          if (promise.cancelled) {
-            return;
-          }
-
-          var svgPath = JSON.parse(filenames)[0];
-          var absolutePath = phantasus.Util.getFilePath(session, svgPath);
-          phantasus.BlobFromPath.getFileObject(absolutePath, function (blob) {
-            promise.resolve(URL.createObjectURL(blob));
-          });
+        var svgPath = JSON.parse(session.txt)[0];
+        var absolutePath = phantasus.Util.getFilePath(session, svgPath);
+        phantasus.BlobFromPath.getFileObject(absolutePath, function (blob) {
+          promise.resolve(URL.createObjectURL(blob));
         });
       }, false, "::es")
         .fail(function () {

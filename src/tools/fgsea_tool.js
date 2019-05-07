@@ -9,15 +9,13 @@ phantasus.initFGSEATool = function (options) {
       width: 300
     });
 
-    var req = ocpu.call("availableFGSEADatabases", {}, function (newSession) {
-      newSession.getObject(function (success) {
-        var result = JSON.parse(success);
-        phantasus.fgseaTool.init = true;
+    var req = ocpu.call("availableFGSEADatabases/print", {}, function (newSession) {
+      var result = JSON.parse(newSession.txt);
+      phantasus.fgseaTool.init = true;
 
-        phantasus.fgseaTool.dbs = result;
-        $el.dialog('destroy').remove();
-        new phantasus.fgseaTool(options.heatMap);
-      })
+      phantasus.fgseaTool.dbs = result;
+      $el.dialog('destroy').remove();
+      new phantasus.fgseaTool(options.heatMap);
     });
 
     req.fail(function () {
@@ -198,19 +196,17 @@ phantasus.fgseaTool.prototype = {
     };
 
     this.dbName = request.dbName;
-    var req = ocpu.call('performFGSEA', request, function (session) {
+    var req = ocpu.call('performFGSEA/print', request, function (session) {
       self.session = session;
-      session.getObject(function (result) {
-        self.fgsea = JSON.parse(result);
-        if (_.size(self.fgsea) === 0) {
-          promise.reject();
-          throw new Error("FGSEA returned 0 rows. Nothing to show");
-        }
+      self.fgsea = JSON.parse(session.txt);
+      if (_.size(self.fgsea) === 0) {
+        promise.reject();
+        throw new Error("FGSEA returned 0 rows. Nothing to show");
+      }
 
 
-        promise.resolve();
-        self.openTab();
-      });
+      promise.resolve();
+      self.openTab();
     }, false, "::es")
       .fail(function () {
         promise.reject();
@@ -262,24 +258,22 @@ phantasus.fgseaTool.prototype = {
       self.$pathwayDetail.empty();
       phantasus.Util.createLoadingEl().appendTo(self.$pathwayDetail);
 
-      var req = ocpu.call('queryPathway', request, function (session) {
-        session.getObject(function (success) {
-          var pathwayGenes = JSON.parse(success);
-          self.$pathwayDetail.empty();
+      var req = ocpu.call('queryPathway/print', request, function (session) {
+        var pathwayGenes = JSON.parse(session.txt);
+        self.$pathwayDetail.empty();
 
-          var leadingEdge = _.find(self.fgsea, {pathway: pathway}).leadingEdge;
+        var leadingEdge = _.find(self.fgsea, {pathway: pathway}).leadingEdge;
 
-          var pathwayDetail = $([
-            '<div>',
-              '<strong>Pathway name:</strong>' + pathway + '<br>',
-              '<strong>Pathway genes (ID):</strong>' + pathwayGenes.geneID.join(' ') + '<br>',
-              '<strong>Pathway genes (Symbols):</strong>' + pathwayGenes.geneSymbol.join(' ') + '<br>',
-              '<strong>Leading edge:</strong>' + leadingEdge.join(' ') + '<br>',
-            '</div>'
-          ].join(''));
+        var pathwayDetail = $([
+          '<div>',
+            '<strong>Pathway name:</strong>' + pathway + '<br>',
+            '<strong>Pathway genes (ID):</strong>' + pathwayGenes.geneID.join(' ') + '<br>',
+            '<strong>Pathway genes (Symbols):</strong>' + pathwayGenes.geneSymbol.join(' ') + '<br>',
+            '<strong>Leading edge:</strong>' + leadingEdge.join(' ') + '<br>',
+          '</div>'
+        ].join(''));
 
-          pathwayDetail.appendTo(self.$pathwayDetail);
-        });
+        pathwayDetail.appendTo(self.$pathwayDetail);
       });
 
       req.fail(function () {

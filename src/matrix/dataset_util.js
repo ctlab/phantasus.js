@@ -1285,31 +1285,29 @@ phantasus.DatasetUtil.probeDataset = function (dataset, session) {
         query: query
       };
 
-      var req = ocpu.call("probeDataset", request, function (newSession) {
-        newSession.getObject(function (success) {
-          var backendProbe = JSON.parse(success);
+      var req = ocpu.call("probeDataset/print", request, function (newSession) {
+        var backendProbe = JSON.parse(newSession.txt);
 
-          var isRowCountEqual = backendProbe.dims[0] === dataset.getRowCount();
-          var isColumnCountEqual = backendProbe.dims[1] === dataset.getColumnCount();
-          var exprsEqual = backendProbe.probe.every(verifyExprs);
-          var fDataValuesEqual = true;
+        var isRowCountEqual = backendProbe.dims[0] === dataset.getRowCount();
+        var isColumnCountEqual = backendProbe.dims[1] === dataset.getColumnCount();
+        var exprsEqual = backendProbe.probe.every(verifyExprs);
+        var fDataValuesEqual = true;
 
-          var fDataNamesEqual = fvarLabels.every(function (value) {
-            return backendProbe.fvarLabels.indexOf(value) !== -1;
+        var fDataNamesEqual = fvarLabels.every(function (value) {
+          return backendProbe.fvarLabels.indexOf(value) !== -1;
+        });
+
+        if (fDataNamesEqual) {
+          _.each(backendProbe.fdata, function (values, name) {
+            if (!fDataValuesEqual) {
+              return;
+            }
+
+            fDataValuesEqual = verifyFeature(name, values);
           });
+        }
 
-          if (fDataNamesEqual) {
-            _.each(backendProbe.fdata, function (values, name) {
-              if (!fDataValuesEqual) {
-                return;
-              }
-
-              fDataValuesEqual = verifyFeature(name, values);
-            });
-          }
-
-          resolve(isRowCountEqual && isColumnCountEqual && exprsEqual && fDataNamesEqual && fDataValuesEqual);
-        })
+        resolve(isRowCountEqual && isColumnCountEqual && exprsEqual && fDataNamesEqual && fDataValuesEqual);
       }, false, "::es");
 
 

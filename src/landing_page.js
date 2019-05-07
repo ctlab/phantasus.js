@@ -156,29 +156,27 @@ phantasus.LandingPage.prototype = {
     var _this = this;
 
     var createGEOHeatMap = function(options)  {
-      var req = ocpu.call('checkGPLs', { name : options.dataset.file }, function (session) {
-        session.getMessages(function(success) {
-          console.log('checkGPLs messages', '::', success);
-        });
-        session.getObject(function (filenames) {
-          filenames = JSON.parse(filenames);
-          // console.log("filenames", filenames, filenames.length);
-          if (!filenames.length) {
-            _this.show();
-            throw new Error("Dataset" + " " + options.dataset.file + " does not exist");
-          }
-          if (filenames.length === 1) {
-            new phantasus.HeatMap(options);
-          }
-          else {
-            for (var j = 0; j < filenames.length; j++) {
-              var specificOptions = options;
-              specificOptions.dataset.file = filenames[j];
+      var req = ocpu.call('checkGPLs/print', { name : options.dataset.file }, function (session) {
+        // session.getMessages(function(success) {
+        //   console.log('checkGPLs messages', '::', success);
+        // });
+        var filenames = JSON.parse(session.txt);
+        // console.log("filenames", filenames, filenames.length);
+        if (!filenames.length) {
+          _this.show();
+          throw new Error("Dataset" + " " + options.dataset.file + " does not exist");
+        }
+        if (filenames.length === 1) {
+          new phantasus.HeatMap(options);
+        }
+        else {
+          for (var j = 0; j < filenames.length; j++) {
+            var specificOptions = options;
+            specificOptions.dataset.file = filenames[j];
 
-              new phantasus.HeatMap(specificOptions);
-            }
+            new phantasus.HeatMap(specificOptions);
           }
-        })
+        }
       });
       req.fail(function () {
         _this.show();
@@ -193,18 +191,16 @@ phantasus.LandingPage.prototype = {
 
     var createSessionHeatMap = function (options) {
       //http://localhost:3000/?session=x06c106048e7cb1
-      var req = ocpu.call('sessionExists', { sessionName : options.dataset.file }, function(session) {
-        session.getObject(function(success) {
-          var result = JSON.parse(success);
+      var req = ocpu.call('sessionExists/print', { sessionName : options.dataset.file }, function(session) {
+        var result = JSON.parse(session.txt);
 
-          if (!result.result) {
-            _this.show();
-            throw new Error("Dataset" + " " + options.dataset.file + " does not exist");
-          }
+        if (!result.result) {
+          _this.show();
+          throw new Error("Dataset" + " " + options.dataset.file + " does not exist");
+        }
 
-          var specificOptions = options;
-          new phantasus.HeatMap(specificOptions);
-        })
+        var specificOptions = options;
+        new phantasus.HeatMap(specificOptions);
       });
       req.fail(function () {
         _this.show();

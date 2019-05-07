@@ -515,12 +515,9 @@ phantasus.PcaPlotTool.prototype = {
         };
 
         if (!_this.pca) {
-          var req = ocpu.call("calcPCA", args, function (session) {
-            session.getObject(function (success) {
-              _this.pca = JSON.parse(success);
+          var req = ocpu.call("calcPCA/print", args, function (session) {
+              _this.pca = JSON.parse(session.txt);
               drawResult();
-            });
-
           }, false, "::es");
           req.fail(function () {
             new Error("PcaPlot call failed" + req.responseText);

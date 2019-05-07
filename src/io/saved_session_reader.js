@@ -34,7 +34,7 @@ phantasus.SavedSessionReader.prototype = {
       callback(err, dataset);
     };
 
-    var req = ocpu.call('loadSession', name, function(session) {
+    var req = ocpu.call('loadSession/print', name, function(session) {
       sessionWithLoadedMeta = session;
       sessionWithLoadedMeta.loc = sessionWithLoadedMeta.loc.split(sessionWithLoadedMeta.key).join(name.sessionName);
       sessionWithLoadedMeta.key = name.sessionName;

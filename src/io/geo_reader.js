@@ -28,10 +28,10 @@ phantasus.GeoReader.prototype = {
     };
 
 
-    var req = ocpu.call('loadGEO', { name: name }, function (session) {
-      session.getMessages(function (success) {
-        console.log('loadGEO messages', '::', success);
-      });
+    var req = ocpu.call('loadGEO/print', { name: name }, function (session) {
+      // session.getMessages(function (success) {
+      //   console.log('loadGEO messages', '::', success);
+      // });
       phantasus.ParseDatasetFromProtoBin.parse(session, afterLoaded, { isGEO : true, pathFunction: phantasus.GeoReader.prototype.getPath });
     });
     req.fail(function () {
