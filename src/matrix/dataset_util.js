@@ -980,9 +980,11 @@ phantasus.DatasetUtil.getContentArray = function (dataset) {
   var nc = dataset.getColumnCount();
 
   for (var i = 0; i < nc; i++) {
+    var arr = []
     for (var j = 0; j < nr; j++) {
-      array.push(dataset.getValue(j, i));
+      arr.push(dataset.getValue(j, i));
     }
+    array.push(arr);
   }
   return array;
 };
@@ -1035,7 +1037,49 @@ phantasus.DatasetUtil.getMetadataArray = function (dataset) {
   };
 };
 
+phantasus.DatasetUtil.getMetadataDimensionalArray = function (dataset) {
+  var pDataArray = [];
+  var labelDescription = [];
+  //console.log("phantasus.DatasetUtil.getMetadataArray ::", dataset);
+  var columnMeta = dataset.getColumnMetadata();
+  var features = columnMeta.getMetadataCount();
+  var participants = dataset.getColumnCount();
+
+
+  for (var j = 0; j < features; j++) {
+    var vecJ = columnMeta.get(j);
+    var arr = [];
+    for (var l = 0; l < participants; l++) {
+      arr.push(vecJ.getValue(l));
+    }
+
+    pDataArray.push(arr);
+    labelDescription.push(vecJ.getName());
+  }
+
+  var rowMeta = dataset.getRowMetadata();
+  var fDataArray = [];
+  var varLabels = [];
+  for (var j = 0; j < rowMeta.getMetadataCount(); j++) {
+    var vecJ = rowMeta.get(j);
+    var arr = [];
+    for (var l = 0; l < dataset.getRowCount(); l++) {
+      arr.push(vecJ.getValue(l));
+    }
+    fDataArray.push(arr);
+    varLabels.push(vecJ.getName());
+  }
+
+  return {
+    pdata: pDataArray,
+    varLabels: labelDescription,
+    fdata: fDataArray,
+    fvarLabels: varLabels
+  };
+};
+
 phantasus.DatasetUtil.toESSessionPromise = function (dataset) {
+  //TODO: compression?
   var datasetSession = dataset.getESSession();
 
   dataset.setESSession(new Promise(function (resolve, reject) {
@@ -1047,165 +1091,34 @@ phantasus.DatasetUtil.toESSessionPromise = function (dataset) {
       }
 
       var array = phantasus.DatasetUtil.getContentArray(dataset);
-      var meta = phantasus.DatasetUtil.getMetadataArray(dataset);
+      var meta = phantasus.DatasetUtil.getMetadataDimensionalArray(dataset);
 
-      var expData = dataset.getExperimentData() || {
-        name: { values: "" },
-        lab: { values: "" },
-        contact: { values: "" },
-        title: { values: "" },
-        url: { values: "" },
-        other: { empty: { values: "" } },
-        pubMedIds: { values: "" },
+      var expData = {
+        name: '',
+        lab: '',
+        contact: '',
+        title: '',
+        url: '',
+        other: { empty: '' },
+        pubMedIds: '',
       };
 
-      var messageJSON = {
-        rclass: "LIST",
-        rexpValue: [{
-          rclass: "REAL",
-          realValue: array,
-          attrName: "dim",
-          attrValue: {
-            rclass: "INTEGER",
-            intValue: [dataset.getRowCount(), dataset.getColumnCount()]
-          }
-        }, {
-          rclass: "STRING",
-          stringValue: meta.pdata,
-          attrName: "dim",
-          attrValue: {
-            rclass: "INTEGER",
-            intValue: [dataset.getColumnCount(), meta.varLabels.length]
-          }
-        }, {
-          rclass: "STRING",
-          stringValue: meta.varLabels
-        }, {
-          rclass: "STRING",
-          stringValue: meta.fdata,
-          attrName: "dim",
-          attrValue: {
-            rclass: "INTEGER",
-            intValue: [dataset.getRowCount(), meta.fvarLabels.length]
-          }
-        }, {
-          rclass: "STRING",
-          stringValue: meta.fvarLabels
-        }],
-        attrName: "names",
-        attrValue: {
-          rclass: "STRING",
-          stringValue: [{
-            strval: "data",
-            isNA: false
-          }, {
-            strval: "pData",
-            isNA: false
-          }, {
-            strval: "varLabels",
-            isNA: false
-          }, {
-            strval: "fData",
-            isNA: false
-          }, {
-            strval: "fvarLabels",
-            isNA: false
-          }, {
-            strval: "eData",
-            isNA: false
-          }]
-        }
+      var args = {
+        data: array,
+        pData: meta.pdata,
+        varLabels: meta.varLabels,
+        fData: meta.fdata,
+        fvarLabels: meta.fvarLabels,
+        eData: expData
       };
 
-      messageJSON.rexpValue.push({
-        rclass: "LIST",
-        attrName: "names",
-        attrValue: {
-          rclass: "STRING",
-          stringValue: Object.keys(expData).map(function (name) {
-            return {
-              strval: name,
-              isNA: false
-            }
-          })
-        },
-        rexpValue: [{
-          rclass: "STRING",
-          stringValue: [{
-            strval: expData.name.values.toString(),
-            isNA: false
-          }]
-        }, {
-          rclass: "STRING",
-          stringValue: [{
-            strval: expData.lab.values.toString(),
-            isNA: false
-          }]
-        }, {
-          rclass: "STRING",
-          stringValue: [{
-            strval: expData.contact.values.toString(),
-            isNA: false
-          }]
-        }, {
-          rclass: "STRING",
-          stringValue: [{
-            strval: expData.title.values.toString(),
-            isNA: false
-          }]
-        }, {
-          rclass: "STRING",
-          stringValue: [{
-            strval: expData.url.values.toString(),
-            isNA: false
-          }]
-        }, {
-          rclass: "LIST",
-          attrName: "names",
-          attrValue: {
-            rclass: "STRING",
-            stringValue: Object.keys(expData.other).map(function (name) {
-              return {
-                strval: name,
-                isNA: false
-              }
-            })
-          },
-          rexpValue: _.map(expData.other, function (value) {
-            return {
-              rclass: "STRING",
-              stringValue: [{strval: value.values.toString(), isNA: false}]
-            }
-          })
-        }, {
-          rclass: "STRING",
-          stringValue: [{
-            strval: expData.pubMedIds.values.toString(),
-            isNA: false
-          }]
-        }]
-      });
+      var req = ocpu.call('createES', args, function (session) {
+        dataset.esSource = 'original';
+        resolve(session);
+      }, false);
 
-      var ProtoBuf = dcodeIO.ProtoBuf;
-      ProtoBuf.protoFromFile('./message.proto', function (error, success) {
-        if (error) {
-          alert(error);
-          return;
-        }
-
-        var builder = success,
-          rexp = builder.build('rexp'),
-          REXP = rexp.REXP;
-
-        var proto = new REXP(messageJSON);
-        var req = ocpu.call('createES', proto, function (session) {
-          dataset.esSource = 'original';
-          resolve(session);
-        }, true);
-
-        req.fail(function () {
-          reject(req.responseText);
-        });
+      req.fail(function () {
+        reject(req.responseText);
       });
     });
   }));
