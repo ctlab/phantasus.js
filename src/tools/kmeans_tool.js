@@ -40,25 +40,23 @@ phantasus.KmeansTool.prototype = {
         k: number,
         replacena: replacena
       };
-      var req = ocpu.call("performKmeans", args, function (newSession) {
-        newSession.getObject(function (success) {
-          var result = JSON.parse(success);
+      var req = ocpu.call("performKmeans/print", args, function (newSession) {
+        var result = JSON.parse(newSession.txt);
 
-          var v = dataset.getRowMetadata().add('clusters');
-          for (var i = 0; i < dataset.getRowCount(); i++) {
-            v.setValue(i, result[i].toString());
-          }
+        var v = dataset.getRowMetadata().add('clusters');
+        for (var i = 0; i < dataset.getRowCount(); i++) {
+          v.setValue(i, result[i].toString());
+        }
 
-          v.getProperties().set("phantasus.dataType", "string");
+        v.getProperties().set("phantasus.dataType", "string");
 
-          dataset.setESSession(Promise.resolve(newSession));
-          promise.resolve();
+        dataset.setESSession(Promise.resolve(newSession));
+        promise.resolve();
 
-          project.trigger("trackChanged", {
-            vectors: [v],
-            display: ["color"]
-          });
-        })
+        project.trigger("trackChanged", {
+          vectors: [v],
+          display: ["color"]
+        });
       }, false, "::es");
       req.fail(function () {
         promise.reject();

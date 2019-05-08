@@ -502,15 +502,22 @@ phantasus.PcaPlotTool.prototype = {
 
           Plotly.newPlot(plot, data, layout, config).then(Plotly.annotate);
           _this.exportButton.toggle(true);
+
+          plot.on('plotly_selected', function(eventData) {
+            var indexes = new phantasus.Set();
+            eventData.points.forEach(function (point) {
+              indexes.add(point.pointIndex);
+            });
+
+            _this.project.getColumnSelectionModel().setViewIndices(indexes, true);
+          });
+
         };
 
         if (!_this.pca) {
-          var req = ocpu.call("calcPCA", args, function (session) {
-            session.getObject(function (success) {
-              _this.pca = JSON.parse(success);
+          var req = ocpu.call("calcPCA/print", args, function (session) {
+              _this.pca = JSON.parse(session.txt);
               drawResult();
-            });
-
           }, false, "::es");
           req.fail(function () {
             new Error("PcaPlot call failed" + req.responseText);

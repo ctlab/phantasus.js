@@ -268,6 +268,7 @@ phantasus.ActionManager = function () {
     name: 'Clustering',
     children: [
       'K-means',
+      'Nearest Neighbors',
       'Hierarchical Clustering'],
     icon: 'fa'
   });
@@ -357,45 +358,45 @@ phantasus.ActionManager = function () {
 
   this.add({
     ellipsis: true,
-    name: 'Get permanent link',
+    name: 'Get link to a dataset',
     cb: function (options) {
       var dataset = options.heatMap.getProject().getFullDataset();
       dataset.getESSession().then(function (es) {
         var key = es.getKey();
         var location = window.location;
-        var newLocation = location.origin + location.pathname + '?session=' + key;
+        var datasetName = options.heatMap.getName();
 
-        var publishReq = ocpu.call('publishSession', { sessionName: key }, function (tempSession) {
-          tempSession.getObject(function (json) {
-            var parsedJSON = JSON.parse(json);
-            if (!parsedJSON.result) {
-              throw new Error('Failed to make session accessible');
-            }
+        var publishReq = ocpu.call('publishSession/print', { sessionName: key, datasetName: datasetName }, function (tempSession) {
+          var parsedJSON = JSON.parse(tempSession.txt);
+          if (!parsedJSON.result === false) {
+            throw new Error('Failed to make session accessible');
+          }
 
+          var newLocation = location.origin + location.pathname + '?session=' + tempSession.key;
+          var formBuilder = new phantasus.FormBuilder();
+          formBuilder.append({
+            name: 'Link',
+            readonly: true,
+            value: newLocation
+          });
 
-            var formBuilder = new phantasus.FormBuilder();
-            formBuilder.append({
-              name: 'Link',
-              readonly: true,
-              value: newLocation
-            });
+          formBuilder.append({
+            name: 'copy',
+            type: 'button'
+          });
 
-            formBuilder.append({
-              name: 'copy',
-              type: 'button'
-            });
+          formBuilder.$form.find('button').on('click', function () {
+            formBuilder.$form.find('input')[0].select();
+            document.execCommand('copy');
+          });
 
-            formBuilder.$form.find('button').on('click', function () {
-              formBuilder.$form.find('input')[0].select();
-              document.execCommand('copy');
-            });
+          formBuilder.appendContent('<h4>Please note that link will be valid for 30 days.</h4>');
 
-            phantasus.FormBuilder.showInModal({
-              title: 'Get permanent link to a dataset',
-              close: 'Close',
-              html: formBuilder.$form,
-              focus: options.heatMap.getFocusEl()
-            });
+          phantasus.FormBuilder.showInModal({
+            title: 'Get link to a dataset',
+            close: 'Close',
+            html: formBuilder.$form,
+            focus: options.heatMap.getFocusEl()
           });
         });
 

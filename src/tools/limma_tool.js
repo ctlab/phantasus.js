@@ -127,50 +127,48 @@ phantasus.LimmaTool.prototype = {
         fieldValues: values
       };
 
-      var req = ocpu.call("limmaAnalysis", args, function (session) {
-        session.getObject(function (success) {
-          var r = new FileReader();
-          var filePath = phantasus.Util.getFilePath(session, JSON.parse(success)[0]);
+      var req = ocpu.call("limmaAnalysis/print", args, function (session) {
+        var r = new FileReader();
+        var filePath = phantasus.Util.getFilePath(session, JSON.parse(session.txt)[0]);
 
-          r.onload = function (e) {
-            var contents = e.target.result;
-            var ProtoBuf = dcodeIO.ProtoBuf;
-            ProtoBuf.protoFromFile("./message.proto", function (error, success) {
-              if (error) {
-                alert(error);
-              }
-              var builder = success,
-                rexp = builder.build("rexp"),
-                REXP = rexp.REXP,
-                rclass = REXP.RClass;
-              var res = REXP.decode(contents);
-              var data = phantasus.Util.getRexpData(res, rclass);
-              var names = phantasus.Util.getFieldNames(res, rclass);
-              var vs = [];
+        r.onload = function (e) {
+          var contents = e.target.result;
+          var ProtoBuf = dcodeIO.ProtoBuf;
+          ProtoBuf.protoFromFile("./message.proto", function (error, success) {
+            if (error) {
+              alert(error);
+            }
+            var builder = success,
+              rexp = builder.build("rexp"),
+              REXP = rexp.REXP,
+              rclass = REXP.RClass;
+            var res = REXP.decode(contents);
+            var data = phantasus.Util.getRexpData(res, rclass);
+            var names = phantasus.Util.getFieldNames(res, rclass);
+            var vs = [];
 
-              names.forEach(function (name) {
-                if (name !== "symbol") {
-                  var v = dataset.getRowMetadata().add(name);
-                  for (var i = 0; i < dataset.getRowCount(); i++) {
-                    v.setValue(i, data[name].values[i]);
-                  }
-                  vs.push(v);
+            names.forEach(function (name) {
+              if (name !== "symbol") {
+                var v = dataset.getRowMetadata().add(name);
+                for (var i = 0; i < dataset.getRowCount(); i++) {
+                  v.setValue(i, data[name].values[i]);
                 }
+                vs.push(v);
+              }
 
-              });
-              // alert("Limma finished successfully");
-              dataset.setESSession(Promise.resolve(session));
-              project.trigger("trackChanged", {
-                vectors: vs,
-                display: []
-              });
-              promise.resolve();
-            })
-          };
-          phantasus.BlobFromPath.getFileObject(filePath, function (file) {
-            r.readAsArrayBuffer(file);
-          });
-        })
+            });
+            // alert("Limma finished successfully");
+            dataset.setESSession(Promise.resolve(session));
+            project.trigger("trackChanged", {
+              vectors: vs,
+              display: []
+            });
+            promise.resolve();
+          })
+        };
+        phantasus.BlobFromPath.getFileObject(filePath, function (file) {
+          r.readAsArrayBuffer(file);
+        });
       }, false, "::es");
       req.fail(function () {
         promise.reject();

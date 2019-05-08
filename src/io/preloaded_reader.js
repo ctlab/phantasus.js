@@ -28,7 +28,7 @@ phantasus.PreloadedReader.prototype = {
       callback(err, dataset);
     };
 
-    var req = ocpu.call('loadPreloaded', name, function(session) {
+    var req = ocpu.call('loadPreloaded/print', name, function(session) {
       phantasus.ParseDatasetFromProtoBin.parse(session, afterLoaded, { preloaded : true, pathFunction: phantasus.PreloadedReader.prototype.getPath });
     });
     req.fail(function () {

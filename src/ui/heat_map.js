@@ -261,7 +261,7 @@ phantasus.HeatMap = function (options) {
           'Save Image',
           'Save Dataset',
           'Save Session',
-          'Get permanent link',
+          'Get link to a dataset',
           null,
           'Close Tab',
           null,
@@ -269,9 +269,7 @@ phantasus.HeatMap = function (options) {
         Tools: [
           'New Heat Map',
           null,
-          'Nearest Neighbors',
           'Create Calculated Annotation',
-          null,
           'Adjust',
           'Collapse',
           'Similarity Matrix',
@@ -1112,6 +1110,9 @@ phantasus.HeatMap.prototype = {
   },
   setName: function (name) {
     this.options.name = name;
+    if (this.tabId) {
+      this.tabManager.setTabName(this.tabId, name);
+    }
   },
   getName: function () {
     return this.options.name;

@@ -28,12 +28,10 @@ phantasus.shinyGamTool.prototype = {
     var promise = $.Deferred();
 
     dataset.getESSession().then(function (oldSession) {
-      ocpu.call('shinyGAMAnalysis', {
+      ocpu.call('shinyGAMAnalysis/print', {
         es: oldSession
       }, function (context) {
-        context.getObject('.val', null, function (link) {
-          window.open(link.split('"')[1], '_blank');
-        });
+        window.open(JSON.parse(context.txt)[0], '_blank');
         promise.resolve();
       }, false, '::es').fail(function () {
         console.error('Failed to submit to shiny GAM analysis');
