@@ -666,6 +666,8 @@ phantasus.HeatMap = function (options) {
         appendTo: _this.getContentEl(),
         focus: _this.getFocusEl()
       });
+
+      _this.tabManager.remove();
     });
 
     promises.push(deferred);
