@@ -365,8 +365,9 @@ phantasus.ActionManager = function () {
         var key = es.getKey();
         var location = window.location;
         var datasetName = options.heatMap.getName();
+        var heatmapJson = options.heatMap.toJSON({dataset: false});
 
-        var publishReq = ocpu.call('publishSession/print', { sessionName: key, datasetName: datasetName }, function (tempSession) {
+        var publishReq = ocpu.call('publishSession/print', { sessionName: key, datasetName: datasetName, heatmapJson: heatmapJson }, function (tempSession) {
           var parsedJSON = JSON.parse(tempSession.txt);
           if (!parsedJSON.result === false) {
             throw new Error('Failed to make session accessible');

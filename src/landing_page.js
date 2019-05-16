@@ -199,8 +199,23 @@ phantasus.LandingPage.prototype = {
           throw new Error("Dataset" + " " + options.dataset.file + " does not exist");
         }
 
-        var specificOptions = options;
-        new phantasus.HeatMap(specificOptions);
+        var heatmapReq = ocpu.call('heatmapSettings/print', { sessionName: options.dataset.file }, function (session) {
+          var data = JSON.parse(session.txt);
+          if (!data.result) {
+            console.log('Unavailable heatmap json settings');
+            return new phantasus.HeatMap(options);
+          }
+
+          options.inheritFromParent = false;
+
+          var newOptions = $.extend({}, data.result, options);
+          new phantasus.HeatMap(newOptions);
+        });
+
+        heatmapReq.fail(function () {
+          console.warn('Could not load heatmap json settings');
+          new phantasus.HeatMap(options);
+        });
       });
       req.fail(function () {
         _this.show();
