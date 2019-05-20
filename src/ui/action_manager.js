@@ -409,6 +409,26 @@ phantasus.ActionManager = function () {
   });
 
   this.add({
+    name: 'About',
+    cb: function (options) {
+      var $div = $([
+        '<div>',
+        'Phantasus version: ' + PHANTASUS_VERSION + ', build: ' + PHANTASUS_BUILD + '<br/>',
+        'Changelog available at: <a href="https://raw.githubusercontent.com/ctlab/phantasus/master/NEWS" target="_blank">Github</a><br/>',
+        'Source Code available at: <a href="http://github.com/ctlab/phantasus" target="_blank">Github</a>',
+        '</div>'
+      ].join('\n'));
+
+      phantasus.FormBuilder.showInModal({
+        title: 'About Phantasus',
+        close: 'Close',
+        html: $div,
+        focus: options.heatMap.getFocusEl()
+      });
+    }
+  });
+
+  this.add({
     name: phantasus.aboutDataset.prototype.toString(),
     cb: function (options) {
       phantasus.aboutDataset({

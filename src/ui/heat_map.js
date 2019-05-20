@@ -305,7 +305,7 @@ phantasus.HeatMap = function (options) {
           'Select All Columns',
           'Clear Selected Columns'],
         Help: [
-          'Search Menus', null, 'Contact', 'Configuration', 'Tutorial', 'Source Code', null, 'Keyboard' +
+          'Search Menus', null, 'Contact', 'Configuration', 'Tutorial', 'Source Code', 'About', null, 'Keyboard' +
           ' Shortcuts']
       },
       toolbar: {

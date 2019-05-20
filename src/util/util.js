@@ -1503,6 +1503,7 @@ phantasus.Util.createPhantasusHeader = function () {
   html.push('<span>u</span>');
   html.push('<span>s</span>');
   html.push('</span>');
+  html.push('<strong style="font-size: 12px">v' + PHANTASUS_VERSION + '</strong>');
   html.push('</div>');
   var $div = $(html.join(''));
   var colorScale = d3.scale.linear().domain([0, 4, 7]).range(['#ca0020', '#999999', '#0571b0']).clamp(true);
