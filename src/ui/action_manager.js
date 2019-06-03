@@ -190,6 +190,15 @@ phantasus.ActionManager = function () {
   }
 
   this.add({
+    name: phantasus.ReproduceTool.prototype.toString(),
+    cb: function (options) {
+      new phantasus.ReproduceTool(
+        options.heatMap.getProject()
+      );
+    }
+  });
+
+  this.add({
     name: 'Submit to Enrichr',
     cb: function (options) {
       new phantasus.enrichrTool(

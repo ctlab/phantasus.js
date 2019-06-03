@@ -284,7 +284,8 @@ phantasus.HeatMap = function (options) {
           'Pathway analysis',
           'Submit to Shiny GAM',
           'DEBUG: Probe Debug Tool',
-          'DEBUG: Expose project'],
+          'DEBUG: Expose project',
+          phantasus.ReproduceTool.prototype.toString()],
         View: ['Zoom In', 'Zoom Out', null, 'Fit To Window', 'Fit Rows To Window', 'Fit Columns To Window', null, '100%', null, 'Options'],
         Edit: [
           'Copy Selected Dataset',
