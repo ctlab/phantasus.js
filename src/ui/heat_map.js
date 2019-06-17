@@ -255,7 +255,6 @@ phantasus.HeatMap = function (options) {
       menu: {
         File: [
           'Open',
-          'Annotate',
           phantasus.aboutDataset.prototype.toString(),
           null,
           'Save Image',
@@ -269,6 +268,7 @@ phantasus.HeatMap = function (options) {
         Tools: [
           'New Heat Map',
           null,
+          'Annotate',
           'Create Calculated Annotation',
           'Adjust',
           'Collapse',
