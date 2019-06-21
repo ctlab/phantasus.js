@@ -96,6 +96,9 @@ phantasus.CollapseDatasetTool.prototype = {
     }
 
     if (omitUnannotated) {
+      var omitCheck = function (x) {
+        return !x || x.toString() === '' || x.toString() === 'NA'
+      };
       var fieldMeta = dataset.getRowMetadata();
       var aoa = collapseToFields
         .map(function (field) {
@@ -104,13 +107,14 @@ phantasus.CollapseDatasetTool.prototype = {
 
       var keepIndexes = _.zip
         .apply(null, aoa)
-        .map(function (aos) {
-          return aos.join('');
-        })
         .reduce(function (acc, value, index) {
-          if (_.size(value) !== 0) acc.push(index);
+          if (value.some(omitCheck)) {
+            return acc;
+          }
+
+          acc.push(index);
           return acc;
-        }, [])
+        }, []);
 
       dataset = new phantasus.SlicedDatasetView(dataset, keepIndexes);
     }
