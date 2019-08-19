@@ -271,6 +271,7 @@ phantasus.ActionManager = function () {
     name: 'Differential expression',
     children: [
       'Limma',
+      'DESeq',
       'Marker Selection'],
     icon: 'fa fa-list'
   });
@@ -1122,7 +1123,7 @@ phantasus.ActionManager = function () {
     new phantasus.NearestNeighbors(), new phantasus.AdjustDataTool(),
     new phantasus.CollapseDatasetTool(), new phantasus.CreateAnnotation(), new phantasus.SimilarityMatrixTool(),
     new phantasus.TransposeTool(), new phantasus.TsneTool(),
-    new phantasus.KmeansTool(), new phantasus.LimmaTool()].forEach(function (tool) {
+    new phantasus.KmeansTool(), new phantasus.LimmaTool(), new phantasus.DESeqTool()].forEach(function (tool) {
     _this.add({
       ellipsis: false,
       name: tool.toString(),
