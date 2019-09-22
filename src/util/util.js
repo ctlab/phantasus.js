@@ -2008,3 +2008,14 @@ phantasus.Util.browserCheck = function () {
     });
   }
 };
+
+phantasus.Util.fuzzySearchIdx = function (values, candidates) {
+  var fit = values.map(function (value) {
+    return candidates.some(function (candidate) {
+      return value.startsWith(candidate);
+    });
+  });
+
+  var firstIndex = fit.findIndex(function (val) { return val; });
+  return (firstIndex === -1) ? 0 : firstIndex;
+};
