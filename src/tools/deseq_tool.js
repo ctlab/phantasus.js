@@ -4,7 +4,7 @@ phantasus.DESeqTool = function () {
 
 phantasus.DESeqTool.prototype = {
   toString: function () {
-    return "DESeq";
+    return "DESeq2 (experimental)";
   },
   init: function (project, form) {
     var _this = this;
