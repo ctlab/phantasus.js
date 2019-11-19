@@ -490,7 +490,7 @@ phantasus.FormBuilder.prototype = {
       }
     } else if ('collapsed-checkboxes' === type) {
       var checkboxes = field.checkboxes;
-      html.push('<div id="' + id + '" name="' + name + '" data-type="collapsed-checkboxes">');
+      html.push('<div id="' + id + '" data-name="' + name + '" data-type="collapsed-checkboxes">');
       html.push('<button style="' + style + '" type="button" class="btn btn-default btn-sm" data-toggle="collapse" data-target="#' + id + '_collapse">');
       if (field.icon) {
         html.push('<span class="' + field.icon + '"></span> ');
