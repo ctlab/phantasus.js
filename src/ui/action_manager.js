@@ -171,7 +171,7 @@ phantasus.ActionManager = function () {
     icon: 'fa fa-share-square-o'
   });
 
-  if (phantasus.DEBUG_ENABLED) {
+  if (phantasus.Util.getURLParameter('debug') !== null) {
     this.add({
       name: phantasus.ProbeDebugTool.prototype.toString(),
       cb: function (options) {
