@@ -651,7 +651,7 @@ phantasus.HeatMap = function (options) {
       _this.options.$loadingImage.remove();
       var message = [
         'Error opening '
-        + (options.dataset.file ? phantasus.Util.getFileName(options.dataset.file) : phantasus.Util.getFileName(options.dataset)) + '.'];
+        + (options.dataset.file ? phantasus.Util.getFileName(options.dataset.file) : phantasus.Util.getFileName(options.dataset)) + '. '];
 
       if (err.message) {
         message.push('<br />Cause: ');
@@ -663,9 +663,7 @@ phantasus.HeatMap = function (options) {
       }
       phantasus.FormBuilder.showInModal({
         title: 'Error',
-        html: message.join(''),
-        appendTo: _this.getContentEl(),
-        focus: _this.getFocusEl()
+        html: message.join('<br/>')
       });
 
       _this.tabManager.remove();

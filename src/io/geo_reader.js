@@ -35,7 +35,7 @@ phantasus.GeoReader.prototype = {
       phantasus.ParseDatasetFromProtoBin.parse(session, afterLoaded, { isGEO : true, pathFunction: phantasus.GeoReader.prototype.getPath });
     });
     req.fail(function () {
-      callback(req.responseText);
+      callback(new Error(_.first(req.responseText.split('\n'))));
     });
 
   },
