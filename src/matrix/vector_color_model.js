@@ -100,7 +100,7 @@ phantasus.VectorColorModel.prototype = {
       } else {
         // colorScheme is instanceof phantasus.HeatMapColorScheme
         var colorScheme = _this.vectorNameToColorScheme.get(track.getName());
-        if (colorScheme != null) {
+        if (colorScheme != null && typeof colorScheme.getCurrentColorSupplier !== 'undefined') {
           var colorSchemeJSON = phantasus.AbstractColorSupplier.toJSON(colorScheme.getCurrentColorSupplier());
           json[track.getName()] = colorSchemeJSON;
         }

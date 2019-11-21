@@ -288,6 +288,7 @@ phantasus.VectorTrack.prototype = {
   _computePreferredSize: function (forPrint) {
     var width = 0;
     var height = 0;
+    phantasus.VectorUtil.getDataType(this.getVector());
     if (this.isRenderAs(phantasus.VectorTrack.RENDER.TEXT)) {
       if (this.positions.getSize() >= 6) {
         var context = this.canvas.getContext('2d');

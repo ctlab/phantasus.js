@@ -171,7 +171,7 @@ phantasus.ActionManager = function () {
     icon: 'fa fa-share-square-o'
   });
 
-  if (phantasus.DEBUG_ENABLED) {
+  if (phantasus.Util.getURLParameter('debug') !== null) {
     this.add({
       name: phantasus.ProbeDebugTool.prototype.toString(),
       cb: function (options) {
@@ -186,8 +186,19 @@ phantasus.ActionManager = function () {
         window.dataset = options.heatMap.project.getFullDataset();
         window.heatmap = options.heatMap;
       }
-    })
+    });
+
+
+    this.add({
+      name: phantasus.ReproduceTool.prototype.toString(),
+      cb: function (options) {
+        new phantasus.ReproduceTool(
+          options.heatMap.getProject()
+        );
+      }
+    });
   }
+
 
   this.add({
     name: 'Submit to Enrichr',
@@ -260,6 +271,7 @@ phantasus.ActionManager = function () {
     name: 'Differential expression',
     children: [
       'Limma',
+      'DESeq2 (experimental)',
       'Marker Selection'],
     icon: 'fa fa-list'
   });
@@ -358,15 +370,16 @@ phantasus.ActionManager = function () {
 
   this.add({
     ellipsis: true,
-    name: 'Get link to a dataset',
+    name: 'Get dataset link',
     cb: function (options) {
       var dataset = options.heatMap.getProject().getFullDataset();
       dataset.getESSession().then(function (es) {
         var key = es.getKey();
         var location = window.location;
         var datasetName = options.heatMap.getName();
+        var heatmapJson = options.heatMap.toJSON({dataset: false});
 
-        var publishReq = ocpu.call('publishSession/print', { sessionName: key, datasetName: datasetName }, function (tempSession) {
+        var publishReq = ocpu.call('publishSession/print', { sessionName: key, datasetName: datasetName, heatmapJson: heatmapJson }, function (tempSession) {
           var parsedJSON = JSON.parse(tempSession.txt);
           if (!parsedJSON.result === false) {
             throw new Error('Failed to make session accessible');
@@ -393,7 +406,7 @@ phantasus.ActionManager = function () {
           formBuilder.appendContent('<h4>Please note that link will be valid for 30 days.</h4>');
 
           phantasus.FormBuilder.showInModal({
-            title: 'Get link to a dataset',
+            title: 'Get dataset link',
             close: 'Close',
             html: formBuilder.$form,
             focus: options.heatMap.getFocusEl()
@@ -404,6 +417,26 @@ phantasus.ActionManager = function () {
           throw new Error('Failed to make session accessible: ' + publishReq.responseText);
         });
       })
+    }
+  });
+
+  this.add({
+    name: 'About',
+    cb: function (options) {
+      var $div = $([
+        '<div>',
+        'Phantasus version: ' + PHANTASUS_VERSION + ', build: ' + PHANTASUS_BUILD + '<br/>',
+        'Changelog available at: <a href="https://raw.githubusercontent.com/ctlab/phantasus/master/NEWS" target="_blank">Github</a><br/>',
+        'Source Code available at: <a href="http://github.com/ctlab/phantasus" target="_blank">Github</a>',
+        '</div>'
+      ].join('\n'));
+
+      phantasus.FormBuilder.showInModal({
+        title: 'About Phantasus',
+        close: 'Close',
+        html: $div,
+        focus: options.heatMap.getFocusEl()
+      });
     }
   });
 
@@ -1090,7 +1123,7 @@ phantasus.ActionManager = function () {
     new phantasus.NearestNeighbors(), new phantasus.AdjustDataTool(),
     new phantasus.CollapseDatasetTool(), new phantasus.CreateAnnotation(), new phantasus.SimilarityMatrixTool(),
     new phantasus.TransposeTool(), new phantasus.TsneTool(),
-    new phantasus.KmeansTool(), new phantasus.LimmaTool()].forEach(function (tool) {
+    new phantasus.KmeansTool(), new phantasus.LimmaTool(), new phantasus.DESeqTool()].forEach(function (tool) {
     _this.add({
       ellipsis: false,
       name: tool.toString(),

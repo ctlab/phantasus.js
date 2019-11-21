@@ -163,7 +163,7 @@ phantasus.AnnotationConvertTool.prototype = {
 
         var v = dataset.getRowMetadata().add(keyType);
         for (var i = 0; i < dataset.getRowCount(); i++) {
-          v.setValue(i, result[i].toString());
+          v.setValue(i, (result[i] || 'NA').toString());
         }
 
         v.getProperties().set("phantasus.dataType", "string");

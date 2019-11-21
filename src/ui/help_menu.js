@@ -13,6 +13,7 @@ phantasus.HelpMenu = function () {
 
   html.push('<li><a data-name="tutorial" href="#">Tutorial</a></li>');
   html.push('<li><a data-name="source" href="#">Source Code</a></li>');
+  html.push('<li><a data-name="about" href="#">About</a></li>');
 
   html.push('</ul>');
   html.push('</div>');
@@ -39,7 +40,19 @@ phantasus.HelpMenu = function () {
   });
 
   this.$el.find('[data-name=about]').on('click', function (e) {
-    window.open('about.html');
+    var $div = $([
+      '<div>',
+      'Phantasus version: ' + PHANTASUS_VERSION + ', build: ' + PHANTASUS_BUILD + '<br/>',
+      'Changelog available at: <a href="https://raw.githubusercontent.com/ctlab/phantasus/master/NEWS" target="_blank">Github</a><br/>',
+      'Source Code available at: <a href="http://github.com/ctlab/phantasus" target="_blank">Github</a>',
+      '</div>'
+    ].join('\n'));
+
+    phantasus.FormBuilder.showInModal({
+      title: 'About Phantasus',
+      close: 'Close',
+      html: $div,
+    });
     e.preventDefault();
 
   });

@@ -255,13 +255,12 @@ phantasus.HeatMap = function (options) {
       menu: {
         File: [
           'Open',
-          'Annotate',
           phantasus.aboutDataset.prototype.toString(),
           null,
           'Save Image',
           'Save Dataset',
           'Save Session',
-          'Get link to a dataset',
+          'Get dataset link',
           null,
           'Close Tab',
           null,
@@ -269,6 +268,7 @@ phantasus.HeatMap = function (options) {
         Tools: [
           'New Heat Map',
           null,
+          'Annotate',
           'Create Calculated Annotation',
           'Adjust',
           'Collapse',
@@ -284,7 +284,8 @@ phantasus.HeatMap = function (options) {
           'Pathway analysis',
           'Submit to Shiny GAM',
           'DEBUG: Probe Debug Tool',
-          'DEBUG: Expose project'],
+          'DEBUG: Expose project',
+          phantasus.ReproduceTool.prototype.toString()],
         View: ['Zoom In', 'Zoom Out', null, 'Fit To Window', 'Fit Rows To Window', 'Fit Columns To Window', null, '100%', null, 'Options'],
         Edit: [
           'Copy Selected Dataset',
@@ -305,7 +306,7 @@ phantasus.HeatMap = function (options) {
           'Select All Columns',
           'Clear Selected Columns'],
         Help: [
-          'Search Menus', null, 'Contact', 'Configuration', 'Tutorial', 'Source Code', null, 'Keyboard' +
+          'Search Menus', null, 'Contact', 'Configuration', 'Tutorial', 'Source Code', 'About', null, 'Keyboard' +
           ' Shortcuts']
       },
       toolbar: {
@@ -629,6 +630,7 @@ phantasus.HeatMap = function (options) {
       if (dataset.length && dataset.length > 0) {
         _this.options.dataset = dataset[0];
         _this.setName(dataset[0].seriesNames[0]);
+        _this.tabManager.trigger('rename');
 
         for (var i = 1; i < dataset.length; i++) {
 
@@ -649,7 +651,7 @@ phantasus.HeatMap = function (options) {
       _this.options.$loadingImage.remove();
       var message = [
         'Error opening '
-        + (options.dataset.file ? phantasus.Util.getFileName(options.dataset.file) : phantasus.Util.getFileName(options.dataset)) + '.'];
+        + (options.dataset.file ? phantasus.Util.getFileName(options.dataset.file) : phantasus.Util.getFileName(options.dataset)) + '. '];
 
       if (err.message) {
         message.push('<br />Cause: ');
@@ -661,10 +663,10 @@ phantasus.HeatMap = function (options) {
       }
       phantasus.FormBuilder.showInModal({
         title: 'Error',
-        html: message.join(''),
-        appendTo: _this.getContentEl(),
-        focus: _this.getFocusEl()
+        html: message.join('<br/>')
       });
+
+      _this.tabManager.remove();
     });
 
     promises.push(deferred);
