@@ -84,13 +84,13 @@ phantasus.volcanoTool = function (heatmap, project) {
     }
 
     this.tooltip = [];
-    self.formBuilder.$form.find("select").on("change", function (e) {
+    var draw = this.draw.bind(this);
+    self.formBuilder.$form.find('select,input').on("change", function (e) {
+      console.log("something changed")
       setVisibility();
-      drawFunction();
+      draw();
     });
     setVisibility();
-
-
 
     var trackChanged = function () {
       //// console.log("track changed");
@@ -206,22 +206,61 @@ phantasus.volcanoTool.prototype = {
   toString: function () {
     return 'Volcano Plot';
   },
+  getSignificant: function(logFC_array, pval_array){
+    var _this = this
+
+    var pvalCutoff = _this.formBuilder.getValue('p_val_significance');
+    var logFCcutoff = _this.formBuilder.getValue('logFC_significance');
+
+    console.log("cutoffs")
+    console.log(pvalCutoff, logFCcutoff)
+
+    let sig_index = []
+    let non_sig_index = []
+    logFC_array.map(Math.abs).forEach(function(a, i) {
+      if(a>=logFCcutoff && pval_array[i] <= pvalCutoff)
+        sig_index.push(i)
+      else
+        non_sig_index.push(i)
+    });
+    return({'sig':sig_index, 'non_sig': non_sig_index})
+  },
+  annotate: function() {
+
+    var _this = this
+    var SigObj =  _this.getSignificant(_this.plotFields[0].array, _this.plotFields[1].array)
+    console.log("Sig")
+
+    var logFC_a = _this.plotFields[0].array;
+    var pval_a = _this.plotFields[1].array
+
+    var significant_trace = {
+      x : SigObj["sig"].map(function(i) {return(logFC_a[i])}),
+      y : SigObj["sig"].map(function(i) {return(pval_a[i])}).map(Math.log10).map(function(x) {return(-x)}),
+      mode: 'markers',
+      type: 'scatter',
+      color: 'red'
+    }
+    var non_signifcant_trace = {
+      x : SigObj["non_sig"].map(function(i) {return(logFC_a[i])}),
+      y : SigObj["non_sig"].map(function(i) {return(pval_a[i])}).map(Math.log10).map(function(x) {return(-x)}),
+      mode: 'markers',
+      type: 'scatter',
+      color: 'blue'
+    }
+    var traces = [significant_trace, non_signifcant_trace];
+    return traces
+    //traces.push()
+  },
   draw: function(){
     var plotlyDefaults = phantasus.volcanoTool.getPlotlyDefaults();
     var layout = plotlyDefaults.layout;
     var config = plotlyDefaults.config;
     console.log("inside draw")
     var myPlot = this.$chart[0];
+    var traces = this.annotate()
     //console.log(myPlot);
-    console.log(this.plotFields)
-    var traces = [{
-      x: this.plotFields[0].array,
-      y: this.plotFields[1].array,
-      mode: 'markers',
-      type: 'scatter'
-    }];
-    phantasus.volcanoTool.newPlot(myPlot, traces, layout, config);
-
+    return(phantasus.volcanoTool.newPlot(myPlot, traces, layout, config));
   }
 }
 
