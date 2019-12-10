@@ -309,7 +309,7 @@ phantasus.volcanoTool.prototype = {
 
     data.unshift({
       marker: {
-        color: "blue",
+        color: "#CC0C00FF",
         size: size,
         symbol: shapes
       },
@@ -320,7 +320,7 @@ phantasus.volcanoTool.prototype = {
       showlegend: true
     }, {
       marker: {
-        color: "red",
+        color: "#5C88DAFF",
         size: size,
         symbol: shapes
       },
