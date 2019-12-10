@@ -1,10 +1,10 @@
 phantasus.volcanoTool = function (heatmap, project) {
-    var self = this;
+    var _this = this;
     var drawFunction = null;
     /// var project = this.project;
 
     var fullDataset = project.getFullDataset();
-    self.fullDataset = fullDataset;
+    _this.fullDataset = fullDataset;
     //console.log('full', fullDataset.getRowMetadata());
 
     var rowMetaNames = phantasus.MetadataUtil.getMetadataNames(fullDataset.getRowMetadata());
@@ -25,7 +25,7 @@ phantasus.volcanoTool = function (heatmap, project) {
 
     // assign for use later while plotting 
 
-    self.plotFields = phantasus.MetadataUtil.getVectors(fullDataset.getRowMetadata(),
+    _this.plotFields = phantasus.MetadataUtil.getVectors(fullDataset.getRowMetadata(),
                                                          ["logFC", "adj.P.Val"])
 
     /// get two columns from the dataset
@@ -109,31 +109,33 @@ phantasus.volcanoTool = function (heatmap, project) {
       type: 'select',
       options: numericRowOptions,
     }, {
-      name: 'annotate_by',
-      options: annotations,
-      value: _.first(annotations),
-      type: 'select'
+      name: 'tooltip',
+      type: 'bootstrap-select',
+      multiple: true,
+      search: true,
+      options: rowOptions
     }, {
       type: 'button',
       name: 'export_to_SVG'
     }].forEach(function (a) {
-      self.formBuilder.append(a);
+      _this.formBuilder.append(a);
     });
-
-
-    console.log("appended to form form builder")
-    function setVisibility() {
-      self.formBuilder.setOptions("annotate_by", rowMetaNames, true);
-    }
 
     this.tooltip = [];
-    var draw = this.draw.bind(this);
-    self.formBuilder.$form.find('select,input').on("change", function (e) {
-      console.log("something changed")
-      setVisibility();
+    var draw = _.debounce(this.draw.bind(this), 100);
+    _this.formBuilder.$form.on('change', 'select,input', function (e) {
+      if ($(this).attr('name') === 'tooltip') {
+        var tooltipVal = _this.formBuilder.getValue('tooltip');
+        _this.tooltip.length = 0; // clear array
+      if (tooltipVal != null) {
+        _this.tooltip = tooltipVal;
+        console.log("tooltip", _this.tooltip)
+      }
+    } else {
       draw();
-    });
-    setVisibility();
+    }
+  })
+
 
     // var trackChanged = function () {
     //   //// console.log("track changed");
@@ -149,7 +151,7 @@ phantasus.volcanoTool = function (heatmap, project) {
     this.$chart = this.$el.find("[data-name=chartDiv]");
     var $dialog = $('<div style="background:white;" title="Chart"></div>');
     var $configPane = this.$el.find('[data-name=configPane]');
-    self.formBuilder.$form.appendTo($configPane);
+    _this.formBuilder.$form.appendTo($configPane);
     this.$el.appendTo($dialog);
 
     /// for saving svg
@@ -172,7 +174,7 @@ phantasus.volcanoTool = function (heatmap, project) {
         // project.getColumnSelectionModel().off('selectionChanged.chart', trackChanged);
         $dialog.dialog('destroy').remove();
         event.stopPropagation();
-        self.volcano = null;
+        _this.volcano = null;
       },
 
       resizable: true,
@@ -203,9 +205,10 @@ phantasus.volcanoTool.getPlotlyDefaults = function(){
       size: 12
     },
     xaxis: {
+      title: "log" + "2".sub() + "FC",
       zeroline: false,
       titlefont: {
-        size: 12
+        size: 14
       },
       // gridcolor: 'rgb(255,255,255)',
       showgrid: true,
@@ -215,9 +218,10 @@ phantasus.volcanoTool.getPlotlyDefaults = function(){
       ticks: 'outside'
     },
     yaxis: {
+      title: "-log" + "10".sub() + "(adj.P.Val)",
       zeroline: false,
       titlefont: {
-        size: 12
+        size: 14
       },
       // gridcolor: 'rgb(255,255,255)',
       showgrid: true,
@@ -299,6 +303,7 @@ phantasus.volcanoTool.prototype = {
         size = _.map(phantasus.VectorUtil.toArray(sizeByVector), sizeFunction);
       }
 
+    // TODO : give warning before running map
     if (shapeByVector) {
       var allShapes = ['circle', 'square', 'diamond', 'cross', 'triangle-up', 'star', 'hexagram', 'bowtie', 'diamond-cross', 'hourglass', 'hash-open'];
       var uniqShapes = {};
@@ -307,7 +312,7 @@ phantasus.volcanoTool.prototype = {
           uniqShapes[value] = allShapes[_.size(uniqShapes) % _.size(allShapes)];
         }
 
-        return uniqShapes[value]
+        return uniqShapes[value];
       });
 
       if (_.size(uniqShapes) > _.size(allShapes)) {
@@ -319,7 +324,7 @@ phantasus.volcanoTool.prototype = {
 
       _.each(uniqShapes, function (shape, categoryName) {
         data.push({
-          x: [], y: [],
+          x: [1000], y: [1000],
           marker: {
             symbol: shape,
             color: '#000000',
@@ -334,68 +339,85 @@ phantasus.volcanoTool.prototype = {
       });
     }
 
+    var text = [];
+    for (var i = 0, nrows = fullDataset.getRowCount(); i < nrows; i++){
+      var obj = {i:i};
+      obj.toString = function() {
+        var s = [];
+        for (var tipIndex = 0; tipIndex < _this.tooltip.length; tipIndex++) {
+          var tip = _this.tooltip[tipIndex];
+          phantasus.HeatMapTooltipProvider.vectorToString(fullDataset.getRowMetadata().getByName(tip),
+              this.i, s, '<br>');
+        }
+        return s.join('');
+      };
+      text.push(obj)
+    }
+
     data.unshift({
       marker: {
         color: "blue",
         size: size,
         symbol: shapes
       },
-      name: "",
+      name: "significant",
       type: "scatter",
       mode: "markers",
-      showlegend: false
-    });
-
-    data.unshift({
+      legendgroup: "significance",
+      showlegend: true
+    }, {
       marker: {
         color: "red",
         size: size,
         symbol: shapes
       },
-      name: "",
+      name: "non-significant",
       mode: "markers",
       type: "scatter",
-      showlegend: false
+      legendgroup: "significance",
+      showlegend: true
     });
-
-    console.log(data);
 
     var SigObj =  _this.getSignificant(_this.plotFields[0].array, _this.plotFields[1].array)
     console.log("Sig")
 
     var logFC_a = _this.plotFields[0].array;
-    var pval_a = _this.plotFields[1].array
+    var pval_a = _this.plotFields[1].array;
 
     data[0].x = SigObj["sig"].map(function(i) {return(logFC_a[i])})
     data[0].y = SigObj["sig"].map(function(i) {return(pval_a[i])}).map(Math.log10).map(function(x) {return(-x)})
+    data[0].text = SigObj["sig"].map(function(i) {return text[i]})
 
     data[1].x = SigObj["non_sig"].map(function(i) {return(logFC_a[i])})
     data[1].y = SigObj["non_sig"].map(function(i) {return(pval_a[i])}).map(Math.log10).map(function(x) {return(-x)})
+    data[1].text = SigObj["non_sig"].map(function(i) {return text[i]});
 
-    /// var non_signifcant_trace = {
-    ///   x : SigObj["non_sig"].map(function(i) {return(logFC_a[i])}),
-    ///   y : SigObj["non_sig"].map(function(i) {return(pval_a[i])}).map(Math.log10).map(function(x) {return(-x)}),
-    ///   mode: 'markers',
-    ///   type: 'scatter',
-    ///   color: 'blue'
-    /// }
     return data;
-    //traces.push()
   },
   draw: function(){
     var _this = this; 
-    console.log("inside draw")
-    console.log(this.project)
-    //console.log(_this.project.getFullDataset());
-    console.log("loaded")
     var plotlyDefaults = phantasus.volcanoTool.getPlotlyDefaults();
     var layout = plotlyDefaults.layout;
     var config = plotlyDefaults.config;
-    console.log("inside draw")
     var myPlot = this.$chart[0];
-    var traces = _this.annotate()
+    var data = _this.annotate();
+    
+    var xmin = _.min(data[0].x.concat(data[1].x)),
+        xmax = _.max(data[0].x.concat(data[1].x)),
+        ymin = _.min(data[0].y.concat(data[1].y)),
+        ymax = _.max(data[0].y.concat(data[1].y));
+
+    layout.xaxis = {
+      range: [xmin - (xmax - xmin) * 0.15, xmax + (xmax - xmin) * 0.15],
+      zeroline: false
+    };
+    layout.yaxis = {
+      range: [ymin - (ymax - ymin) * 0.15, ymax + (ymax - ymin) * 0.15],
+      zeroline: false
+    };
+
     //console.log(myPlot);
-    return(phantasus.volcanoTool.newPlot(myPlot, traces, layout, config));
+    return(phantasus.volcanoTool.newPlot(myPlot, data, layout, config));
   }
 }
 
