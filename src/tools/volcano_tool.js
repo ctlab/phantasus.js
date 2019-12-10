@@ -1,14 +1,10 @@
 phantasus.volcanoTool = function (heatmap, project) {
     var _this = this;
-    var drawFunction = null;
-    /// var project = this.project;
 
     var fullDataset = project.getFullDataset();
     _this.fullDataset = fullDataset;
-    //console.log('full', fullDataset.getRowMetadata());
 
     var rowMetaNames = phantasus.MetadataUtil.getMetadataNames(fullDataset.getRowMetadata());
-    console.log(rowMetaNames)
     if(!(rowMetaNames.includes("logFC") && rowMetaNames.includes("adj.P.Val"))){
       throw new Error('logFC and adj.P.Val columns not found. Run Differential Expression perhaps');
     }
@@ -16,29 +12,12 @@ phantasus.volcanoTool = function (heatmap, project) {
     var numberFields = phantasus.MetadataUtil.getMetadataSignedNumericFields(fullDataset
       .getRowMetadata());
       
-
-    //console.log("numberFields", numberFields)
-
     if (numberFields.length === 0) {
       throw new Error('No fields in row annotation appropriate for ranking.');
     }
 
-    // assign for use later while plotting 
-
     _this.plotFields = phantasus.MetadataUtil.getVectors(fullDataset.getRowMetadata(),
-                                                         ["logFC", "adj.P.Val"])
-
-    /// get two columns from the dataset
-
-    var rows = numberFields.map(function (field) {
-      return field.getName();
-    });
-    console.log("rows", rows)
-
-
-    var annotations = ['(None)'].concat(phantasus.MetadataUtil.getMetadataNames(fullDataset.getColumnMetadata()))
-
-    console.log("annotations", annotations)
+                                                         ["logFC", "adj.P.Val"]);
 
     this.$dialog = $('<div style="background:white;" title="' + this.toString() + '"><h4>Please select rows.</h4></div>');
     this.$el = $([
@@ -93,11 +72,11 @@ phantasus.volcanoTool = function (heatmap, project) {
     updateOptions();
 
     [{
-      name: 'p_val_significance',
+      name: 'Adjusted_p_value_significance',
       value: '0.05',
       type: 'text'
     }, {
-      name: 'logFC_significance',
+      name: 'Absolute_logFC_significance',
       value: '2',
       type: 'text'
     }, {
@@ -129,25 +108,12 @@ phantasus.volcanoTool = function (heatmap, project) {
         _this.tooltip.length = 0; // clear array
       if (tooltipVal != null) {
         _this.tooltip = tooltipVal;
-        console.log("tooltip", _this.tooltip)
       }
     } else {
       draw();
     }
-  })
+  });
 
-
-    // var trackChanged = function () {
-    //   //// console.log("track changed");
-    //   //updateOptions();
-    //   setVisibility();
-    //   formBuilder.setOptions("x-axis", pcaOptions, true);
-    //   formBuilder.setOptions("y-axis", pcaOptions, true);
-    // };
-
-    // project.getColumnSelectionModel().on("selectionChanged.chart", trackChanged);
-    // project.getRowSelectionModel().on("selectionChanged.chart", trackChanged);
-    // project.on("trackChanged.chart", trackChanged);
     this.$chart = this.$el.find("[data-name=chartDiv]");
     var $dialog = $('<div style="background:white;" title="Chart"></div>');
     var $configPane = this.$el.find('[data-name=configPane]');
@@ -169,9 +135,6 @@ phantasus.volcanoTool = function (heatmap, project) {
 
     $dialog.dialog({
       close: function (event, ui) {
-        // project.off('trackChanged.chart', trackChanged);
-        // project.getRowSelectionModel().off('selectionChanged.chart', trackChanged);
-        // project.getColumnSelectionModel().off('selectionChanged.chart', trackChanged);
         $dialog.dialog('destroy').remove();
         event.stopPropagation();
         _this.volcano = null;
@@ -253,38 +216,29 @@ phantasus.volcanoTool.prototype = {
   toString: function () {
     return 'Volcano Plot';
   },
-  getSignificant: function(logFC_array, pval_array){
-    var _this = this
+  getSignificant: function(logfcValues, pvalValues){
+    var _this = this;
 
-    var pvalCutoff = _this.formBuilder.getValue('p_val_significance');
-    var logFCcutoff = _this.formBuilder.getValue('logFC_significance');
+    var pvalCutoff = _this.formBuilder.getValue('Adjusted_p_value_significance');
+    var logfcCutoff = _this.formBuilder.getValue('Absolute_logFC_significance');
 
-    console.log("cutoffs")
-    console.log(pvalCutoff, logFCcutoff)
-
-    let sig_index = []
-    let non_sig_index = []
-    logFC_array.map(Math.abs).forEach(function(a, i) {
-      if(a>=logFCcutoff && pval_array[i] <= pvalCutoff)
-        sig_index.push(i)
+    let sigIndex = [];
+    let nonSigIndex = [];
+    logfcValues.map(Math.abs).forEach(function(a, i) {
+      if(a>=logfcCutoff && pvalValues[i] <= pvalCutoff)
+        sigIndex.push(i);
       else
-        non_sig_index.push(i)
+        nonSigIndex.push(i);
     });
-    return({'sig':sig_index, 'non_sig': non_sig_index})
+    return({'sig':sigIndex, 'nonsig': nonSigIndex});
   },
   annotate: function() {
 
     var _this = this;
-    console.log("inside annotate")
     var fullDataset = _this.fullDataset;
-    console.log(_this.fullDataset)
-    /// var fullDataset = _this.project.getFullDataset();
     var data = [];
     var sizeBy = _this.formBuilder.getValue('size');
     var shapeBy = _this.formBuilder.getValue('shape');
-
-    console.log("options")
-    console.log(sizeBy, shapeBy);
 
     var sizeByVector = fullDataset.getRowMetadata().getByName(sizeBy);
     var shapeByVector = fullDataset.getRowMetadata().getByName(shapeBy);
@@ -294,7 +248,6 @@ phantasus.volcanoTool.prototype = {
 
     if (sizeByVector) {
       var minMax = phantasus.VectorUtil.getMinMax(sizeByVector);
-      console.log("MinMax", minMax);
       var sizeFunction = d3.scale.linear()
           .domain([minMax.min, minMax.max])
           .range([3, 15])
@@ -351,7 +304,7 @@ phantasus.volcanoTool.prototype = {
         }
         return s.join('');
       };
-      text.push(obj)
+      text.push(obj);
     }
 
     data.unshift({
@@ -379,18 +332,39 @@ phantasus.volcanoTool.prototype = {
     });
 
     var SigObj =  _this.getSignificant(_this.plotFields[0].array, _this.plotFields[1].array)
-    console.log("Sig")
 
     var logFC_a = _this.plotFields[0].array;
     var pval_a = _this.plotFields[1].array;
 
-    data[0].x = SigObj["sig"].map(function(i) {return(logFC_a[i])})
-    data[0].y = SigObj["sig"].map(function(i) {return(pval_a[i])}).map(Math.log10).map(function(x) {return(-x)})
-    data[0].text = SigObj["sig"].map(function(i) {return text[i]})
+    data[0].x = SigObj["sig"].map(function(i) {
+      return logFC_a[i];
+    });
+    data[0].y = SigObj["sig"]
+      .map(function(i) {
+        return pval_a[i];
+      })
+      .map(Math.log10)
+      .map(function(x) {
+        return -x;
+      });
+    data[0].text = SigObj["sig"].map(function(i) {
+      return text[i];
+    });
 
-    data[1].x = SigObj["non_sig"].map(function(i) {return(logFC_a[i])})
-    data[1].y = SigObj["non_sig"].map(function(i) {return(pval_a[i])}).map(Math.log10).map(function(x) {return(-x)})
-    data[1].text = SigObj["non_sig"].map(function(i) {return text[i]});
+    data[1].x = SigObj["nonsig"].map(function(i) {
+      return logFC_a[i];
+    });
+    data[1].y = SigObj["nonsig"]
+      .map(function(i) {
+        return pval_a[i];
+      })
+      .map(Math.log10)
+      .map(function(x) {
+        return -x;
+      });
+    data[1].text = SigObj["nonsig"].map(function(i) {
+      return text[i];
+    });
 
     return data;
   },
@@ -416,10 +390,9 @@ phantasus.volcanoTool.prototype = {
       zeroline: false
     };
 
-    //console.log(myPlot);
     return(phantasus.volcanoTool.newPlot(myPlot, data, layout, config));
   }
-}
+};
 
 phantasus.volcanoTool.newPlot = function (myPlot, traces, layout, config) {
   return Plotly.newPlot(myPlot, traces, layout, config);
