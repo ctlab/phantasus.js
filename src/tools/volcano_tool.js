@@ -381,14 +381,8 @@ phantasus.volcanoTool.prototype = {
         ymin = _.min(data[0].y.concat(data[1].y)),
         ymax = _.max(data[0].y.concat(data[1].y));
 
-    layout.xaxis = {
-      range: [xmin - (xmax - xmin) * 0.15, xmax + (xmax - xmin) * 0.15],
-      zeroline: false
-    };
-    layout.yaxis = {
-      range: [ymin - (ymax - ymin) * 0.15, ymax + (ymax - ymin) * 0.15],
-      zeroline: false
-    };
+    layout.xaxis.range = [xmin - (xmax - xmin) * 0.15, xmax + (xmax - xmin) * 0.15];
+    layout.yaxis.range = [ymin - (ymax - ymin) * 0.15, ymax + (ymax - ymin) * 0.15];
 
     return(phantasus.volcanoTool.newPlot(myPlot, data, layout, config));
   }
