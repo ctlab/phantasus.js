@@ -5,19 +5,24 @@ phantasus.volcanoTool = function (heatmap, project) {
     _this.fullDataset = fullDataset;
 
     var rowMetaNames = phantasus.MetadataUtil.getMetadataNames(fullDataset.getRowMetadata());
-    if(!(rowMetaNames.includes("logFC") && rowMetaNames.includes("adj.P.Val"))){
-      throw new Error('logFC and adj.P.Val columns not found. Run Differential Expression perhaps');
-    }
+    
+    var pValColname =  rowMetaNames.indexOf('adj.P.Val') !== -1 ? 'adj.P.Val':(rowMetaNames.indexOf('padj') !==-1 ? 'padj': null) ;
+    var logfcColname = rowMetaNames.indexOf('logFC') !== -1 ? 'logFC': (rowMetaNames.indexOf('log2FoldChange') !==-1 ? 'log2FoldChange':null) ;
+
+    console.log(pValColname, logfcColname);    
+    
+    //if(!(rowMetaNames.includes("logFC") && rowMetaNames.includes("adj.P.Val"))){
+     // throw new Error('logFC and adj.P.Val columns not found. Run Differential Expression perhaps');
+    //}
 
     var numberFields = phantasus.MetadataUtil.getMetadataSignedNumericFields(fullDataset
       .getRowMetadata());
       
-    if (numberFields.length === 0) {
-      throw new Error('No fields in row annotation appropriate for ranking.');
-    }
+
+    console.log(numberFields);
 
     _this.plotFields = phantasus.MetadataUtil.getVectors(fullDataset.getRowMetadata(),
-                                                         ["logFC", "adj.P.Val"]);
+                                                         [logfcColname, pValColname]);
 
     this.$dialog = $('<div style="background:white;" title="' + this.toString() + '"><h4>Please select rows.</h4></div>');
     this.$el = $([
@@ -71,7 +76,18 @@ phantasus.volcanoTool = function (heatmap, project) {
 
     updateOptions();
 
+    console.log(numericRowOptions);
     [{
+      name: 'p_value',
+      type: 'select',
+      options: rowOptions,
+      value: pValColname,
+    }, {
+      name: 'logFC',
+      type: 'select',
+      options: rowOptions,
+      value: logfcColname
+    }, {
       name: 'Adjusted_p_value_significance',
       value: '0.05',
       type: 'text'
