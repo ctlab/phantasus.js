@@ -4,6 +4,9 @@ phantasus.volcanoTool = function (heatmap, project) {
     var fullDataset = project.getFullDataset();
     _this.fullDataset = fullDataset;
 
+    var selectedDataset = project.getSelectedDataset();
+    _this.selectedDataset = selectedDataset;
+
     var rowMetaNames = phantasus.MetadataUtil.getMetadataNames(fullDataset.getRowMetadata());
     
     var pValColname =  rowMetaNames.indexOf('adj.P.Val') !== -1 ? 'adj.P.Val':(rowMetaNames.indexOf('padj') !==-1 ? 'padj': null) ;
@@ -96,13 +99,13 @@ phantasus.volcanoTool = function (heatmap, project) {
       value: '2',
       type: 'text'
     }, {
-      name: 'shape',
+      name: 'label_by_selected',
+      type: 'checkbox',
+      value: false
+    }, {
+      name: 'label',
       type: 'select',
       options: rowOptions
-    }, {
-      name: 'size',
-      type: 'select',
-      options: numericRowOptions,
     }, {
       name: 'tooltip',
       type: 'bootstrap-select',
@@ -110,25 +113,60 @@ phantasus.volcanoTool = function (heatmap, project) {
       search: true,
       options: rowOptions
     }, {
+      name: 'advanced_options',
+      type: 'checkbox',
+      value: false
+    }, {
+      name: 'shape',
+      type: 'select',
+      options: rowOptions
+    }, {
+      name: 'size',
+      type: 'select',
+      options: numericRowOptions,
+    }, 
+    {
       type: 'button',
       name: 'export_to_SVG'
     }].forEach(function (a) {
       _this.formBuilder.append(a);
     });
 
+    function setVisibility(){
+      var labelSelected  = _this.formBuilder.getValue('label_by_selected');
+      _this.formBuilder.setVisible('label', labelSelected);
+
+      var advancedOptions = _this.formBuilder.getValue('advanced_options');
+      _this.formBuilder.setVisible('size', advancedOptions);
+      _this.formBuilder.setVisible('shape', advancedOptions);
+    }
+
     this.tooltip = [];
     var draw = _.debounce(this.draw.bind(this), 100);
     _this.formBuilder.$form.on('change', 'select,input', function (e) {
+      console.log("change detected")
+      console.log($(this).attr('type'))
       if ($(this).attr('name') === 'tooltip') {
         var tooltipVal = _this.formBuilder.getValue('tooltip');
         _this.tooltip.length = 0; // clear array
       if (tooltipVal != null) {
         _this.tooltip = tooltipVal;
       }
-    } else {
+    }
+    else if($(this).attr('type') === 'checkbox'){
+    }
+    else {
+      console.log('drawing');
+      setVisibility();
       draw();
     }
   });
+
+  _this.formBuilder.$form.on('change', 'input[type=checkbox]', function (e) {
+    setVisibility();
+  });
+
+    setVisibility();
 
     this.$chart = this.$el.find("[data-name=chartDiv]");
     var $dialog = $('<div style="background:white;" title="Chart"></div>');
@@ -253,15 +291,48 @@ phantasus.volcanoTool.prototype = {
 
     var _this = this;
     var fullDataset = _this.fullDataset;
+    var selectedDataset = _this.selectedDataset;
+    var parentDataset = selectedDataset.dataset;
+
+    console.log(selectedDataset.getRowCount());
+    console.log(parentDataset)
+    
+    //  if (selectedDataset.getRowCount() >= 2000) {
+        //this.promise.reject('Invalid rows');
+      //  throw new Error('Invalid amount of rows are selected (More than 2000 rows selected)');
+          //return this.promise;
+        //}
+
     var data = [];
     var sizeBy = _this.formBuilder.getValue('size');
     var shapeBy = _this.formBuilder.getValue('shape');
+    var labelBy = _this.formBuilder.getValue('label');
 
     var sizeByVector = fullDataset.getRowMetadata().getByName(sizeBy);
     var shapeByVector = fullDataset.getRowMetadata().getByName(shapeBy);
-
     var size = sizeByVector ? [] : 8;
     var shapes = shapeByVector ? [] : null;
+
+    console.log(sizeBy, labelBy, shapeBy);
+    console.log(labelBy.length);
+    if (labelBy.length > 0) {
+
+      if (selectedDataset.getRowCount() == fullDataset.getRowCount()) { 
+        throw new Error('Invalid amount of rows are selected (zero rows or whole dataset selected)');
+     }
+
+      var idxs = selectedDataset.rowIndices.map(function (idx) {
+        return parentDataset.rowIndices[idx] + 1;
+        //return idx + 1; // #' @param selectedGenes indexes of selected genes (starting from one, in the order of fData)
+      });
+  
+      console.log("idxs", idxs);
+
+    }
+
+
+
+
 
     if (sizeByVector) {
       var minMax = phantasus.VectorUtil.getMinMax(sizeByVector);
