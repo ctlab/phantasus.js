@@ -147,6 +147,7 @@ phantasus.volcanoTool = function (heatmap, project) {
     
     this.$dialog = $dialog;
     this.draw();
+    this.exportButton.toggle(true);
   };
 
 
