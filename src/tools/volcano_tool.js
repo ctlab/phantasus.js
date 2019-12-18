@@ -155,6 +155,10 @@ phantasus.volcanoTool = function (heatmap, project) {
       }
     }
     else if($(this).attr('type') === 'checkbox'){
+      if($(this).attr('name') === 'label_by_selected'){
+        setVisibility();
+        annotateLabel();
+      }
     }
     else if($(this).attr('name') === 'label'){
       setVisibility();
@@ -309,45 +313,45 @@ phantasus.volcanoTool.prototype = {
     var annotations = [];
 
     if (!labelBySelected)
-      return annotations;
+      layout.annotations = []; 
+    else{
+      console.log(labelBy.length);
+      if (labelBy.length > 0) {
 
-    console.log(labelBy.length);
-    if (labelBy.length > 0) {
+        if (selectedDataset.getRowCount() == fullDataset.getRowCount()) { 
+          throw new Error('Invalid amount of rows are selected (zero rows or whole dataset selected)');
+      }
 
-      if (selectedDataset.getRowCount() == fullDataset.getRowCount()) { 
-        throw new Error('Invalid amount of rows are selected (zero rows or whole dataset selected)');
-     }
-
-      var idxs = selectedDataset.rowIndices.map(function (idx) {
-        return parentDataset.rowIndices[idx];
-      });
-
-      console.log("idxs", idxs);
-
-      var logFC_a = _this.plotFields[0].array;
-      var pval_a = _this.plotFields[1].array;
-
-      console.log(labelBy);
-      //console.log(phantasus.VectorUtil.toArray(fullDataset.getRowMetadata().getByName(labelBy)));
-      console.log(phantasus.VectorUtil.toArray(selectedDataset.getRowMetadata().getByName(labelBy)));
-
-      _.range(0,idxs.length).map(function(i){
-        annotations.push({
-          x: logFC_a[idxs[i]],
-          y: -Math.log10(pval_a[idxs[i]]),
-          xref: 'x',
-          yref: 'y',
-          text: phantasus.VectorUtil.toArray(selectedDataset.getRowMetadata().getByName(labelBy))[i],
-          showarrow: true,
-          arrowhead: 7,
-          arrowsize: 0.3,
-          arrowidth: 0.2,
-          ax: 0,
-          ay: -40
+        var idxs = selectedDataset.rowIndices.map(function (idx) {
+          return parentDataset.rowIndices[idx];
         });
-      });
 
-      layout.annotations = annotations;
+        console.log("idxs", idxs);
+
+        var logFC_a = _this.plotFields[0].array;
+        var pval_a = _this.plotFields[1].array;
+
+        console.log(labelBy);
+        //console.log(phantasus.VectorUtil.toArray(fullDataset.getRowMetadata().getByName(labelBy)));
+        console.log(phantasus.VectorUtil.toArray(selectedDataset.getRowMetadata().getByName(labelBy)));
+
+        _.range(0,idxs.length).map(function(i){
+          annotations.push({
+            x: logFC_a[idxs[i]],
+            y: -Math.log10(pval_a[idxs[i]]),
+            xref: 'x',
+            yref: 'y',
+            text: phantasus.VectorUtil.toArray(selectedDataset.getRowMetadata().getByName(labelBy))[i],
+            showarrow: true,
+            arrowhead: 7,
+            arrowsize: 0.3,
+            arrowidth: 0.2,
+            ax: 0,
+            ay: -40
+          });
+        });
+        layout.annotations = annotations;
+      }
     }
 
     return(phantasus.volcanoTool.react(myPlot, data, layout, config));
@@ -517,7 +521,6 @@ phantasus.volcanoTool.prototype = {
     layout.xaxis.range = [xmin - (xmax - xmin) * 0.15, xmax + (xmax - xmin) * 0.15];
     layout.yaxis.range = [ymin - (ymax - ymin) * 0.15, ymax + (ymax - ymin) * 0.15];
     
-    // layout.annotations = _this.annotateLabel();
     _this.myPlot = myPlot;
     _this.data = data;
     _this.layout = layout;
