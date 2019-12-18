@@ -15,8 +15,6 @@ phantasus.volcanoTool = function (heatmap, project) {
     var numberFields = phantasus.MetadataUtil.getMetadataSignedNumericFields(fullDataset
       .getRowMetadata());
       
-    console.log(numberFields);
-
     this.$dialog = $('<div style="background:white;" title="' + this.toString() + '"><h4>Please select rows.</h4></div>');
     this.$el = $([
       '<div class="container-fluid" style="height: 100%">',
@@ -69,7 +67,6 @@ phantasus.volcanoTool = function (heatmap, project) {
 
     updateOptions();
 
-    console.log(numericRowOptions);
     [{
       name: 'p_value',
       type: 'select',
@@ -135,8 +132,6 @@ phantasus.volcanoTool = function (heatmap, project) {
     var draw = _.debounce(this.draw.bind(this), 100);
     var annotateLabel = this.annotateLabel.bind(this);
     _this.formBuilder.$form.on('change', 'select,input', function (e) {
-      console.log("change detected")
-      console.log($(this).attr('type'))
       if ($(this).attr('name') === 'tooltip') {
         var tooltipVal = _this.formBuilder.getValue('tooltip');
         _this.tooltip.length = 0; // clear array
@@ -283,7 +278,6 @@ phantasus.volcanoTool.prototype = {
   },
   annotateLabel: function() {
     var _this = this;
-    // console.log(_this.data)
     var fullDataset = _this.fullDataset;
     var selectedDataset = _this.selectedDataset;
     var parentDataset = selectedDataset.dataset;
@@ -300,7 +294,6 @@ phantasus.volcanoTool.prototype = {
     if (!labelBySelected)
       layout.annotations = []; 
     else{
-      console.log(labelBy.length);
       if (labelBy.length > 0) {
 
         if (selectedDataset.getRowCount() == fullDataset.getRowCount()) { 
@@ -315,13 +308,8 @@ phantasus.volcanoTool.prototype = {
           return parentDataset.rowIndices[idx];
         });
 
-        console.log("idxs", idxs);
-
         var logFC_a = _this.plotFields[0].array;
         var pval_a = _this.plotFields[1].array;
-
-        console.log(labelBy);
-        console.log(phantasus.VectorUtil.toArray(selectedDataset.getRowMetadata().getByName(labelBy)));
 
         _.range(0,idxs.length).map(function(i){
           annotations.push({
@@ -349,10 +337,6 @@ phantasus.volcanoTool.prototype = {
     var _this = this;
     var fullDataset = _this.fullDataset;
     var selectedDataset = _this.selectedDataset;
-    var parentDataset = selectedDataset.dataset;
-
-    console.log(selectedDataset.getRowCount());
-    console.log(parentDataset);
     
     var data = [];
 
@@ -374,8 +358,6 @@ phantasus.volcanoTool.prototype = {
     var shapeByVector = fullDataset.getRowMetadata().getByName(shapeBy);
     var size = sizeByVector ? [] : 8;
     var shapes = shapeByVector ? [] : null;
-
-    console.log(sizeBy, shapeBy);
     
     if (sizeByVector) {
       var minMax = phantasus.VectorUtil.getMinMax(sizeByVector);
