@@ -12,21 +12,10 @@ phantasus.volcanoTool = function (heatmap, project) {
     var pValColname =  rowMetaNames.indexOf('adj.P.Val') !== -1 ? 'adj.P.Val':(rowMetaNames.indexOf('padj') !==-1 ? 'padj': null) ;
     var logfcColname = rowMetaNames.indexOf('logFC') !== -1 ? 'logFC': (rowMetaNames.indexOf('log2FoldChange') !==-1 ? 'log2FoldChange':null) ;
 
-    //_this.pValColname = pValColname;
-    //_this.logfcColname = logfcColname;    
-    
-    //if(!(rowMetaNames.includes("logFC") && rowMetaNames.includes("adj.P.Val"))){
-     // throw new Error('logFC and adj.P.Val columns not found. Run Differential Expression perhaps');
-    //}
-
     var numberFields = phantasus.MetadataUtil.getMetadataSignedNumericFields(fullDataset
       .getRowMetadata());
       
     console.log(numberFields);
-
-    //if (pValColname && logfcColname)
-      //_this.plotFields = phantasus.MetadataUtil.getVectors(fullDataset.getRowMetadata(),
-        //                                        [logfcColname, pValColname]);
 
     this.$dialog = $('<div style="background:white;" title="' + this.toString() + '"><h4>Please select rows.</h4></div>');
     this.$el = $([
@@ -166,7 +155,6 @@ phantasus.volcanoTool = function (heatmap, project) {
       annotateLabel();
     }
     else {
-      console.log('drawing');
       setVisibility();
       draw();
     }
@@ -333,7 +321,6 @@ phantasus.volcanoTool.prototype = {
         var pval_a = _this.plotFields[1].array;
 
         console.log(labelBy);
-        //console.log(phantasus.VectorUtil.toArray(fullDataset.getRowMetadata().getByName(labelBy)));
         console.log(phantasus.VectorUtil.toArray(selectedDataset.getRowMetadata().getByName(labelBy)));
 
         _.range(0,idxs.length).map(function(i){
@@ -373,7 +360,9 @@ phantasus.volcanoTool.prototype = {
     var logfcColname = _this.formBuilder.getValue('logFC');
 
     if(!logfcColname || !pValColname)
-      return data;
+      return { data:data,
+              axisTitle: []
+            };
 
     _this.plotFields = phantasus.MetadataUtil.getVectors(fullDataset.getRowMetadata(),
                                                 [logfcColname, pValColname]);
@@ -428,7 +417,7 @@ phantasus.volcanoTool.prototype = {
           name: categoryName,
           legendgroup: 'shapes',
           mode: "markers",
-          type: "scatter",
+          type: "scattergl",
           showlegend: true
         });
       });
@@ -456,7 +445,7 @@ phantasus.volcanoTool.prototype = {
         symbol: shapes
       },
       name: "significant",
-      type: "scatter",
+      type: "scattergl",
       mode: "markers",
       legendgroup: "significance",
       showlegend: true
@@ -468,7 +457,7 @@ phantasus.volcanoTool.prototype = {
       },
       name: "non-significant",
       mode: "markers",
-      type: "scatter",
+      type: "scattergl",
       legendgroup: "significance",
       showlegend: true
     });
@@ -508,7 +497,9 @@ phantasus.volcanoTool.prototype = {
       return text[i];
     });
 
-    return data;
+    return { data:data,
+             axisTitle:[pValColname, logfcColname]
+            };
   },
   draw: function(){
     var _this = this; 
@@ -516,7 +507,9 @@ phantasus.volcanoTool.prototype = {
     var layout = plotlyDefaults.layout;
     var config = plotlyDefaults.config;
     var myPlot = this.$chart[0];
-    var data = _this.annotate();
+    var dataAnnotate = _this.annotate();
+    var data = dataAnnotate.data;
+    var axisTitle = dataAnnotate.axisTitle;
     
     if (data.length === 0){
       throw new Error('Appropriate p-value or logFC columns not found. Please select columns');
@@ -530,6 +523,9 @@ phantasus.volcanoTool.prototype = {
     layout.xaxis.range = [xmin - (xmax - xmin) * 0.15, xmax + (xmax - xmin) * 0.15];
     layout.yaxis.range = [ymin - (ymax - ymin) * 0.15, ymax + (ymax - ymin) * 0.15];
     
+    layout.xaxis.title = '-log' + '10'.sub()+ '(' + axisTitle[0] + ')';
+    layout.yaxis.title = axisTitle[1];  
+
     _this.myPlot = myPlot;
     _this.data = data;
     _this.layout = layout;
