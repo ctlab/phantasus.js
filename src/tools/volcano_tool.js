@@ -12,7 +12,8 @@ phantasus.volcanoTool = function (heatmap, project) {
     var pValColname =  rowMetaNames.indexOf('adj.P.Val') !== -1 ? 'adj.P.Val':(rowMetaNames.indexOf('padj') !==-1 ? 'padj': null) ;
     var logfcColname = rowMetaNames.indexOf('logFC') !== -1 ? 'logFC': (rowMetaNames.indexOf('log2FoldChange') !==-1 ? 'log2FoldChange':null) ;
 
-    console.log(pValColname, logfcColname);    
+    //_this.pValColname = pValColname;
+    //_this.logfcColname = logfcColname;    
     
     //if(!(rowMetaNames.includes("logFC") && rowMetaNames.includes("adj.P.Val"))){
      // throw new Error('logFC and adj.P.Val columns not found. Run Differential Expression perhaps');
@@ -21,11 +22,11 @@ phantasus.volcanoTool = function (heatmap, project) {
     var numberFields = phantasus.MetadataUtil.getMetadataSignedNumericFields(fullDataset
       .getRowMetadata());
       
-
     console.log(numberFields);
 
-    _this.plotFields = phantasus.MetadataUtil.getVectors(fullDataset.getRowMetadata(),
-                                                         [logfcColname, pValColname]);
+    //if (pValColname && logfcColname)
+      //_this.plotFields = phantasus.MetadataUtil.getVectors(fullDataset.getRowMetadata(),
+        //                                        [logfcColname, pValColname]);
 
     this.$dialog = $('<div style="background:white;" title="' + this.toString() + '"><h4>Please select rows.</h4></div>');
     this.$el = $([
@@ -156,9 +157,9 @@ phantasus.volcanoTool = function (heatmap, project) {
     }
     else if($(this).attr('type') === 'checkbox'){
       if($(this).attr('name') === 'label_by_selected'){
-        setVisibility();
         annotateLabel();
       }
+      setVisibility();
     }
     else if($(this).attr('name') === 'label'){
       setVisibility();
@@ -169,10 +170,6 @@ phantasus.volcanoTool = function (heatmap, project) {
       setVisibility();
       draw();
     }
-  });
-
-  _this.formBuilder.$form.on('change', 'input[type=checkbox]', function (e) {
-    setVisibility();
   });
 
     setVisibility();
@@ -271,7 +268,7 @@ phantasus.volcanoTool.getPlotlyDefaults = function(){
   };
   return {
     layout: layout,
-    congetSignificantfig: config
+    config: config
   };
 };
 
@@ -370,13 +367,17 @@ phantasus.volcanoTool.prototype = {
     console.log(selectedDataset.getRowCount());
     console.log(parentDataset);
     
-    //  if (selectedDataset.getRowCount() >= 2000) {
-        //this.promise.reject('Invalid rows');
-      //  throw new Error('Invalid amount of rows are selected (More than 2000 rows selected)');
-          //return this.promise;
-        //}
-
     var data = [];
+
+    var pValColname = _this.formBuilder.getValue('p_value');
+    var logfcColname = _this.formBuilder.getValue('logFC');
+
+    if(!logfcColname || !pValColname)
+      return data;
+
+    _this.plotFields = phantasus.MetadataUtil.getVectors(fullDataset.getRowMetadata(),
+                                                [logfcColname, pValColname]);
+
     var sizeBy = _this.formBuilder.getValue('size');
     var shapeBy = _this.formBuilder.getValue('shape');
 
@@ -472,7 +473,7 @@ phantasus.volcanoTool.prototype = {
       showlegend: true
     });
 
-    var SigObj =  _this.getSignificant(_this.plotFields[0].array, _this.plotFields[1].array)
+    var SigObj =  _this.getSignificant(_this.plotFields[0].array, _this.plotFields[1].array);
 
     var logFC_a = _this.plotFields[0].array;
     var pval_a = _this.plotFields[1].array;
@@ -517,6 +518,10 @@ phantasus.volcanoTool.prototype = {
     var myPlot = this.$chart[0];
     var data = _this.annotate();
     
+    if (data.length === 0){
+      throw new Error('Appropriate p-value or logFC columns not found. Please select columns');
+    }
+
     var xmin = _.min(data[0].x.concat(data[1].x)),
         xmax = _.max(data[0].x.concat(data[1].x)),
         ymin = _.min(data[0].y.concat(data[1].y)),
