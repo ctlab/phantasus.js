@@ -143,6 +143,7 @@ phantasus.volcanoTool = function (heatmap, project) {
 
     this.tooltip = [];
     var draw = _.debounce(this.draw.bind(this), 100);
+    var annotateLabel = this.annotateLabel.bind(this);
     _this.formBuilder.$form.on('change', 'select,input', function (e) {
       console.log("change detected")
       console.log($(this).attr('type'))
@@ -154,6 +155,10 @@ phantasus.volcanoTool = function (heatmap, project) {
       }
     }
     else if($(this).attr('type') === 'checkbox'){
+    }
+    else if($(this).attr('name') === 'label'){
+      setVisibility();
+      annotateLabel();
     }
     else {
       console.log('drawing');
@@ -287,6 +292,66 @@ phantasus.volcanoTool.prototype = {
     });
     return({'sig':sigIndex, 'nonsig': nonSigIndex});
   },
+  annotateLabel: function() {
+    var _this = this;
+    // console.log(_this.data)
+    var fullDataset = _this.fullDataset;
+    var selectedDataset = _this.selectedDataset;
+    var parentDataset = selectedDataset.dataset;
+
+    var myPlot = _this.myPlot;
+    var data = _this.data;
+    var config = _this.config;
+    var layout = _this.layout;
+
+    var labelBy = _this.formBuilder.getValue('label');
+    var labelBySelected = _this.formBuilder.getValue('label_by_selected');
+    var annotations = [];
+
+    if (!labelBySelected)
+      return annotations;
+
+    console.log(labelBy.length);
+    if (labelBy.length > 0) {
+
+      if (selectedDataset.getRowCount() == fullDataset.getRowCount()) { 
+        throw new Error('Invalid amount of rows are selected (zero rows or whole dataset selected)');
+     }
+
+      var idxs = selectedDataset.rowIndices.map(function (idx) {
+        return parentDataset.rowIndices[idx];
+      });
+
+      console.log("idxs", idxs);
+
+      var logFC_a = _this.plotFields[0].array;
+      var pval_a = _this.plotFields[1].array;
+
+      console.log(labelBy);
+      //console.log(phantasus.VectorUtil.toArray(fullDataset.getRowMetadata().getByName(labelBy)));
+      console.log(phantasus.VectorUtil.toArray(selectedDataset.getRowMetadata().getByName(labelBy)));
+
+      _.range(0,idxs.length).map(function(i){
+        annotations.push({
+          x: logFC_a[idxs[i]],
+          y: -Math.log10(pval_a[idxs[i]]),
+          xref: 'x',
+          yref: 'y',
+          text: phantasus.VectorUtil.toArray(selectedDataset.getRowMetadata().getByName(labelBy))[i],
+          showarrow: true,
+          arrowhead: 7,
+          arrowsize: 0.3,
+          arrowidth: 0.2,
+          ax: 0,
+          ay: -40
+        });
+      });
+
+      layout.annotations = annotations;
+    }
+
+    return(phantasus.volcanoTool.react(myPlot, data, layout, config));
+  },
   annotate: function() {
 
     var _this = this;
@@ -295,7 +360,7 @@ phantasus.volcanoTool.prototype = {
     var parentDataset = selectedDataset.dataset;
 
     console.log(selectedDataset.getRowCount());
-    console.log(parentDataset)
+    console.log(parentDataset);
     
     //  if (selectedDataset.getRowCount() >= 2000) {
         //this.promise.reject('Invalid rows');
@@ -306,34 +371,14 @@ phantasus.volcanoTool.prototype = {
     var data = [];
     var sizeBy = _this.formBuilder.getValue('size');
     var shapeBy = _this.formBuilder.getValue('shape');
-    var labelBy = _this.formBuilder.getValue('label');
 
     var sizeByVector = fullDataset.getRowMetadata().getByName(sizeBy);
     var shapeByVector = fullDataset.getRowMetadata().getByName(shapeBy);
     var size = sizeByVector ? [] : 8;
     var shapes = shapeByVector ? [] : null;
 
-    console.log(sizeBy, labelBy, shapeBy);
-    console.log(labelBy.length);
-    if (labelBy.length > 0) {
-
-      if (selectedDataset.getRowCount() == fullDataset.getRowCount()) { 
-        throw new Error('Invalid amount of rows are selected (zero rows or whole dataset selected)');
-     }
-
-      var idxs = selectedDataset.rowIndices.map(function (idx) {
-        return parentDataset.rowIndices[idx] + 1;
-        //return idx + 1; // #' @param selectedGenes indexes of selected genes (starting from one, in the order of fData)
-      });
-  
-      console.log("idxs", idxs);
-
-    }
-
-
-
-
-
+    console.log(sizeBy, shapeBy);
+    
     if (sizeByVector) {
       var minMax = phantasus.VectorUtil.getMinMax(sizeByVector);
       var sizeFunction = d3.scale.linear()
@@ -368,7 +413,7 @@ phantasus.volcanoTool.prototype = {
           x: [1000], y: [1000],
           marker: {
             symbol: shape,
-            color: '#000000',
+            color: '#0000newPlot00',
             size: 6
           },
           name: categoryName,
@@ -471,6 +516,12 @@ phantasus.volcanoTool.prototype = {
 
     layout.xaxis.range = [xmin - (xmax - xmin) * 0.15, xmax + (xmax - xmin) * 0.15];
     layout.yaxis.range = [ymin - (ymax - ymin) * 0.15, ymax + (ymax - ymin) * 0.15];
+    
+    // layout.annotations = _this.annotateLabel();
+    _this.myPlot = myPlot;
+    _this.data = data;
+    _this.layout = layout;
+    _this.config = config;
 
     return(phantasus.volcanoTool.newPlot(myPlot, data, layout, config));
   }
@@ -479,3 +530,7 @@ phantasus.volcanoTool.prototype = {
 phantasus.volcanoTool.newPlot = function (myPlot, traces, layout, config) {
   return Plotly.newPlot(myPlot, traces, layout, config);
 };
+
+phantasus.volcanoTool.react = function (myPlot, traces, layout, config) {
+  return Plotly.react(myPlot, traces, layout, config);
+}
