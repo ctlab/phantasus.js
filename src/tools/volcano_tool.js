@@ -320,7 +320,11 @@ phantasus.volcanoTool.prototype = {
 
         if (selectedDataset.getRowCount() == fullDataset.getRowCount()) { 
           throw new Error('Invalid amount of rows are selected (zero rows or whole dataset selected)');
-      }
+        };
+
+        if (selectedDataset.getRowCount() > 1000) { 
+          throw new Error('More than 1000 rows selected. Please select less rows');
+        };
 
         var idxs = selectedDataset.rowIndices.map(function (idx) {
           return parentDataset.rowIndices[idx];
@@ -343,7 +347,7 @@ phantasus.volcanoTool.prototype = {
             yref: 'y',
             text: phantasus.VectorUtil.toArray(selectedDataset.getRowMetadata().getByName(labelBy))[i],
             showarrow: true,
-            arrowhead: 7,
+            arrowhead: 6,
             arrowsize: 0.3,
             arrowidth: 0.2,
             ax: 0,
