@@ -586,8 +586,8 @@ phantasus.volcanoTool.prototype = {
       ymax + (ymax - ymin) * 0.15
     ];
 
-    layout.xaxis.title = "-log" + "10".sub() + "(" + axisTitle[0] + ")";
-    layout.yaxis.title = axisTitle[1];
+    layout.xaxis.title = axisTitle[1];
+    layout.yaxis.title = "-log" + "10".sub() + "(" + axisTitle[0] + ")";
 
     _this.myPlot = myPlot;
     _this.data = data;
