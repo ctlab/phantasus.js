@@ -185,6 +185,15 @@ phantasus.volcanoTool = function(heatmap, project) {
     }
   });
 
+  var onSelectedChange = _.debounce(function(e) {
+    var selectedDataset = project.getSelectedDataset();
+    _this.selectedDataset = selectedDataset;
+    setVisibility();
+    annotateLabel();
+  }, 500);
+
+  project.getRowSelectionModel().on('selectionChanged.chart', onSelectedChange);
+
   setVisibility();
 
   this.$chart = this.$el.find("[data-name=chartDiv]");
@@ -210,6 +219,7 @@ phantasus.volcanoTool = function(heatmap, project) {
 
   $dialog.dialog({
     close: function(event, ui) {
+      project.getRowSelectionModel().off("selectionChanged.chart", onSelectedChange);
       $dialog.dialog("destroy").remove();
       event.stopPropagation();
       _this.volcano = null;
