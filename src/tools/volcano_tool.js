@@ -109,7 +109,7 @@ phantasus.volcanoTool = function(heatmap, project) {
     },
     {
       name: "Absolute_logFC_significance",
-      value: "2",
+      value: "1",
       type: "text"
     },
     {
