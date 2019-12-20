@@ -254,7 +254,7 @@ phantasus.volcanoTool.getPlotlyDefaults = function() {
       size: 12
     },
     xaxis: {
-      title: "log" + "2".sub() + "FC",
+      title: "log" + "2" + "FC",
       zeroline: false,
       titlefont: {
         size: 14
@@ -267,7 +267,7 @@ phantasus.volcanoTool.getPlotlyDefaults = function() {
       ticks: "outside"
     },
     yaxis: {
-      title: "-log" + "10".sub() + "(adj.P.Val)",
+      title: "-log" + "10" + "(adj.P.Val)",
       zeroline: false,
       titlefont: {
         size: 14
@@ -588,7 +588,7 @@ phantasus.volcanoTool.prototype = {
     ];
 
     layout.xaxis.title = axisTitle[1];
-    layout.yaxis.title = "-log" + "10".sub() + "(" + axisTitle[0] + ")";
+    layout.yaxis.title = "-log" + "10" + "(" + axisTitle[0] + ")";
 
     _this.myPlot = myPlot;
     _this.data = data;
