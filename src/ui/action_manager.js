@@ -229,6 +229,16 @@ phantasus.ActionManager = function () {
   });
 
   this.add({
+    name: phantasus.volcanoTool.prototype.toString(),
+    cb: function (options) {
+      new phantasus.volcanoTool(
+        options.heatMap,
+        options.heatMap.getProject()
+      );
+    }
+  });
+
+  this.add({
     which: [67], // C
     commandKey: true,
     name: 'Copy'
@@ -289,8 +299,9 @@ phantasus.ActionManager = function () {
     name: 'Plots',
     children: [
       'Chart',
-      'PCA Plot',
-      phantasus.gseaTool.prototype.toString()],
+      'PCA Plot',//why this is not done the same way as below
+      phantasus.gseaTool.prototype.toString(),
+      phantasus.volcanoTool.prototype.toString()],
     icon: 'fa fa-line-chart'
   });
 
