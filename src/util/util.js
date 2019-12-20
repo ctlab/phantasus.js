@@ -1957,6 +1957,21 @@ phantasus.Util.saveAsSVG = function (svgEl, name) {
   phantasus.Util.promptBLOBdownload(svgUrl, name);
 };
 
+phantasus.Util.saveAsSVGGL = function (svgElCanvas, name) {
+  var svgEl = svgElCanvas.svgx;
+  var glCanvas = svgElCanvas.glCanvas; 
+  svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  var pngUrl = glCanvas.toDataURL("image/png");
+  var img = document.createElement("image")
+  img.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", pngUrl);
+  svgEl.appendChild(img);
+  var svgData = svgEl.outerHTML.split('<br>').join('\n');
+  var preface = '<?xml version="1.0" standalone="no"?>\r\n';
+  var svgBlob = new Blob([preface, svgData], {type:"image/svg+xml;charset=utf-8"});
+  var svgUrl = URL.createObjectURL(svgBlob);
+  phantasus.Util.promptBLOBdownload(svgUrl, name);
+};
+
 phantasus.Util.promptBLOBdownload = function (url, name) {
   var a = document.createElement("a");
   document.body.appendChild(a);
