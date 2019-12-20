@@ -1962,9 +1962,10 @@ phantasus.Util.saveAsSVGGL = function (svgElCanvas, name) {
   var glCanvas = svgElCanvas.glCanvas; 
   svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
   var pngUrl = glCanvas.toDataURL("image/png");
-  var img = document.createElement("image")
+  var img = document.createElement("image");
   img.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", pngUrl);
-  svgEl.appendChild(img);
+  var infoLayer = $(svgEl).find(".infolayer")[0];
+  svgEl.insertBefore(img, infoLayer);
   var svgData = svgEl.outerHTML.split('<br>').join('\n');
   var preface = '<?xml version="1.0" standalone="no"?>\r\n';
   var svgBlob = new Blob([preface, svgData], {type:"image/svg+xml;charset=utf-8"});
