@@ -206,7 +206,7 @@ phantasus.volcanoTool = function(heatmap, project) {
   this.exportButton = this.$el.find("button[name=export_to_SVG]");
   this.exportButton.toggle(false);
   this.exportButton.on("click", function() {
-    var svgs = _this.$el.find(".main-svg");
+    var svgs = _this.$el.find(".main-svg");  
     var svgx = svgs[0].cloneNode(true);
     svgs[1].childNodes.forEach(function(x) {
       svgx.appendChild(x.cloneNode(true));
@@ -214,7 +214,8 @@ phantasus.volcanoTool = function(heatmap, project) {
     $(svgx)
       .find(".drag")
       .remove();
-    phantasus.Util.saveAsSVG(svgx, "volcano-plot.svg");
+    var glCanvas = _this.$el.find(".gl-canvas"); 
+    phantasus.Util.saveAsSVGGL({svgx: svgx, glCanvas: glCanvas[0]}, "volcano-plot.svg");
   });
 
   $dialog.dialog({
