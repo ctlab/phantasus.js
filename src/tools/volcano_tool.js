@@ -163,7 +163,7 @@ phantasus.volcanoTool = function(heatmap, project) {
 
   this.tooltip = [];
   var draw = _.debounce(this.draw.bind(this), 100);
-  var annotateLabel = this.annotateLabel.bind(this);
+  var annotateLabel = _.debounce(this.annotateLabel.bind(this), 105);
   _this.formBuilder.$form.on("change", "select,input", function(e) {
     if ($(this).attr("name") === "tooltip") {
       var tooltipVal = _this.formBuilder.getValue("tooltip");
@@ -182,6 +182,7 @@ phantasus.volcanoTool = function(heatmap, project) {
     } else {
       setVisibility();
       draw();
+      annotateLabel();
     }
   });
 
