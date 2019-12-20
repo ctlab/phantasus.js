@@ -103,7 +103,7 @@ phantasus.volcanoTool = function(heatmap, project) {
       value: logfcColname
     },
     {
-      name: "Adjusted_p_value_significance",
+      name: "P_value_significance",
       value: "0.05",
       type: "text"
     },
@@ -312,7 +312,7 @@ phantasus.volcanoTool.prototype = {
     var _this = this;
 
     var pvalCutoff = _this.formBuilder.getValue(
-      "Adjusted_p_value_significance"
+      "P_value_significance"
     );
     var logfcCutoff = _this.formBuilder.getValue("Absolute_logFC_significance");
 
