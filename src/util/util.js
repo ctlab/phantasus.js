@@ -1961,7 +1961,7 @@ phantasus.Util.saveAsSVGGL = function (svgElCanvas, name) {
   var svgEl = svgElCanvas.svgx;
   var glCanvas = svgElCanvas.glCanvas; 
   svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-  var pngUrl = glCanvas.toDataURL("image/png");
+  var pngUrl = glCanvas.toDataURL("image/png", 1.0);
   var img = document.createElement("image");
   img.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", pngUrl);
   var infoLayer = $(svgEl).find(".infolayer")[0];
