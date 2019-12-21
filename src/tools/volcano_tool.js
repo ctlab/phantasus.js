@@ -317,8 +317,8 @@ phantasus.volcanoTool.prototype = {
     );
     var logfcCutoff = _this.formBuilder.getValue("Absolute_logFC_significance");
 
-    let sigIndex = [];
-    let nonSigIndex = [];
+    var sigIndex = [];
+    var nonSigIndex = [];
     logfcValues.map(Math.abs).forEach(function(a, i) {
       if (a >= logfcCutoff && pvalValues[i] <= pvalCutoff) sigIndex.push(i);
       else nonSigIndex.push(i);
