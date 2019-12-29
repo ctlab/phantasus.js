@@ -89,7 +89,7 @@ phantasus.CreateCombinedAnnotation.prototype = {
 
     project.trigger('trackChanged', {
       vectors: [vector],
-      display: ['text'],
+      display: isColumns? ['color']:['text'],
       columns: isColumns
     });
   }
