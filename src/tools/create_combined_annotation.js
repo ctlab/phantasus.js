@@ -5,18 +5,6 @@ phantasus.CreateCombinedAnnotation.prototype = {
     return 'Create Combined Annotation';
   },
   gui: function (project) {
-
-    //consolcolMetaNamese.log(options);
-
-    this.operationDict = {
-      'Mean': 'MEAN()',
-      'MAD': 'MAD()',
-      'Median': 'MEDIAN()',
-      'Max': 'MAX()',
-      'Min': 'MIN()',
-      'Sum': 'SUM()',
-    };
-
     return [{
       name: 'annotate',
       options: ['Columns', 'Rows'],
@@ -24,14 +12,10 @@ phantasus.CreateCombinedAnnotation.prototype = {
       type: 'radio'
     },{
       name: 'annotation1',
-      //value: _.first(rowMetaNames),
       type: 'select'
-      //options: rowMetaNames
     }, {
       name: 'annotation2',
-      //value: _.first(rowMetaNames),
       type: 'select'
-      //options: rowMetaNames
     }, {
       name: 'separator',
       type: 'text',
@@ -48,14 +32,6 @@ phantasus.CreateCombinedAnnotation.prototype = {
     }];
   },
   init: function(project, form){
-    var fullDataset = project.getFullDataset();
-    var colMetaNames = phantasus.MetadataUtil.getMetadataNames(
-      fullDataset.getColumnMetadata()
-    );
-    var rowMetaNames = phantasus.MetadataUtil.getMetadataNames(
-      fullDataset.getRowMetadata()
-    );
-
     var setValue = function (val) {
       var isRows = val === 'Rows';
       var names = phantasus
@@ -80,8 +56,6 @@ phantasus.CreateCombinedAnnotation.prototype = {
   },
   execute: function (options) {
     var project = options.project;
-    //var opName = options.input.operation;
-    //var operation = this.operationDict[opName];
     var selectedOnly = options.input.use_selected_rows_and_columns_only;
     var isColumns = options.input.annotate === 'Columns';
     var annotation1 = options.input.annotation1;
