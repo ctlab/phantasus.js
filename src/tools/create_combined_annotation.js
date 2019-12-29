@@ -4,7 +4,7 @@ phantasus.CreateCombinedAnnotation.prototype = {
   toString: function () {
     return 'Create Combined Annotation';
   },
-  gui: function (project) {
+  gui: function () {
     return [{
       name: 'annotate',
       options: ['Columns', 'Rows'],
@@ -62,13 +62,6 @@ phantasus.CreateCombinedAnnotation.prototype = {
     var annotation2 = options.input.annotation2;
     var separator = options.input.separator;
     var annotationName = options.input.annotation_name || (annotation1 + separator + annotation2);
-    var args = {
-      column1: annotation1,
-      column2: annotation2,
-      separator: separator,
-      isColumns: isColumns,
-      annotationName: annotationName
-    };
     var dataset = selectedOnly
       ? project.getSelectedDataset({
         selectedRows: true,
@@ -76,20 +69,9 @@ phantasus.CreateCombinedAnnotation.prototype = {
       })
       : project.getFullDataset();
 
-    if (selectedOnly) {
-      var indices = phantasus.Util.getTrueIndices(dataset);
-      args.columns = indices.columns;
-      args.rows = indices.rows;
-    }
-
     if (isColumns) {
       dataset = phantasus.DatasetUtil.transposedView(dataset);
     }
-
-    var fullDataset = project.getFullDataset();
-    var session = fullDataset.getESSession();
-
-    console.log(args);
 
     var rowView = new phantasus.DatasetRowView(dataset);
     console.log(rowView);
