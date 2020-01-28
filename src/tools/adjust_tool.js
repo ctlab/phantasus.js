@@ -35,11 +35,35 @@ phantasus.AdjustDataTool.prototype = {
 
     this.sweepAction.on('change', function (e) {
       var action = e.currentTarget.value;
+      var firstDividerText = (function(op) {
+        switch(op){  
+        case 'Subtract':
+          return 'from each'
+        case 'Divide':
+          return 'each'
+        case 'Add':
+          return 'to each'
+        case 'Multiply':
+          return 'each'
+      }})(action);
+
+      var secondDividerText = (function(op) {
+        switch(op){  
+        case 'Subtract':
+          return 'field'
+        case 'Divide':
+          return 'by field'
+        case 'Add':
+          return 'field'
+        case 'Multiply':
+          return 'by field'
+      }})(action);
+
       form.$form.find('#Sweep-first-divider').text(
-        action === 'Divide' ? 'each' : 'from each'
+        firstDividerText
       );
       form.$form.find('#Sweep-second-divider').text(
-        action === 'Divide' ? 'by field:' : 'field:'
+        secondDividerText
       );
     });
 
@@ -90,7 +114,7 @@ phantasus.AdjustDataTool.prototype = {
       name: 'Sweep',
       type: 'triple-select',
       firstName: 'sweep-action',
-      firstOptions: ['Divide', 'Subtract'],
+      firstOptions: ['Divide', 'Subtract', 'Add', 'Multiply'],
       firstDivider: 'each',
       secondName: 'sweep-target',
       secondOptions: ['row', 'column'],
@@ -236,10 +260,18 @@ phantasus.AdjustDataTool.prototype = {
 
     if (sweepBy !== '(None)') {
       functions.sweep = {};
-
-      var op = this.sweepAction[0].value === 'Subtract' ?
-                function (a,b) {return a - b; }         :
-                function (a,b) {return a / b; }         ;
+      
+      var op = (function(op) {
+        switch(op){  
+          case 'Subtract':
+            return function (a,b) {return a - b; };
+          case 'Divide':
+            return function(a,b) {return a / b; };
+          case 'Add':
+            return function(a,b) {return a + b; };
+          case 'Multiply':
+            return function(a,b) {return a * b; };
+        }})(this.sweepAction[0].value);
 
       var mode = this.sweepTarget[0].value;
       var sweepVector = mode === 'row' ?
@@ -248,7 +280,17 @@ phantasus.AdjustDataTool.prototype = {
 
       functions.sweep.mode = mode;
       functions.sweep.name = sweepBy;
-      functions.sweep.op = this.sweepAction[0].value === 'Subtract' ? '-':'/';
+      functions.sweep.op = (function(op) {
+        switch(op) {
+          case 'Subtract':
+            return '-';
+          case 'Divide':
+            return '/';
+          case 'Add':
+            return '+';  
+          case 'Multiply':
+            return '*';
+          }})(this.sweepAction[0].value);
 
       for (var j = 0, ncols = dataset.getColumnCount(); j < ncols; j++) {
         for (var i = 0, nrows = dataset.getRowCount(); i < nrows; i++) {
