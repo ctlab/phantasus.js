@@ -430,7 +430,6 @@ phantasus.ActionManager = function () {
       })
     }
   });
-
   this.add({
     name: 'About',
     cb: function (options) {
