@@ -1064,36 +1064,36 @@ phantasus.DatasetUtil.toESSessionPromise = function (dataset) {
         rexpValue: [{
           rclass: "REAL",
           realValue: array,
-          attrName: "dim",
-          attrValue: {
+          attrName: ["dim"],
+          attrValue: [{
             rclass: "INTEGER",
             intValue: [dataset.getRowCount(), dataset.getColumnCount()]
-          }
+          }]
         }, {
           rclass: "STRING",
           stringValue: meta.pdata,
-          attrName: "dim",
-          attrValue: {
+          attrName: ["dim"],
+          attrValue: [{
             rclass: "INTEGER",
             intValue: [dataset.getColumnCount(), meta.varLabels.length]
-          }
+          }]
         }, {
           rclass: "STRING",
           stringValue: meta.varLabels
         }, {
           rclass: "STRING",
           stringValue: meta.fdata,
-          attrName: "dim",
-          attrValue: {
+          attrName: ["dim"],
+          attrValue: [{
             rclass: "INTEGER",
             intValue: [dataset.getRowCount(), meta.fvarLabels.length]
-          }
+          }]
         }, {
           rclass: "STRING",
           stringValue: meta.fvarLabels
         }],
-        attrName: "names",
-        attrValue: {
+        attrName: ["names"],
+        attrValue: [{
           rclass: "STRING",
           stringValue: [{
             strval: "data",
@@ -1114,13 +1114,13 @@ phantasus.DatasetUtil.toESSessionPromise = function (dataset) {
             strval: "eData",
             isNA: false
           }]
-        }
+        }]
       };
 
       messageJSON.rexpValue.push({
         rclass: "LIST",
-        attrName: "names",
-        attrValue: {
+        attrName: ["names"],
+        attrValue: [{
           rclass: "STRING",
           stringValue: Object.keys(expData).map(function (name) {
             return {
@@ -1128,7 +1128,7 @@ phantasus.DatasetUtil.toESSessionPromise = function (dataset) {
               isNA: false
             }
           })
-        },
+        }],
         rexpValue: [{
           rclass: "STRING",
           stringValue: [{
@@ -1161,8 +1161,8 @@ phantasus.DatasetUtil.toESSessionPromise = function (dataset) {
           }]
         }, {
           rclass: "LIST",
-          attrName: "names",
-          attrValue: {
+          attrName: ["names"],
+          attrValue: [{
             rclass: "STRING",
             stringValue: Object.keys(expData.other).map(function (name) {
               return {
@@ -1170,7 +1170,7 @@ phantasus.DatasetUtil.toESSessionPromise = function (dataset) {
                 isNA: false
               }
             })
-          },
+          }],
           rexpValue: _.map(expData.other, function (value) {
             return {
               rclass: "STRING",
@@ -1186,18 +1186,15 @@ phantasus.DatasetUtil.toESSessionPromise = function (dataset) {
         }]
       });
 
-      var ProtoBuf = dcodeIO.ProtoBuf;
-      ProtoBuf.protoFromFile('./message.proto', function (error, success) {
+      protobuf.load("./message.proto", function (error, root) {
         if (error) {
           alert(error);
           return;
         }
 
-        var builder = success,
-          rexp = builder.build('rexp'),
-          REXP = rexp.REXP;
-
-        var proto = new REXP(messageJSON);
+        var REXP = root.lookupType("REXP");
+        var proto = REXP.fromObject(messageJSON);
+        proto.toArrayBuffer = function(){return REXP.encode(proto).finish()} //for r_fun_call_proto in ocpu
         var req = ocpu.call('createES', proto, function (session) {
           dataset.esSource = 'original';
           resolve(session);

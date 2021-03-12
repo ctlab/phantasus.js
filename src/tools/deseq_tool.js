@@ -143,16 +143,13 @@ phantasus.DESeqTool.prototype = {
 
         r.onload = function (e) {
           var contents = e.target.result;
-          var ProtoBuf = dcodeIO.ProtoBuf;
-          ProtoBuf.protoFromFile("./message.proto", function (error, success) {
+          protobuf.load("./message.proto", function (error, root) {
             if (error) {
               alert(error);
             }
-            var builder = success,
-              rexp = builder.build("rexp"),
-              REXP = rexp.REXP,
-              rclass = REXP.RClass;
-            var res = REXP.decode(contents);
+            var REXP = root.lookupType("REXP");
+            var rclass = REXP.RClass;
+            var res = REXP.decode(new Uint8Array(contents));
             var data = phantasus.Util.getRexpData(res, rclass);
             var names = phantasus.Util.getFieldNames(res, rclass);
             var vs = [];
