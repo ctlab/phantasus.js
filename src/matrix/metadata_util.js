@@ -415,7 +415,7 @@ phantasus.MetadataUtil.indexOf = function (metadataModel, name) {
 };
 
 phantasus.MetadataUtil.DEFAULT_STRING_ARRAY_FIELDS = ['target', 'gene_target', 'moa'];
-phantasus.MetadataUtil.DEFAULT_STRINF_FIELDS = ['Gene ID', 'ID']
+phantasus.MetadataUtil.DEFAULT_STRINF_FIELDS = ['Gene ID', 'ID', 'ENTREZID']
 
 phantasus.MetadataUtil.DEFAULT_HIDDEN_FIELDS = new phantasus.Set();
 ['pr_analyte_id', 'pr_gene_title', 'pr_gene_id', 'pr_analyte_num',
