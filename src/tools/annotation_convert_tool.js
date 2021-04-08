@@ -72,7 +72,16 @@ phantasus.AnnotationConvertTool = function (heatMap) {
     type: 'select',
     options: phantasus.annotationDBMeta.dbs[firstDBName].columns,
     value: _.first(phantasus.annotationDBMeta.dbs[firstDBName].columns)
-  }, {
+  }, 
+  {
+    name: 'delete_dot_version',
+    title: 'Omit ID versions before conversion (removing with regex ".[0-9]+$")',
+    type: 'checkbox',
+    options: [],
+    showLabel: false,
+    value: ""
+    },
+    {
     name: 'result_column_type',
     type: 'select',
     options: phantasus.annotationDBMeta.dbs[firstDBName].columns,
@@ -145,7 +154,9 @@ phantasus.AnnotationConvertTool.prototype = {
     var selectedDB = options.form.getValue('specimen_DB').split(' - ')[0];
     var columnType = options.form.getValue('source_column_type').split(' - ')[0];
     var keyType = options.form.getValue('result_column_type').split(' - ')[0];
-
+    var otherOptions = {}
+    otherOptions.deleteDotVersion = options.form.getValue('delete_dot_version');
+  
     if (columnType === keyType) {
       throw new Error('Converting column from ' + columnType + ' to ' + keyType + ' is invalid');
     }
@@ -156,8 +167,10 @@ phantasus.AnnotationConvertTool.prototype = {
         dbName: selectedDB,
         columnName: selectedFeatureName,
         columnType: columnType,
-        keyType: keyType
+        keyType: keyType,
+        otherOptions: otherOptions
       };
+     
       var req = ocpu.call("convertByAnnotationDB/print", args, function (newSession) {
         var result = JSON.parse(newSession.txt);
 
