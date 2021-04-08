@@ -1492,7 +1492,7 @@ phantasus.Util.createValueToIndices = function (array, field) {
 phantasus.Util.createPhantasusHeader = function () {
   var html = [];
 
-  html.push('<div style="margin-bottom:10px;margin-top:5px"><img src="phantasus_logo_main.svg" style="vertical-align: -8.2px" height="32px">')
+  html.push('<div style="margin-bottom:10px;margin-top:5px"><img src="css/images/phantasus_logo_main.svg" style="vertical-align: -8.2px" height="32px">')
   html.push('<div data-name="brand" style="padding-left: 0.25em; display:inline-block; vertical-align: center;font-family:sans-serif">')
   html.push('<strong style="font-size: 12px">v' + PHANTASUS_VERSION + '</strong>');
   html.push('</div>');
