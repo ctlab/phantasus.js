@@ -333,11 +333,12 @@ phantasus.VectorUtil.toString = function (vector) {
 };
 
 phantasus.VectorUtil.getDataType = function (vector) {
-  var dataType = vector.getProperties().get(phantasus.VectorKeys.DATA_TYPE);
+  //get origin datatype
+  var dataType = vector.getDatatype();
   if (dataType === undefined) {
     var firstNonNull = phantasus.VectorUtil.getFirstNonNull(vector);
     dataType = phantasus.Util.getDataType(firstNonNull);
-    vector.getProperties().set(phantasus.VectorKeys.DATA_TYPE, dataType);
+    vector.setDatatype(dataType);
   }
   return dataType;
 
@@ -400,5 +401,5 @@ phantasus.VectorUtil.getFirstNonNull = function (vector) {
   return null;
 };
 phantasus.VectorUtil.isNumber = function (vector) {
-  return phantasus.VectorUtil.getDataType(vector) === 'number';
+  return phantasus.VectorUtil.getDataType(vector) === 'number' || phantasus.VectorUtil.getDataType(vector) === 'integer' || phantasus.VectorUtil.getDataType(vector) === 'real' ;
 };

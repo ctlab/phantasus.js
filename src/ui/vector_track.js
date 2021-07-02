@@ -173,7 +173,7 @@ phantasus.VectorTrack.prototype = {
         if (mapped !== undefined) {
           settings.display.push(mapped);
         } else if (method === 'DISCRETE') {
-          _this.getFullVector().getProperties().get(phantasus.VectorKeys.DISCRETE, true);
+          _this.getFullVector().getProperties().set(phantasus.VectorKeys.DISCRETE, true);
         } else if (method === 'CONTINUOUS') {
           _this.getFullVector().getProperties().set(phantasus.VectorKeys.DISCRETE, false);
         } else if (method === 'HIGHLIGHT') {
@@ -410,7 +410,7 @@ phantasus.VectorTrack.prototype = {
         this.settings.highlightMatchingValues = true;
       } else if (this.getFullVector().getProperties().has(
           phantasus.VectorKeys.FIELDS)
-        || phantasus.VectorUtil.getDataType(this.getFullVector()) === 'number' || phantasus.VectorUtil.getDataType(this.getFullVector()) === '[number]') {
+        ||  phantasus.VectorUtil.getDataType(this.getFullVector()) === '[number]' || phantasus.VectorUtil.isNumber(this.getFullVector())) {
         this.getFullVector().getProperties().set(phantasus.VectorKeys.DISCRETE, false);
         this.settings.highlightMatchingValues = false;
       }

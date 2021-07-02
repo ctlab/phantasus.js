@@ -110,11 +110,10 @@ phantasus.CreateAnnotation.prototype = {
       var val = eval(operation);
       vector.setValue(idx, val.valueOf());
     }
-
-    phantasus.VectorUtil.maybeConvertStringToNumber(vector);
+    vector.getProperties().set(phantasus.VectorKeys.DATA_TYPE, 'number');
     project.trigger('trackChanged', {
       vectors: [vector],
-      display: ['text'],
+      display: ['text, continuous'],
       columns: isColumns
     });
   }

@@ -5,11 +5,14 @@ phantasus.SlicedVector = function (v, indices) {
 
   if (v.isFactorized()) {
     var oldLevels = v.getFactorLevels();
-    var newValues = phantasus.VectorUtil.getSet(this).values();
-
-    this.levels = _.filter(oldLevels, function (level) {
-      return _.indexOf(newValues, level) !== -1;
+    var newValues = phantasus.VectorUtil.getSet(this);
+    let newLevels = [];
+    oldLevels.forEach(function (candidate){
+      if (newValues.has(candidate)){
+        newLevels.push(candidate);
+      }
     });
+    this.levels = newLevels;
   }
 };
 phantasus.SlicedVector.prototype = {

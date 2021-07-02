@@ -11,7 +11,7 @@ phantasus.AdjustDataTool.prototype = {
     var filterNumeric = function (metadata, currentName) {
       var meta = metadata.getByName(currentName);
       var type = phantasus.VectorUtil.getDataType(meta);
-      return type === 'number' || type === '[number]'
+      return type === 'number' || type === 'integer' || type === 'real' || type === '[number]'
     };
 
     var numericRows = phantasus.MetadataUtil.getMetadataNames(dataset.getRowMetadata()).filter(filterNumeric.bind(null,dataset.getRowMetadata()));

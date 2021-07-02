@@ -50,7 +50,7 @@ phantasus.NearestNeighbors.prototype = {
           // get numeric columns only
           for (var i = 0; i < metadata.getMetadataCount(); i++) {
             var v = metadata.get(i);
-            if (phantasus.VectorUtil.getDataType(v) === 'number') {
+            if (phantasus.VectorUtil.isNumber(v)) {
               names.push(v.getName());
             }
           }

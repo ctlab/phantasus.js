@@ -82,7 +82,7 @@ phantasus.MetadataUtil.search = function (options) {
     var filterColumnName = predicate.getField();
     if (filterColumnName != null && !predicate.isNumber()) {
       var wrapper = nameToVector.get(filterColumnName);
-      if (wrapper && (wrapper.dataType === 'number' || wrapper.dataType === '[number]')) {
+      if (wrapper && (wrapper.dataType === 'number' || wrapper.dataType === '[number]' || wrapper.dataType === 'integer' || wrapper.dataType === 'real')) {
         if (predicate.getText) {
           predicates[p] = new phantasus.Util.EqualsPredicate(filterColumnName, parseFloat(predicate.getText()));
         } else if (predicate.getValues) {
@@ -325,7 +325,7 @@ phantasus.MetadataUtil.autocomplete = function (model) {
       var v = searchModel.get(j);
       var dataType = phantasus.VectorUtil.getDataType(v);
       var field = v.getName();
-      if (dataType === 'number' || dataType === 'string'
+      if (dataType === 'number' || dataType === 'integer' || dataType === 'real' || dataType === 'string'
         || dataType === '[string]') {
         if (regex.test(field) && field !== fieldSearchFieldName) {
           var quotedField = field;
@@ -335,7 +335,7 @@ phantasus.MetadataUtil.autocomplete = function (model) {
           matches.push({
             value: quotedField + ':',
             label: '<span style="font-weight:300;">' + (regexMatch == null ? field : field.replace(regexMatch, '<b>$1</b>'))
-            + ':</span>' + (dataType === 'number' ? ('<span' +
+            + ':</span>' + (phantasus.VectorUtil.isNumber(v)? ('<span' +
             ' style="font-weight:300;font-size:85%;">.., >, <, >=, <=,' +
             ' =</span>') : ''),
             show: true
@@ -368,7 +368,7 @@ phantasus.MetadataUtil.getMetadataSignedNumericFields = function (metadataModel)
   for (var i = 0, count = metadataModel.getMetadataCount(); i < count; i++) {
     var field = metadataModel.get(i);
     var properties = field.getProperties();
-    if (properties.get('phantasus.dataType') === 'number') {
+    if (phantasus.VectorUtil.isNumber(field)) {
       var hasPositive = false;
       var hasNegative = false;
       for (var j = 0; j < field.size(); j++) {
@@ -415,7 +415,6 @@ phantasus.MetadataUtil.indexOf = function (metadataModel, name) {
 };
 
 phantasus.MetadataUtil.DEFAULT_STRING_ARRAY_FIELDS = ['target', 'gene_target', 'moa'];
-phantasus.MetadataUtil.DEFAULT_STRINF_FIELDS = ['Gene ID', 'ID', 'ENTREZID']
 
 phantasus.MetadataUtil.DEFAULT_HIDDEN_FIELDS = new phantasus.Set();
 ['pr_analyte_id', 'pr_gene_title', 'pr_gene_id', 'pr_analyte_num',
@@ -433,9 +432,7 @@ phantasus.MetadataUtil.DEFAULT_HIDDEN_FIELDS = new phantasus.Set();
 phantasus.MetadataUtil.maybeConvertStrings = function (metadata,
                                                       metadataStartIndex) {
   for (var i = metadataStartIndex, count = metadata.getMetadataCount(); i < count; i++) {
-    if (!phantasus.MetadataUtil.DEFAULT_STRINF_FIELDS.includes(metadata.get(i).name)){
       phantasus.VectorUtil.maybeConvertStringToNumber(metadata.get(i));
-    }
   }
   phantasus.MetadataUtil.DEFAULT_STRING_ARRAY_FIELDS.forEach(function (field) {
     if (metadata.getByName(field)) {
@@ -444,6 +441,14 @@ phantasus.MetadataUtil.maybeConvertStrings = function (metadata,
     }
   });
 
+};
+phantasus.MetadataUtil.maybeConvertStringsArray = function (metadata) {
+  phantasus.MetadataUtil.DEFAULT_STRING_ARRAY_FIELDS.forEach(function (field) {
+    if (metadata.getByName(field)) {
+      phantasus.VectorUtil.maybeConvertToStringArray(metadata
+        .getByName(field), ',');
+    }
+  });
 };
 phantasus.MetadataUtil.copy = function (src, dest) {
   if (src.getItemCount() != dest.getItemCount()) {

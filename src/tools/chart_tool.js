@@ -65,7 +65,7 @@ phantasus.ChartTool = function (chartOptions) {
             .getDataType(dataset.getRowMetadata()
               .getByName(name));
           if (dataType === 'number'
-            || dataType === '[number]') {
+            || dataType === '[number]' || dataType === 'integer' || dataType === 'real') {
             numericRowOptions.push({
               name: name + ' (row)',
               value: name + '_r'
@@ -84,7 +84,7 @@ phantasus.ChartTool = function (chartOptions) {
             .getDataType(dataset.getColumnMetadata()
               .getByName(name));
           if (dataType === 'number'
-            || dataType === '[number]') {
+            || dataType === '[number]' || dataType === 'integer' || dataType === 'real') {
             numericColumnOptions.push({
               name: name + ' (column)',
               value: name + '_c'

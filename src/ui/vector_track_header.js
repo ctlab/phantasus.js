@@ -298,7 +298,7 @@ phantasus.VectorTrackHeader = function (project, name, isColumns, heatMap) {
           } else if (sortKey.getSortOrder() === phantasus.SortKey.SortOrder.TOP_N) {
             sortOrder = phantasus.SortKey.SortOrder.UNSORTED;
           } else {
-            sortOrder = dataType === 'number' || dataType === '[number]' ? phantasus.SortKey.SortOrder.TOP_N : phantasus.SortKey.SortOrder.UNSORTED; // 3rd
+            sortOrder = dataType === 'number'|| dataType === 'integer' || dataType === 'real' || dataType === '[number]' ? phantasus.SortKey.SortOrder.TOP_N : phantasus.SortKey.SortOrder.UNSORTED; // 3rd
             // click
           }
 

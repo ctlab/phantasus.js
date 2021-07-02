@@ -132,7 +132,7 @@ phantasus.SortKey.prototype = {
         }
       } else {
         var dataType = phantasus.VectorUtil.getDataType(this.v);
-        if (dataType === 'number') {
+        if (dataType === 'number' || dataType === 'integer' || dataType === 'real') {
           this.c = this.sortOrder === phantasus.SortKey.SortOrder.ASCENDING ? phantasus.SortKey.NUMBER_ASCENDING_COMPARATOR
             : phantasus.SortKey.NUMBER_DESCENDING_COMPARATOR;
         } else if (dataType === '[number]') {

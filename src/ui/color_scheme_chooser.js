@@ -35,7 +35,7 @@ phantasus.ColorSchemeChooser = function (options) {
     value: track.getVector(track.settings.colorByField).getProperties().get(phantasus.VectorKeys.DISCRETE)
   });
   var dataType = phantasus.VectorUtil.getDataType(track.getVector(track.settings.colorByField));
-  var isNumber = dataType === 'number' || dataType === '[number]';
+  var isNumber = dataType === 'number' || dataType === '[number]' || dataType === 'real' || dataType === 'integer';
   formBuilder.setVisible('discrete', isNumber);
   formBuilder.setVisible('annotation_name', track.settings.colorByField != null);
 
@@ -101,7 +101,7 @@ phantasus.ColorSchemeChooser = function (options) {
     colorModel.getMappedValue(track.getVector(annotationName), track.getVector(annotationName).getValue(0));
     track.settings.colorByField = annotationName;
     var dataType = phantasus.VectorUtil.getDataType(track.getVector(track.settings.colorByField));
-    var isNumber = dataType === 'number' || dataType === '[number]';
+    var isNumber = dataType === 'number' || dataType === '[number]' || dataType === 'real' || dataType === 'integer';
     formBuilder.setVisible('discrete', isNumber);
     updateChooser();
     track.setInvalid(true);

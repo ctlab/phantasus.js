@@ -5,6 +5,7 @@ phantasus.VectorKeys.VALUE_TO_INDICES = 'phantasus.valueToIndices';
 /** [int] of visible field indices in phantasus.VectorKeys.FIELDS */
 phantasus.VectorKeys.VISIBLE_FIELDS = 'phantasus.visibleFields';
 phantasus.VectorKeys.DATA_TYPE = 'phantasus.dataType';
+phantasus.VectorKeys.IS_PHANTASUS_FACTOR = 'phantasus.factor';
 /** Function to map an array to a single value for sorting */
 phantasus.VectorKeys.ARRAY_SUMMARY_FUNCTION = 'phantasus.arraySummaryFunct';
 /** Key for object (e.g. box plot) that summarizes data values */

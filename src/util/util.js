@@ -1785,22 +1785,36 @@ phantasus.Util.getRexpData = function (rexp, rclass) {
     if (rexpV.rclass == rclass.INTEGER) {
       if (rexpV.attrName.length > 0 && rexpV.attrName[0] == 'levels') {
         data[names[i]].values = [];
+        data[names[i]].levels = [];
+        data[names[i]][phantasus.VectorKeys.DATA_TYPE] = 'string'
+        data[names[i]][phantasus.VectorKeys.IS_PHANTASUS_FACTOR] = true
         rexpV.attrValue[0].stringValue.forEach(function (v) {
-          data[names[i]].values.push(v.strval);
-        })
+          data[names[i]]["levels"].push(v.strval);
+        });
+        rexpV.intValue.forEach(function (v) {
+          data[names[i]].values.push(data[names[i]]["levels"][v-1]); // factor values in R starts from 1
+        });
+        
       }
       else {
+        data[names[i]][phantasus.VectorKeys.DATA_TYPE] = 'integer';
         data[names[i]].values = rexpV.intValue;
       }
     }
     else if (rexpV.rclass == rclass.REAL) {
       data[names[i]].values = rexpV.realValue;
+      data[names[i]][phantasus.VectorKeys.DATA_TYPE] = 'real';
     }
     else if (rexpV.rclass == rclass.STRING) {
       data[names[i]].values = [];
+      data[names[i]][phantasus.VectorKeys.DATA_TYPE] = 'string'
       rexpV.stringValue.forEach(function (v) {
         data[names[i]].values.push(v.strval);
       });
+    }
+    else if (rexpV.rclass == rclass.RAW){
+      data[names[i]][phantasus.VectorKeys.DATA_TYPE] = 'raw';
+      data[names[i]].values = rexpV.rawValue;
     }
   }
   return data;
