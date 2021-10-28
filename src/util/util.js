@@ -1816,6 +1816,10 @@ phantasus.Util.getRexpData = function (rexp, rclass) {
       data[names[i]][phantasus.VectorKeys.DATA_TYPE] = 'raw';
       data[names[i]].values = rexpV.rawValue;
     }
+    else if (rexpV.rclass == rclass.LOGICAL){
+      data[names[i]][phantasus.VectorKeys.DATA_TYPE] = 'logical';
+      data[names[i]].values = rexpV.booleanValue.map(function (item) {return item == 2 ? 'NA' : item;});
+    }
   }
   return data;
 };
