@@ -664,10 +664,10 @@ phantasus.ActionManager = function () {
     }
   });
   this.add({
-    name: 'Tutorial',
+    name: 'Documentation',
     cb: function () {
       window
-        .open('phantasus-tutorial.html');
+        .open('https://ctlab.github.io/phantasus-doc/');
     }
   });
   this.add({
