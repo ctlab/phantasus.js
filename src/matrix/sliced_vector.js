@@ -61,10 +61,14 @@ phantasus.SlicedVector.prototype = {
 
   isFactorized: function () {
     return _.size(this.levels)  > 0;
-  },
+  },  
 
   getFactorLevels: function () {
     return this.levels;
+  },
+  
+  getArray: function(){
+    return Array.apply(0, Array(this.size())).map((x,i) => this.getValue(i));
   }
 };
 phantasus.Util.extend(phantasus.SlicedVector, phantasus.VectorAdapter);

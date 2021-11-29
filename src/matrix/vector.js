@@ -114,6 +114,9 @@ phantasus.Vector.prototype = {
   },
   setDatatype: function(datatype){
     this.getProperties().set(phantasus.VectorKeys.DATA_TYPE, datatype);
+  },
+   getArray: function(){
+    return this.array;
   }
   
 };

@@ -40,5 +40,8 @@ phantasus.VectorAdapter.prototype = {
   },
   setDatatype: function(datatype){
     return this.v.setDatatype(datatype);
+  },
+  getArray: function(){
+    return this.v.getArray();
   }
 };

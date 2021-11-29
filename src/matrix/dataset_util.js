@@ -1039,6 +1039,7 @@ phantasus.DatasetUtil.getMetadataRexp = function (metadata, featuresCount, parti
   var metaLabels = [];
   for (var j = 0; j < featuresCount; j++) {
     var vecJ = metadata.get(j);
+    let test_x  = vecJ.getValue(1);
     var ph_type = phantasus.VectorUtil.getDataType(vecJ);
     var curRexp = { attrName: [],
                     attrValue: [],
@@ -1050,13 +1051,13 @@ phantasus.DatasetUtil.getMetadataRexp = function (metadata, featuresCount, parti
                     rexpValue:[]
                   }
     if (ph_type === "integer"){
-      curRexp["intValue"] = vecJ.array; 
+      curRexp["intValue"] = vecJ.getArray(); 
     } 
     else if (ph_type === "real"){
-      curRexp["realValue"] = vecJ.array; 
+      curRexp["realValue"] = vecJ.getArray(); 
     }
     else if (ph_type === "logical"){
-      curRexp["booleanValue"] = vecJ.array.map(function (item) {return item == 'NA' ? 2 : item;});; 
+      curRexp["booleanValue"] = vecJ.getArray().map(function (item) {return item == 'NA' ? 2 : item;});; 
     }
     else{
        if (vecJ.isFactorized()){
