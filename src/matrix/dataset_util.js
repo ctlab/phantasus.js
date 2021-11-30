@@ -1039,7 +1039,6 @@ phantasus.DatasetUtil.getMetadataRexp = function (metadata, featuresCount, parti
   var metaLabels = [];
   for (var j = 0; j < featuresCount; j++) {
     var vecJ = metadata.get(j);
-    let test_x  = vecJ.getValue(1);
     var ph_type = phantasus.VectorUtil.getDataType(vecJ);
     var curRexp = { attrName: [],
                     attrValue: [],
