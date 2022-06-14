@@ -798,7 +798,7 @@ phantasus.HeatMap.showTool = function (tool, heatMap, callback) {
         if (!(value instanceof Worker)) {
           $dialog.remove();
         }
-      }, 5000);
+      }, 300000);
 
     };
     var $formDiv;
