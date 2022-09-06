@@ -204,7 +204,7 @@ phantasus.gseaTool.prototype = {
     fullDataset.getESSession().then(function (esSession) {
       request.es = esSession;
 
-      ocpu.call('gseaPlot/print', request, function (session) {
+      var req = ocpu.call('gseaPlot/print', request, function (session) {
         if (promise.cancelled) {
           return;
         }
@@ -215,9 +215,11 @@ phantasus.gseaTool.prototype = {
         phantasus.BlobFromPath.getFileObject(absolutePath, function (blob) {
           promise.resolve(URL.createObjectURL(blob));
         });
-      }, false, "::es")
-        .fail(function () {
+      }, false, "::es");
+      req.fail(function () {
+
           promise.reject();
+          throw new Error("Could not create GSEA plot. Error: " + req.responseText);
         });
     })
 

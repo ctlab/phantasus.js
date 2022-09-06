@@ -359,8 +359,8 @@ phantasus.volcanoTool.prototype = {
           return parentDataset.rowIndices[idx];
         });
 
-        var logFC_a = _this.plotFields[0].array;
-        var pval_a = _this.plotFields[1].array;
+        var logFC_a = _this.plotFields[0].getArray();
+        var pval_a = _this.plotFields[1].getArray();
 
         _.range(0, idxs.length).map(function(i) {
           annotations.push({
@@ -519,12 +519,12 @@ phantasus.volcanoTool.prototype = {
     );
 
     var SigObj = _this.getSignificant(
-      _this.plotFields[0].array,
-      _this.plotFields[1].array
+      _this.plotFields[0].getArray(),
+      _this.plotFields[1].getArray()
     );
 
-    var logFC_a = _this.plotFields[0].array;
-    var pval_a = _this.plotFields[1].array;
+    var logFC_a = _this.plotFields[0].getArray();
+    var pval_a = _this.plotFields[1].getArray();
 
     data[0].x = SigObj["sig"].map(function(i) {
       return logFC_a[i];
