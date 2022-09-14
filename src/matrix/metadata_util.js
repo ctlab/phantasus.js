@@ -415,7 +415,7 @@ phantasus.MetadataUtil.indexOf = function (metadataModel, name) {
 };
 
 phantasus.MetadataUtil.DEFAULT_STRING_ARRAY_FIELDS = ['target', 'gene_target', 'moa'];
-
+phantasus.MetadataUtil.DEFAULT_STRING_FIELD_REGEXP = /^(entrez(\s|_))?(gene(\s|_))?id$/i;
 phantasus.MetadataUtil.DEFAULT_HIDDEN_FIELDS = new phantasus.Set();
 ['pr_analyte_id', 'pr_gene_title', 'pr_gene_id', 'pr_analyte_num',
   'pr_bset_id', 'pr_lua_id', 'pr_pool_id', 'pr_is_bing', 'pr_is_inf',
@@ -432,7 +432,9 @@ phantasus.MetadataUtil.DEFAULT_HIDDEN_FIELDS = new phantasus.Set();
 phantasus.MetadataUtil.maybeConvertStrings = function (metadata,
                                                       metadataStartIndex) {
   for (var i = metadataStartIndex, count = metadata.getMetadataCount(); i < count; i++) {
+    if (!phantasus.MetadataUtil.DEFAULT_STRING_FIELD_REGEXP.exec(metadata.get(i).name)){
       phantasus.VectorUtil.maybeConvertStringToNumber(metadata.get(i));
+    }
   }
   phantasus.MetadataUtil.DEFAULT_STRING_ARRAY_FIELDS.forEach(function (field) {
     if (metadata.getByName(field)) {
