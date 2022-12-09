@@ -381,7 +381,7 @@ phantasus.ActionManager = function () {
 
   this.add({
     ellipsis: true,
-    name: 'Get dataset link',
+    name: 'Get session link',
     cb: function (options) {
       var dataset = options.heatMap.getProject().getFullDataset();
       dataset.getESSession().then(function (es) {
@@ -417,7 +417,7 @@ phantasus.ActionManager = function () {
           formBuilder.appendContent('<h4>Please note that link will be valid for 30 days.</h4>');
 
           phantasus.FormBuilder.showInModal({
-            title: 'Get dataset link',
+            title: 'Get session link',
             close: 'Close',
             html: formBuilder.$form,
             focus: options.heatMap.getFocusEl()

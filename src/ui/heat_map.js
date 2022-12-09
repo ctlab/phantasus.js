@@ -260,7 +260,7 @@ phantasus.HeatMap = function (options) {
           'Save Image',
           'Save Dataset',
           'Save Session',
-          'Get dataset link',
+          'Get session link',
           null,
           'Close Tab',
           null,
