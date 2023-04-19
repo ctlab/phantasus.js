@@ -371,6 +371,17 @@ phantasus.FormBuilder.getValue = function ($element) {
 
     return result;
   }
+  if($element.data('type') === 'select-list'){
+    var result = [];
+    $element.find('select').each(function (a, select) {
+      var $select = $(select);
+
+      if ($select.val()) {
+        result.push($select.val());
+      }
+    });
+    return result;
+  }
   return $element.attr('type') === 'checkbox' ? $element.prop('checked') : $element.val();
 };
 
@@ -539,6 +550,8 @@ phantasus.FormBuilder.prototype = {
       html.push('</label></div>');
     } else if ('checkbox-list' === type) {
       html.push('<div name="' + name + '" class="checkbox-list"><div>');
+    }  else if ('select-list' === type){
+      html.push('<div name="' + name + '" class="select-list"  data-type="select-list"><div>');
     } else if ('triple-select' === type) {
       html.push('<h5 style="margin-top: 5px; margin-bottom: 5px;">' + name + ':</h5>');
       html.push('<select style="' + field.comboboxStyle + '" name="' + field.firstName + '" id="' + id
