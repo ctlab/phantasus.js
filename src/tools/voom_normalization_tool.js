@@ -6,16 +6,22 @@ phantasus.voomNormalizationTool = function () {
 
 phantasus.voomNormalizationTool.prototype = {
   toString: function () {
-    return "Mean-variance modelling at the observational level";
+    return "Voom: Mean-variance modelling at the observational level";
   },
   init: function (project, form) {
     var _this = this;
-    let dataset = project.getFullDataset();
+    var dataset = project.getFullDataset();
     var $add_data = form.$form.find("[name=add_data]");
     var $byArea = form.$form.find("[name=byArea]");
-    let fields = phantasus.MetadataUtil.getMetadataNames(dataset.getColumnMetadata());
-    form.$form.prepend("<p>Voom normalization transforms count data to log2-counts per million (logCPM), estimates the mean-variance relationship and uses this to compute appropriate observation-level weights.<\p> <p>By default all samples are treated as replicates (<i>`~1`</i> design). Add annotations to build design matrix.<\p>"); 
-    
+    var $designMatrix = form.$form.find('.slick-table')[0];
+    var $showDesign = form.$form.find("[name=showDesign]");
+    var columnMeta = dataset.getColumnMetadata();
+    let fields = phantasus.MetadataUtil.getMetadataNames(columnMeta);
+    let geo = fields.indexOf("geo_accession");
+    if (geo > 0){
+      fields.splice(geo,1);
+    }
+    form.$form.prepend('<div class="col-xs-10 col-xs-offset-1"><p>Use column annotations to modify design matrix. By default all samples are treated as replicates.</p></div>');   
     form.$form.prepend("");
     const checkDesignLength = ($container) =>{
       let selectElements = $container.find("[name=by]");
@@ -36,18 +42,59 @@ phantasus.voomNormalizationTool.prototype = {
       e.preventDefault();
     });
 
+    let data = [];
+    let columns = [];
+    var grid = new Slick.Grid($designMatrix , data, columns, {
+      enableCellNavigation: true,
+      headerRowHeight: 0,
+      showHeaderRow: false,
+      multiColumnSort: false,
+      multiSelect: false,
+      enableColumnReorder: false,
+      enableTextSelectionOnCells: true,
+      forceFitColumns: false,
+      topPanelHeight: 20
+    });
+
+
+
+    this.updateDesignGrid(grid, $byArea, columnMeta);
+    form.$form.on('change', '[name=by]',function(e){
+      _this.reEvaluateAvailableOptions($byArea);
+      _this.updateDesignGrid(grid, $byArea, columnMeta);
+
+    });
     form.$form.on('click', '[data-name=delete]', function (e) {
       var $this = $(this);
       var $row = $this.closest('.phantasus-entry');
       $row.remove();
       _this.reEvaluateAvailableOptions($byArea);
       checkDesignLength($byArea);
+      _this.updateDesignGrid(grid, $byArea, columnMeta);
       e.preventDefault();
     });
-
-    form.$form.on('change', '[name=by]',function(e){
-      _this.reEvaluateAvailableOptions($byArea);
-    })
+    $designMatrix.parentElement.classList.remove('col-xs-offset-4');
+    $designMatrix.parentElement.classList.add('col-xs-offset-1');
+    $designMatrix.parentElement.classList.remove('col-xs-8');
+    $designMatrix.parentElement.classList.add('col-xs-10');
+    $designMatrix.setAttribute("style","height:320px");
+    $($designMatrix).data('SlickGrid', grid);
+    $($designMatrix).hide();
+    $designMatrix.hiden = true;
+    form.$form.on('click', '[data-name=showDesignLink]', function (e) {
+      var $this = $(this);
+      if ($designMatrix.hiden) {
+        $($designMatrix).show();
+        $designMatrix.hiden = false;
+        $this.text("Hide design matrix");
+      } else{
+        $($designMatrix).hide();
+        $designMatrix.hiden = true;
+        $this.text("Show design matrix");
+      }
+  ;
+      e.preventDefault();
+    });
 
   },
   gui: function (project) {
@@ -70,7 +117,20 @@ phantasus.voomNormalizationTool.prototype = {
         title: "add",
         type: "button",
         help: ""
-      }];
+      },
+      { name: "showDesign",
+        title: "show design matrix",
+        type: "custom",
+        showLabel: false,
+        value: '<a data-name="showDesignLink" href="#">Show design matrix</a>'},
+
+      {
+        name: "designMatrix",
+        type: "slick-table",
+        showLabel: false,
+        style: "width:100%;height:300px;"
+      }
+    ];
   },
   getSelectorHtml: function (selValue, fields) {
     var html = [];
@@ -114,10 +174,91 @@ phantasus.voomNormalizationTool.prototype = {
     });
 
   },
+  updateDesignGrid: function( grid, $selectListCont, columnMeta){
+    let selectElements = $selectListCont.find("[name=by]")
+    let selectedValues = [];
+    let factorNames = [];
+    let factorIndices = [];
+    selectElements.each(function() {
+      let value = $(this).val();
+      value != null && value != '' && selectedValues.push(value);
+    });
+    selectedValues.forEach(function(value,index) {
+      let factor_map =  phantasus.VectorUtil.createValuesToIndicesMap([columnMeta.getByName(value)]);
+      if (index !== 0){
+        factor_map.remove(factor_map.keys()[0]);
+      };
+      factor_map.forEach(function(ind_list, key){
+        factorNames.push(value + "" +key);
+        factorIndices.push(ind_list);
+      });
+    });
+    let id_column = undefined;
+    let id_values = [];
+    if (phantasus.MetadataUtil.indexOf(columnMeta, "geo_accession") !== -1 ){
+      id_values = columnMeta.getByName( "geo_accession").array;
+    };
+    if (id_values.length == 0){
+      for (let i = 1; i <= dataset.columns; i++) {
+        id_values.push(i);
+      };
+    };
+    id_column = "sample";
+    var columns = [ {
+      id: "id",
+      name: id_column,
+      field: "id",
+      width: 120,
+      cssClass: "design-grid"
+    }];
+    var data = [];
+    if (factorNames.length === 0){
+      columns.push({
+        id: "intercept",
+        name: "intercept",
+        field: "intercept",
+        width: 80,
+        cssClass: "design-grid factor"
+      });
+      for (let i = 0; i < columnMeta.itemCount; i++) {
+        data[i] = {
+          id: id_values[i],
+          intercept:1
+        };
+      };
+    } else {
+      factorNames.forEach(function(fact_name){
+        columns.push({
+          id: fact_name,
+          name: fact_name,
+          field: fact_name,
+          width: 80,
+          cssClass: "design-grid factor"
+        });
+      });
+      for (let i = 0; i < columnMeta.itemCount; i++) {
+        data[i] = { id: id_values[i]};
+        factorNames.forEach(function(fact_name){ data[i][fact_name] = 0}); 
+      };
+      factorNames.forEach(function(value,index){
+        factorIndices[index].forEach(function(sample){
+          data[sample][value]=1;
+        })
+      });
+     
+
+    }
+    grid.setData(data);
+    grid.setColumns(columns);
+    grid.resizeCanvas();
+    grid.invalidate();
+
+  },
   execute: function (options) {
     var d = $.Deferred();
     let project = options.project;
     let selectedFields = options.input.byArea;
+    let designData = options.input.designMatrix.getData();
     let heatMap = options.heatMap;
 
     // console.log(dataset);
@@ -130,7 +271,7 @@ phantasus.voomNormalizationTool.prototype = {
             currentSessionPromise.then(function (essession) {
                 var args = {
                     es: essession,
-                    fieldNames: selectedFields,
+                    designData: designData,
                   };
 
                   var req = ocpu.call("voomNormalization/print", args, function (newSession) {

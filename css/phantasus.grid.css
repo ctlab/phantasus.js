@@ -6,6 +6,17 @@
     white-space: normal !important;
 }
 
+.slick-cell.design-grid {
+    margin: 0px;
+    border: none;
+    padding-left: 2px;
+    padding-top: 4px;
+    background-color: inherit;
+    white-space: nowrap !important;
+}
+.slick-cell.design-grid.factor {
+    text-align: "center" 
+}
 .slick-row {
     font-size: 13px;
     line-height: 100%;

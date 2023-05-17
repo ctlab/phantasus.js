@@ -2,7 +2,7 @@ phantasus.tmmNormalizationTool = function () {
 };
 phantasus.tmmNormalizationTool.prototype = {
   toString: function () {
-    return "Trimmed Mean of M-values";
+    return "TMM: Trimmed Mean of M-values";
   },
   init: function (project, form) {
     var $field = form.$form.find("[name=reference_variable]");
