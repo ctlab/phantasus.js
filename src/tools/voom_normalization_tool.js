@@ -196,7 +196,7 @@ phantasus.voomNormalizationTool.prototype = {
     let id_column = undefined;
     let id_values = [];
     if (phantasus.MetadataUtil.indexOf(columnMeta, "geo_accession") !== -1 ){
-      id_values = columnMeta.getByName( "geo_accession").array;
+      id_values = columnMeta.getByName( "geo_accession").getArray();
     };
     if (id_values.length == 0){
       for (let i = 1; i <= dataset.columns; i++) {

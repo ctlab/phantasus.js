@@ -1061,7 +1061,7 @@ phantasus.FormBuilder.prototype = {
     if ($v.length === 0) {
       $v = this.$form.find('[data-name=' + name + ']');
     }
-    if (!$v[0].hasAttribute("disabled")){
+    if ($v.length >0 && !$v[0].hasAttribute("disabled")){
       return phantasus.FormBuilder.getValue($v);
     } else {
       return undefined;
