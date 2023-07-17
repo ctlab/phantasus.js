@@ -835,7 +835,8 @@ phantasus.HeatMap.showTool = function (tool, heatMap, callback) {
       input: {}
     });
     if (callback) {
-      callback({});
+      callback({heatMap: heatMap,
+        project: heatMap.getProject()});
     }
   }
 };

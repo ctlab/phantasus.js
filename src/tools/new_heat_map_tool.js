@@ -68,5 +68,6 @@ phantasus.NewHeatMapTool.prototype = {
       parent: heatMap,
       symmetric: project.isSymmetric() && dataset.getColumnCount() === dataset.getRowCount()
     });
+    return(heatmap);
   }
 };

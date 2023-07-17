@@ -6,7 +6,7 @@ phantasus.DESeqTool.prototype = {
   toString: function () {
     return "DESeq2 (experimental)";
   },
-  init: function (project, form) {
+  init: function (project, form, args) {
     var _this = this;
     var dataset = project.getFullDataset();
     var columnMeta = dataset.getColumnMetadata();
@@ -236,16 +236,31 @@ phantasus.DESeqTool.prototype = {
     $versionChooser[0].parentElement.classList.remove('col-xs-offset-4');
     $versionChooser[0].parentElement.classList.remove('col-xs-8');
     $versionChooser[0].parentElement.classList.add('col-xs-12');
+    $(document).on("click", '[data-name=run_in_new]', function (e) {
+      $.when($("[data-dismiss=modal]").trigger({ type: "click" })).done(function(){
+        let new_heatmap = (new phantasus.NewHeatMapTool()).execute({heatMap: args.heatMap, project: args.heatMap.getProject()});
+        phantasus.HeatMap.showTool( new phantasus.DESeqTool(), new_heatmap);
+      });
+       
+     
+
+      e.preventDefault();
+    });
+
   },
   gui: function (project) {
     var dataset = project.getFullDataset();
 
     if (_.size(project.getRowFilter().enabledFilters) > 0 || _.size(project.getColumnFilter().enabledFilters) > 0) {
+
+      let html = [];
+      html.push('Your dataset is filtered.<br/>' + this.toString() + ' will apply to unfiltered dataset.');
+      html.push('To analyse only filtered data <a data-name="run_in_new" data-dismiss="modal">use New Heat Map tool</a> first.');
       phantasus.FormBuilder.showInModal({
         title: 'Warning',
-        html: 'Your dataset is filtered.<br/>' + this.toString() + ' will apply to unfiltered dataset. Consider using New Heat Map tool.',
+        html: html.join('\n'),
         z: 10000
-      });
+      }); 
     }
     var fields = phantasus.MetadataUtil.getMetadataNames(dataset.getColumnMetadata());
     return [
