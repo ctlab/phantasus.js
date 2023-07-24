@@ -281,7 +281,7 @@ phantasus.ActionManager = function () {
     name: 'Differential expression',
     children: [
       'Limma',
-      'DESeq2 (experimental)',
+      'DESeq2',
       'Marker Selection'],
     icon: 'fa fa-list'
   });

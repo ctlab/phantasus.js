@@ -4,9 +4,18 @@ phantasus.DESeqTool = function () {
 
 phantasus.DESeqTool.prototype = {
   toString: function () {
-    return "DESeq2 (experimental)";
+    return "DESeq2";
   },
   init: function (project, form, args) {
+    let $filter_div = form.$form.find('[name=filter_message]');
+    if ($filter_div.length){
+      $filter_div[0].parentElement.classList.remove('col-xs-offset-4');
+      $filter_div[0].parentElement.classList.add('col-xs-offset-1');
+      $filter_div[0].parentElement.classList.remove('col-xs-8');
+      $filter_div[0].parentElement.classList.add('col-xs-10');
+      return;
+    }
+
     var _this = this;
     var dataset = project.getFullDataset();
     var columnMeta = dataset.getColumnMetadata();
@@ -236,17 +245,6 @@ phantasus.DESeqTool.prototype = {
     $versionChooser[0].parentElement.classList.remove('col-xs-offset-4');
     $versionChooser[0].parentElement.classList.remove('col-xs-8');
     $versionChooser[0].parentElement.classList.add('col-xs-12');
-    $(document).on("click", '[data-name=run_in_new]', function (e) {
-      $.when($("[data-dismiss=modal]").trigger({ type: "click" })).done(function(){
-        let new_heatmap = (new phantasus.NewHeatMapTool()).execute({heatMap: args.heatMap, project: args.heatMap.getProject()});
-        phantasus.HeatMap.showTool( new phantasus.DESeqTool(), new_heatmap);
-      });
-       
-     
-
-      e.preventDefault();
-    });
-
   },
   gui: function (project) {
     var dataset = project.getFullDataset();
@@ -254,14 +252,20 @@ phantasus.DESeqTool.prototype = {
     if (_.size(project.getRowFilter().enabledFilters) > 0 || _.size(project.getColumnFilter().enabledFilters) > 0) {
 
       let html = [];
-      html.push('Your dataset is filtered.<br/>' + this.toString() + ' will apply to unfiltered dataset.');
-      html.push('To analyse only filtered data <a data-name="run_in_new" data-dismiss="modal">use New Heat Map tool</a> first.');
-      phantasus.FormBuilder.showInModal({
-        title: 'Warning',
-        html: html.join('\n'),
-        z: 10000
-      }); 
-    }
+      html.push('<div name="filter_message">');
+      html.push('Your dataset has been filtered, resulting in a partial view.');
+      html.push('<br/>' + this.toString() + ' tool will treat the displayed data as a new dataset in a new tab.');
+      html.push('<br/> To analyze the whole dataset, remove filters before running the tool.');
+      html.push('</div>');
+      return [
+        {
+          name: "message",
+          type: "custom",
+          value: html.join('\n'),
+          showLabel: false
+        }
+      ];
+    };
     var fields = phantasus.MetadataUtil.getMetadataNames(dataset.getColumnMetadata());
     return [
       { name:"versionTabs",
@@ -504,6 +508,11 @@ phantasus.DESeqTool.prototype = {
   execute: function (options) {
     var project = options.project;
     var version = options.input.versionTabs;
+    if (!version){
+      let new_heatmap = (new phantasus.NewHeatMapTool()).execute({heatMap: options.heatMap, project: options.project});
+      new_heatmap.getActionManager().execute(this.toString());
+      return;
+    }
 
     if (version === "One-factor design"){
       var field = options.input.field;

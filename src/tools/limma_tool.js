@@ -5,6 +5,15 @@ phantasus.LimmaTool.prototype = {
     return "Limma";
   },
   init: function (project, form) {
+    let $filter_div = form.$form.find('[name=filter_message]');
+    if ($filter_div.length){
+      $filter_div[0].parentElement.classList.remove('col-xs-offset-4');
+      $filter_div[0].parentElement.classList.add('col-xs-offset-1');
+      $filter_div[0].parentElement.classList.remove('col-xs-8');
+      $filter_div[0].parentElement.classList.add('col-xs-10');
+      return;
+    }
+
     var _this = this;
     var dataset = project.getFullDataset();
     var columnMeta = dataset.getColumnMetadata();
@@ -239,12 +248,22 @@ phantasus.LimmaTool.prototype = {
     var dataset = project.getFullDataset();
 
     if (_.size(project.getRowFilter().enabledFilters) > 0 || _.size(project.getColumnFilter().enabledFilters) > 0) {
-      phantasus.FormBuilder.showInModal({
-        title: 'Warning',
-        html: 'Your dataset is filtered.<br/>' + this.toString() + ' will apply to unfiltered dataset. Consider using New Heat Map tool.',
-        z: 10000
-      });
-    }
+
+      let html = [];
+      html.push('<div name="filter_message">');
+      html.push('Your dataset has been filtered, resulting in a partial view.');
+      html.push('<br/>' + this.toString() + ' tool will treat the displayed data as a new dataset in a new tab.');
+      html.push('<br/> To analyze the whole dataset, remove filters before running the tool.');
+      html.push('</div>');
+      return [
+        {
+          name: "message",
+          type: "custom",
+          value: html.join('\n'),
+          showLabel: false
+        }
+      ];
+    };
     var fields = phantasus.MetadataUtil.getMetadataNames(dataset.getColumnMetadata());
     return [
       { name:"versionTabs",
@@ -476,8 +495,13 @@ phantasus.LimmaTool.prototype = {
     grid.resizeCanvas();
   },
   execute: function (options) {
-      var project = options.project;
+    var project = options.project;
     var version = options.input.versionTabs;
+    if (!version){
+      let new_heatmap = (new phantasus.NewHeatMapTool()).execute({heatMap: options.heatMap, project: options.project});
+      new_heatmap.getActionManager().execute(this.toString());
+      return;
+    }
 
     if (version === "One-factor design"){
       var field = options.input.field;
@@ -485,14 +509,12 @@ phantasus.LimmaTool.prototype = {
       var classB = options.input.class_b;
       var contrast = ["Comparison", "A", "B"];
       var designData = null;
-      var designFields = null;
     } else {
       var field = [options.input.contrast_field];
       var classA = [{array: [options.input.contrast_a]}];
       var classB = [{array: [options.input.contrast_b]}];
       var contrast = [field, options.input.contrast_a, options.input.contrast_b]
       var designData = options.input.designMatrix.getData();
-      var designFields = options.input.byArea;
     }
     
 
@@ -556,7 +578,6 @@ phantasus.LimmaTool.prototype = {
           fieldValues: values,
           version: version,
           contrast: contrast,
-          designFields: designFields,
           designData: designData
         };
 
