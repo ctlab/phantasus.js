@@ -69,6 +69,8 @@ phantasus.DatasetUtil.getDatasetReader = function (ext, options) {
     datasetReader = new phantasus.JsonDatasetReader();
   } else if (ext === 'gct') {
     datasetReader = new phantasus.GctReader();
+  } else if (ext === "gz" || ext === 'gzip'){
+    datasetReader = new phantasus.GzReader(options);
   }
   return datasetReader;
 };

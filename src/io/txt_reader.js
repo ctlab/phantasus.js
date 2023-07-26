@@ -38,18 +38,22 @@ phantasus.TxtReader.prototype = {
     if (dataRowStart == null) {
       dataRowStart = 1;
     }
-    var tab = /\t/;
-    var header = reader.readLine().trim().split(tab);
+    var headerLine = reader.readLine();
+    var separator = phantasus.Util.detectSeparator(headerLine);
     if (dataRowStart > 1) {
       for (var i = 1; i < dataRowStart; i++) {
         reader.readLine(); // skip
       }
     }
     var testLine = null;
+    var rtrim = /\s+$/;
+    var header = headerLine.trim().split(separator);
+
     if (dataColumnStart == null) { // try to figure out where data starts by finding 1st
       // numeric column
-      testLine = reader.readLine().trim();
-      var tokens = testLine.split(tab);
+      
+      testLine = reader.readLine().replace(rtrim, '');
+      var tokens = testLine.split(separator);
       for (var i = 1; i < tokens.length; i++) {
         var token = tokens[i];
         if (token === '' || token === 'NA' || token === 'NaN' || $.isNumeric(token)) {
@@ -73,7 +77,7 @@ phantasus.TxtReader.prototype = {
     if (testLine != null) {
       var array = new Float32Array(ncols);
       matrix.push(array);
-      var tokens = testLine.split(tab);
+      var tokens = testLine.split(separator);
       for (var j = 0; j < dataColumnStart; j++) {
         // row metadata
         arrayOfRowArrays[j].push(phantasus.Util.copyString(tokens[j]));
@@ -84,11 +88,11 @@ phantasus.TxtReader.prototype = {
       }
     }
     while ((s = reader.readLine()) !== null) {
-      s = s.trim();
+      s = s.replace(rtrim, '');
       if (s !== '') {
         var array = new Float32Array(ncols);
         matrix.push(array);
-        var tokens = s.split(tab);
+        var tokens = s.split(separator);
         for (var j = 0; j < dataColumnStart; j++) {
           // row metadata
           arrayOfRowArrays[j].push(phantasus.Util.copyString(tokens[j]));

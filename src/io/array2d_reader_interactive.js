@@ -28,10 +28,22 @@ phantasus.Array2dReaderInteractive.prototype = {
     var $el = $(html.join(''));
 
     phantasus.Util.readLines(fileOrUrl, true).done(function (lines) {
+
+      var separator = /\t/;
+      var testLine = lines[1];
+      var separators = ['\t', ',', ' '];
+      for (var i = 0; i < separators.length; i++) {
+        var sep = separators[i];
+        var tokens = testLine.split(new RegExp(sep));
+        if (tokens.length > 1) {
+          separator = sep;
+          break;
+        }
+      }
+
       // show in table
-      var tab = /\t/;
       for (var i = 0, nrows = lines.length; i < nrows; i++) {
-        lines[i] = lines[i].split(tab);
+        lines[i] = lines[i].split(separator);
       }
       var grid;
       var columns = [];
