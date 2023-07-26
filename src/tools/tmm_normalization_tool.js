@@ -5,6 +5,14 @@ phantasus.tmmNormalizationTool.prototype = {
     return "TMM: Trimmed Mean of M-values";
   },
   init: function (project, form) {
+    let $filter_div = form.$form.find('[name=filter_message]');
+    if ($filter_div.length){
+      $filter_div[0].parentElement.classList.remove('col-xs-offset-4');
+      $filter_div[0].parentElement.classList.add('col-xs-offset-1');
+      $filter_div[0].parentElement.classList.remove('col-xs-8');
+      $filter_div[0].parentElement.classList.add('col-xs-10');
+      return;
+    }
     var $field = form.$form.find("[name=reference_variable]");
     if ($field[0].options.length > 0) {
       $field.val($field[0].options[0].value);
@@ -64,15 +72,23 @@ phantasus.tmmNormalizationTool.prototype = {
   },
   gui: function (project) {
     var dataset = project.getFullDataset();
-
     if (_.size(project.getRowFilter().enabledFilters) > 0 || _.size(project.getColumnFilter().enabledFilters) > 0) {
-      phantasus.FormBuilder.showInModal({
-        title: 'Warning',
-        html: 'Your dataset is filtered.<br/>' + this.toString() + ' will apply to unfiltered dataset. Consider using New Heat Map tool.',
-        z: 10000
-      });
-    }
 
+      let html = [];
+      html.push('<div name="filter_message">');
+      html.push('Your dataset has been filtered, resulting in a partial view.');
+      html.push('<br/>' + this.toString() + ' tool will treat the displayed data as a new dataset in a new tab.');
+      html.push('<br/> To analyze the whole dataset, remove filters before running the tool.');
+      html.push('</div>');
+      return [
+        {
+          name: "message",
+          type: "custom",
+          value: html.join('\n'),
+          showLabel: false
+        }
+      ];
+    };
     var fields = phantasus.MetadataUtil.getMetadataNames(dataset
       .getColumnMetadata());
     fields.unshift("None")
@@ -98,9 +114,20 @@ phantasus.tmmNormalizationTool.prototype = {
             max: 0.5,
             step:0.01,
             help: 'The fraction (0 to 0.5) of observations to be trimmed from each tail of the distribution of A-values before computing the mean.'
+            },
+            {
+              name: "cpm",
+              title: "convert to count-per-million (CPM) after the normalization",
+              type: "checkbox"
             }];
   },
   execute: function (options) {
+
+    if (!options.input.logratioTrim){
+      let new_heatmap = (new phantasus.NewHeatMapTool()).execute({heatMap: options.heatMap, project: options.project});
+      new_heatmap.getActionManager().execute(this.toString());
+      return;
+    }
     var d = $.Deferred();
     let project = options.project;
     let field = options.input.reference_variable;
@@ -122,6 +149,9 @@ phantasus.tmmNormalizationTool.prototype = {
                     logratioTrim: logratioTrim,
                     sumTrim: sumTrim 
                   };
+                if (options.input.cpm){
+                  args.convertCPM = options.input.cpm
+                }
 
                   var req = ocpu.call("tmmNormalization/print", args, function (newSession) {
                     let r = new FileReader();

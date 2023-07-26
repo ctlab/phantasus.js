@@ -9,6 +9,15 @@ phantasus.voomNormalizationTool.prototype = {
     return "Voom: Mean-variance modelling at the observational level";
   },
   init: function (project, form) {
+    let $filter_div = form.$form.find('[name=filter_message]');
+    if ($filter_div.length){
+      $filter_div[0].parentElement.classList.remove('col-xs-offset-4');
+      $filter_div[0].parentElement.classList.add('col-xs-offset-1');
+      $filter_div[0].parentElement.classList.remove('col-xs-8');
+      $filter_div[0].parentElement.classList.add('col-xs-10');
+      return;
+    }
+
     var _this = this;
     var dataset = project.getFullDataset();
     var $add_data = form.$form.find("[name=add_data]");
@@ -101,29 +110,45 @@ phantasus.voomNormalizationTool.prototype = {
   
 
     if (_.size(project.getRowFilter().enabledFilters) > 0 || _.size(project.getColumnFilter().enabledFilters) > 0) {
-      phantasus.FormBuilder.showInModal({
-        title: 'Warning',
-        html: 'Your dataset is filtered.<br/>' + this.toString() + ' will apply to unfiltered dataset. Consider using New Heat Map tool.',
-        z: 10000
-      });
-    }
+
+      let html = [];
+      html.push('<div name="filter_message">');
+      html.push('Your dataset has been filtered, resulting in a partial view.');
+      html.push('<br/>' + this.toString() + ' tool will treat the displayed data as a new dataset in a new tab.');
+      html.push('<br/> To analyze the whole dataset, remove filters before running the tool.');
+      html.push('</div>');
+      return [
+        {
+          name: "message",
+          type: "custom",
+          value: html.join('\n'),
+          showLabel: false
+        }
+      ];
+    };
     return [ 
       {
         name: "byArea",
         type: "select-list",
         showLabel: false
-      },{
+      },
+      {
         name: "add_data",
         title: "add",
         type: "button",
         help: ""
       },
+      {
+        name: "filterByExp",
+        title: "Apply filter by expression before the normalization",
+        type: "checkbox"
+      },
       { name: "showDesign",
         title: "show design matrix",
         type: "custom",
         showLabel: false,
-        value: '<a data-name="showDesignLink" href="#">Show design matrix</a>'},
-
+        value: '<a data-name="showDesignLink" href="#">Show design matrix</a>'
+      },
       {
         name: "designMatrix",
         type: "slick-table",
@@ -255,6 +280,13 @@ phantasus.voomNormalizationTool.prototype = {
 
   },
   execute: function (options) {
+
+    if (!options.input.designMatrix){
+      let new_heatmap = (new phantasus.NewHeatMapTool()).execute({heatMap: options.heatMap, project: options.project});
+      new_heatmap.getActionManager().execute(this.toString());
+      return;
+    }
+
     var d = $.Deferred();
     let project = options.project;
     let selectedFields = options.input.byArea;
@@ -263,8 +295,7 @@ phantasus.voomNormalizationTool.prototype = {
 
     // console.log(dataset);
     let oldDataset = project.getSortedFilteredDataset();
-    var sortedFilteredDataset = phantasus.DatasetUtil.copy(oldDataset);
-    var dataset = sortedFilteredDataset;
+    var dataset = phantasus.DatasetUtil.copy(oldDataset);
     var currentSessionPromise = dataset.getESSession();
     dataset.setESSession(new Promise(function (resolve, reject) {
         if (currentSessionPromise){
@@ -273,8 +304,10 @@ phantasus.voomNormalizationTool.prototype = {
                     es: essession,
                     designData: designData,
                   };
-
-                  var req = ocpu.call("voomNormalization/print", args, function (newSession) {
+                if (options.input.filterByExp){
+                  args.filterByExp = options.input.filterByExp
+                }  
+                var req = ocpu.call("voomNormalization/print", args, function (newSession) {
                     let r = new FileReader();
                     let filePath = phantasus.Util.getFilePath(newSession, JSON.parse(newSession.txt)[0]);
                     r.onload = function (e) {
@@ -291,9 +324,10 @@ phantasus.voomNormalizationTool.prototype = {
                           let  flatData = jsondata.data.values;
                           let nrowData = jsondata.data.dim[0];
                           var ncolData = jsondata.data.dim[1];
-                          let metaNames = jsondata.colMetaNames.values;
-                          
-    
+                          let keepIndexes = jsondata.keep.values;
+                          if (nrowData < dataset.getRowCount()){
+                            dataset = new phantasus.SlicedDatasetView(dataset, keepIndexes);
+                          }
                           for (let i = 0; i < nrowData; i++) {
                             for (let j = 0; j < ncolData; j++) {
                               dataset.setValue(i,j,flatData[i + j * nrowData]);
@@ -307,7 +341,7 @@ phantasus.voomNormalizationTool.prototype = {
                       phantasus.BlobFromPath.getFileObject(filePath, function (file) {
                         r.readAsArrayBuffer(file);
                       });
-                  }, false, "::es");
+                }, false, "::es");
                 req.fail(function () {
                     d.reject();
                     throw (new Error("Voom normalization failed." + _.first(req.responseText.split('\n'))));
