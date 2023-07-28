@@ -22,7 +22,7 @@ phantasus.ChartTool = function (chartOptions) {
   formBuilder.append({
     name: 'chart_type',
     type: 'bootstrap-select',
-    options: ["row profile", "column profile", 'boxplot']
+    options: ["row profile", "column profile", 'boxplot', 'histogram']
   });
   var rowOptions = [];
   var columnOptions = [];
@@ -166,6 +166,12 @@ phantasus.ChartTool = function (chartOptions) {
   });
 
   formBuilder.append({
+    name: 'avgRow',
+    type: 'checkbox',
+    title: 'Row averages'
+  });
+
+  formBuilder.append({
     name: "adjust_data",
     title: "Adjust Data",
     type: 'collapsed-checkboxes',
@@ -186,15 +192,15 @@ phantasus.ChartTool = function (chartOptions) {
 
   function setVisibility() {
     var chartType = formBuilder.getValue('chart_type');
-    formBuilder.setVisible('axis_label', chartType !== 'boxplot');
-    formBuilder.setVisible('color', chartType !== 'boxplot');
-    formBuilder.setVisible('tooltip', chartType !== 'boxplot');
-    formBuilder.setVisible('add_profile', chartType !== 'boxplot');
-    formBuilder.setVisible('show_points', chartType !== 'boxplot');
-    formBuilder.setVisible('show_lines', chartType !== 'boxplot');
-    formBuilder.setVisible('group_by', chartType === 'boxplot');
+    formBuilder.setVisible('axis_label', chartType === "row profile" || chartType === "column profile");
+    formBuilder.setVisible('color', chartType === "row profile" || chartType === "column profile");
+    formBuilder.setVisible('tooltip', chartType === "row profile" || chartType === "column profile");
+    formBuilder.setVisible('add_profile', chartType === "row profile" || chartType === "column profile");
+    formBuilder.setVisible('show_points', chartType === "row profile" || chartType === "column profile");
+    formBuilder.setVisible('show_lines', chartType === "row profile" || chartType === "column profile");
+    formBuilder.setVisible('group_by', chartType === 'boxplot' || chartType === 'histogram' );
     formBuilder.setVisible('box_show_points', chartType === 'boxplot');
-
+    formBuilder.setVisible('avgRow', chartType === 'histogram');
     if (chartType === 'column profile' || chartType === 'row profile') {
       formBuilder.setOptions('axis_label', chartType === 'column profile' ? rowOptions : columnOptions,
         true);
@@ -676,6 +682,94 @@ phantasus.ChartTool.prototype = {
       _this.$dialog.off('dialogresize');
     });
   },
+  _createDestPlot: function (options) {
+    var _this = this;
+    var showPoints = options.showPoints;
+    var myPlot = options.myPlot;
+    var datasets = options.datasets;
+    var colors = options.colors;
+    var ids = options.ids;
+    var histData = [];
+
+    for (var k = 0, ndatasets = datasets.length; k < ndatasets; k++) {
+      var dataset = datasets[k];
+      if (options.avgRow){
+        var values = new Float32Array(dataset.getRowCount());
+      } else {
+        var values = new Float32Array(dataset.getRowCount() * dataset.getColumnCount());
+      }
+      
+      var counter = 0;
+      for (var i = 0, nrows = dataset.getRowCount(); i < nrows; i++) {
+        let row_avg = 0;
+        for (var j = 0, ncols = dataset.getColumnCount(); j < ncols; j++) {
+          var value = dataset.getValue(i, j);
+          if (!isNaN(value)) {
+            if (!options.avgRow){
+              values[counter] = value;
+              counter++;
+            } else {
+              row_avg = row_avg + value
+            }
+          }
+        }
+        if (options.avgRow) {
+          values[counter] = row_avg / dataset.getColumnCount();
+          counter++;
+        }
+      }
+      if (counter !== values.length) {
+        values = values.slice(0, counter);
+      }
+      histData.push(values);
+    }
+
+    var $parent = $(myPlot).parent();
+    options.layout.width = $parent.width();
+    options.layout.height = this.$dialog.height() - 30;
+    options.layout.barmode = "overlay";
+    options.layout.xaxis = {title: "Value"};
+    options.layout.yaxis = {title: "Count"}
+    options.layout.showlegend = true;
+
+    var traces = histData.map(function (hist, index) {
+      var trace = {
+        x: hist,
+        type: 'histogram',
+        hoverinfo: 'x+y',
+        histnorm: "",
+        opacity: 0.5,
+        autobinx: true,
+        name: ids[index],
+        marker: {
+          color: colors[index]
+        }
+      };
+
+      if (showPoints === 'all') {
+        trace.pointpos = -1.8;
+        trace.jitter = 0.3;
+      }
+
+      return trace;
+    });
+
+    phantasus.ChartTool.newPlot(myPlot, traces, options.layout, options.config);
+
+    var resize = _.debounce(function () {
+      var width = $parent.width();
+      var height = _this.$dialog.height() - 30;
+      Plotly.relayout(myPlot, {
+        width: width,
+        height: height
+      });
+    }, 500);
+
+    this.$dialog.on('dialogresize', resize);
+    $(myPlot).on('remove', function () {
+      _this.$dialog.off('dialogresize');
+    });
+  },
   draw: function () {
     var _this = this;
     this.$chart.empty();
@@ -690,6 +784,7 @@ phantasus.ChartTool.prototype = {
     var showOutliers = this.formBuilder.getValue('show_outliers');
     var addProfile = this.formBuilder.getValue('add_profile');
     var adjustData = this.formBuilder.getValue('adjust_data');
+    var avgRow = this.formBuilder.getValue('avgRow');
 
     var axisLabel = this.formBuilder.getValue('axis_label');
     var colorBy = this.formBuilder.getValue('color');
@@ -720,8 +815,8 @@ phantasus.ChartTool.prototype = {
       dataset = this.project.getSelectedDataset({
         emptyToAll: false
       });
-    }
-
+    };
+    
     this.dataset = dataset;
     if (dataset.getRowCount() === 0 && dataset.getColumnCount() === 0) {
       $('<h4>Please select rows and columns in the heat map.</h4>')
@@ -831,20 +926,60 @@ phantasus.ChartTool.prototype = {
           ids.push(value);
           colors.push(uniqColors[value]);
         });
+
+        if (chartType === "boxplot"){
+          this._createBoxPlot({
+            showPoints: boxShowPoints,
+            myPlot: myPlot,
+            datasets: datasets,
+            colors: colors,
+            ids: ids,
+            layout: layout,
+            config: config
+          });
+        } 
+        if (chartType === "histogram"){
+          this._createDestPlot({
+            showPoints: boxShowPoints,
+            myPlot: myPlot,
+            datasets: datasets,
+            colors: colors,
+            ids: ids,
+            layout: layout,
+            config: config,
+            avgRow: avgRow
+          });
+        }
+
       } else {
         datasets.push(dataset);
         ids.push('');
       }
+      if (chartType === "boxplot"){
 
-      this._createBoxPlot({
-        showPoints: boxShowPoints,
-        myPlot: myPlot,
-        datasets: datasets,
-        colors: colors,
-        ids: ids,
-        layout: layout,
-        config: config
-      });
+
+        this._createBoxPlot({
+          showPoints: boxShowPoints,
+          myPlot: myPlot,
+          datasets: datasets,
+          colors: colors,
+          ids: ids,
+          layout: layout,
+          config: config
+        });
+      }
+      if (chartType === "histogram"){
+        this._createDestPlot({
+          showPoints: boxShowPoints,
+          myPlot: myPlot,
+          datasets: datasets,
+          colors: colors,
+          ids: ids,
+          layout: layout,
+          config: config,
+          avgRow: avgRow
+        });
+      }
     }
   }
 };
