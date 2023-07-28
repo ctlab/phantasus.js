@@ -77,8 +77,8 @@ phantasus.tmmNormalizationTool.prototype = {
       let html = [];
       html.push('<div name="filter_message">');
       html.push('Your dataset has been filtered, resulting in a partial view.');
-      html.push('<br/>' + this.toString() + ' tool will treat the displayed data as a new dataset in a new tab.');
-      html.push('<br/> To analyze the whole dataset, remove filters before running the tool.');
+      html.push('<br/>To ensure consistency, consider removing any filters. Otherwise, the TMM tool will create a new heatmap in a separate tab using displayed data.');
+      html.push('<br/>Would you like to proceed with the current settings?');
       html.push('</div>');
       return [
         {

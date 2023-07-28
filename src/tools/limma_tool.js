@@ -42,6 +42,7 @@ phantasus.LimmaTool.prototype = {
     var $contrastField = form.$form.find("[name=contrast_field]");
     var $contrastA = form.$form.find("[name=contrast_a]");
     var $contrastB = form.$form.find("[name=contrast_b]");
+    var $advText = form.$form.find("[name=advText]");
     $field.on("change", function (e) {
       updateAB($(this).val());
     });
@@ -200,6 +201,7 @@ phantasus.LimmaTool.prototype = {
       hide_element($contrastField);
       hide_element($contrastA);
       hide_element($contrastB);
+      hide_element($advText);
     };
     var hide_basic = function() {
       hide_element($field);
@@ -212,6 +214,7 @@ phantasus.LimmaTool.prototype = {
       show_element($contrastA);
       show_element($contrastB);
       show_element($contrastField);
+      show_element($advText);
     };
     
     var $versionChooser = form.$form.find("[name=versionTabs]");
@@ -243,6 +246,14 @@ phantasus.LimmaTool.prototype = {
     $versionChooser[0].parentElement.classList.remove('col-xs-offset-4');
     $versionChooser[0].parentElement.classList.remove('col-xs-8');
     $versionChooser[0].parentElement.classList.add('col-xs-12');
+
+    $byArea[0].parentElement.classList.remove('col-xs-offset-4');
+    $byArea[0].parentElement.classList.remove('col-xs-8');
+    $byArea[0].parentElement.classList.add('col-xs-13');
+    $advText[0].parentElement.classList.remove('col-xs-offset-4');
+    $advText[0].parentElement.classList.remove('col-xs-8');
+    $advText[0].parentElement.classList.add('col-xs-11');
+    $advText[0].parentElement.classList.add('col-xs-offset-1');
   },
   gui: function (project) {
     var dataset = project.getFullDataset();
@@ -252,8 +263,8 @@ phantasus.LimmaTool.prototype = {
       let html = [];
       html.push('<div name="filter_message">');
       html.push('Your dataset has been filtered, resulting in a partial view.');
-      html.push('<br/>' + this.toString() + ' tool will treat the displayed data as a new dataset in a new tab.');
-      html.push('<br/> To analyze the whole dataset, remove filters before running the tool.');
+      html.push('<br/>To ensure consistency, consider removing any filters. Otherwise, the ' + this.toString() + ' tool will create a new dataset in a separate tab using the displayed data.');
+      html.push('<br/>Would you like to proceed with the current settings?');
       html.push('</div>');
       return [
         {
@@ -292,6 +303,12 @@ phantasus.LimmaTool.prototype = {
       type: "checkbox-list",
       multiple: true
     },
+    {
+      name: "advText",
+      type: "custom",
+      value: '<div name="advText">Use column annotations to establish a design matrix and values for comparison.</div>',
+      showLabel:false
+    },    
     {
       name: "byArea",
       type: "select-list",
@@ -338,10 +355,11 @@ phantasus.LimmaTool.prototype = {
   },
   getSelectorHtml: function (selValue, fields) {
     var html = [];
-    html.push('<div class="phantasus-entry">');
-    html.push('<label>Factor:</label>');
+    html.push('<div class="phantasus-entry col-xs-13">');
+    html.push('<div class="row"></div>')
+    html.push('<label class="col-xs-4 control-label">Factor</label>');
     // field
-    html.push('<select style="max-width:150px;overflow-x:hidden; display: inline-block; margin: 5px; padding: 5px; line-height: normal; height: auto;" name="by" class="form-control input-sm">');
+    html.push('<div class ="col-xs-8"><select style="max-width:150px;overflow-x:hidden; display: inline-block;margin-bottom: 5px; padding: 5px; line-height: normal; height: auto;" name="by" class="form-control input-sm">');
     html.push('<option disabled selected value style="display: none">--select field--</option>');
     _.each(fields, function (field) {
       html.push('<option value="' + field + '"');
@@ -353,7 +371,7 @@ phantasus.LimmaTool.prototype = {
       html.push('</option>');
     });
     html.push('</select>');
-    html.push('&nbsp<button type="button" class="close" aria-label="Close" data-name="delete" style="float:none;"><span aria-hidden="true">×</span></button> ');
+    html.push('&nbsp<button type="button" class="close" aria-label="Close" data-name="delete" style="float:none;"><span aria-hidden="true">×</span></button></div>');
     
     html.push('</div>'); // phantasus-entry
     return html.join('');

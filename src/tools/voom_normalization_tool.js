@@ -30,10 +30,10 @@ phantasus.voomNormalizationTool.prototype = {
     if (geo > 0){
       fields.splice(geo,1);
     }
-    form.$form.prepend('<div class="col-xs-10 col-xs-offset-1"><p>Use column annotations to modify design matrix. By default all samples are treated as replicates.</p></div>');   
+    form.$form.prepend('<div class="form-group"><div class="col-xs-10 col-xs-offset-1">Use column annotations to modify design matrix. By default all samples are treated as replicates.</div></div>');   
     form.$form.prepend("");
     const checkDesignLength = ($container) =>{
-      let selectElements = $container.find("[name=by]");
+      let selectElements = $container.find("[name=add_databy]");
       if (selectElements.length >= fields.length){
         $add_data[0].disabled = "disabled";
         $add_data.parent().find("[data-name=add_data_help]")[0].textContent = "Nothing to add.";
@@ -50,7 +50,6 @@ phantasus.voomNormalizationTool.prototype = {
       checkDesignLength($byArea);
       e.preventDefault();
     });
-
     let data = [];
     let columns = [];
     var grid = new Slick.Grid($designMatrix , data, columns, {
@@ -82,6 +81,19 @@ phantasus.voomNormalizationTool.prototype = {
       _this.updateDesignGrid(grid, $byArea, columnMeta);
       e.preventDefault();
     });
+    let $filter_exp = form.$form.find("[name=filterByExp]")[0].closest(".checkbox");
+
+    $filter_exp.parentElement.classList.remove('col-xs-offset-4');
+    $filter_exp.parentElement.classList.add('col-xs-offset-1');
+    $filter_exp.parentElement.classList.remove('col-xs-8');
+    $filter_exp.parentElement.classList.add('col-xs-10');
+
+
+    $byArea[0].parentElement.classList.remove('col-xs-offset-4');
+    $byArea[0].parentElement.classList.remove('col-xs-8');
+    $byArea[0].parentElement.classList.add('col-xs-13');
+
+
     $designMatrix.parentElement.classList.remove('col-xs-offset-4');
     $designMatrix.parentElement.classList.add('col-xs-offset-1');
     $designMatrix.parentElement.classList.remove('col-xs-8');
@@ -114,9 +126,10 @@ phantasus.voomNormalizationTool.prototype = {
       let html = [];
       html.push('<div name="filter_message">');
       html.push('Your dataset has been filtered, resulting in a partial view.');
-      html.push('<br/>' + this.toString() + ' tool will treat the displayed data as a new dataset in a new tab.');
-      html.push('<br/> To analyze the whole dataset, remove filters before running the tool.');
+      html.push('<br/>To ensure consistency, consider removing any filters. Otherwise, the voom tool will create a new heatmap in a separate tab using displayed data.');
+      html.push('<br/>Would you like to proceed with the current settings?');
       html.push('</div>');
+      
       return [
         {
           name: "message",
@@ -138,11 +151,6 @@ phantasus.voomNormalizationTool.prototype = {
         type: "button",
         help: ""
       },
-      {
-        name: "filterByExp",
-        title: "Apply filter by expression before the normalization",
-        type: "checkbox"
-      },
       { name: "showDesign",
         title: "show design matrix",
         type: "custom",
@@ -154,15 +162,21 @@ phantasus.voomNormalizationTool.prototype = {
         type: "slick-table",
         showLabel: false,
         style: "width:100%;height:300px;"
+      },
+      {
+        name: "filterByExp",
+        title: "Automatically filter normalized counts",
+        type: "checkbox"
       }
     ];
   },
   getSelectorHtml: function (selValue, fields) {
     var html = [];
-    html.push('<div class="phantasus-entry">');
-    html.push('<label>Field:</label>');
+    html.push('<div class="phantasus-entry col-xs-13">');
+    html.push('<div class="row"></div>')
+    html.push('<label class="col-xs-4 control-label">Factor</label>');
     // field
-    html.push('<select style="max-width:150px;overflow-x:hidden; display: inline-block; margin: 5px; padding: 5px; line-height: normal; height: auto;" name="by" class="form-control input-sm">');
+    html.push('<div class ="col-xs-8"><select style="max-width:150px;overflow-x:hidden; display: inline-block;margin-bottom: 5px; padding: 5px; line-height: normal; height: auto;" name="by" class="form-control input-sm">');
     html.push('<option disabled selected value style="display: none">--select field--</option>');
     _.each(fields, function (field) {
       html.push('<option value="' + field + '"');
@@ -174,7 +188,7 @@ phantasus.voomNormalizationTool.prototype = {
       html.push('</option>');
     });
     html.push('</select>');
-    html.push('&nbsp<button type="button" class="close" aria-label="Close" data-name="delete" style="float:none;"><span aria-hidden="true">×</span></button> ');
+    html.push('&nbsp<button type="button" class="close" aria-label="Close" data-name="delete" style="float:none;"><span aria-hidden="true">×</span></button></div>');
     
     html.push('</div>'); // phantasus-entry
     return html.join('');
