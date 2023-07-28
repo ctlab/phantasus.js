@@ -292,14 +292,14 @@ phantasus.DESeqTool.prototype = {
       multiple: true
     }, {
       name: "class_a",
-      title: "Class A",
+      title: "Target level",
       options: [],
       value: "",
       type: "checkbox-list",
       multiple: true
     }, {
       name: "class_b",
-      title: "Class B",
+      title: "Reference level",
       options: [],
       value: "",
       type: "checkbox-list",
