@@ -536,7 +536,7 @@ phantasus.DESeqTool.prototype = {
       var field = options.input.field;
       var classA = options.input.class_a;
       var classB = options.input.class_b;
-      var contrast = ["Comparison", "A", "B"];
+      var contrast = ["Comparison", "Target", "Reference"];
       var designData = null;
       var designFields = null;
     } else {
@@ -586,12 +586,12 @@ phantasus.DESeqTool.prototype = {
         promise.reject();
         throw new Error(warning);
       }
-      v.setValue(i, columnInA ? "A" : (columnInB ? "B" : ""));
+      v.setValue(i, columnInA ? "Target" : (columnInB ? "Reference" : ""));
     }
 
     var vecArr = phantasus.VectorUtil.toArray(v);
     var count = _.countBy(vecArr);
-    if (count['A'] === 1 || count['B'] === 1) {
+    if (count['Target'] === 1 || count['Reference'] === 1) {
       promise.reject();
       throw new Error('Chosen classes have only single sample');
     }

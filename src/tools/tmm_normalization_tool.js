@@ -114,11 +114,6 @@ phantasus.tmmNormalizationTool.prototype = {
             max: 0.5,
             step:0.01,
             help: 'The fraction (0 to 0.5) of observations to be trimmed from each tail of the distribution of A-values before computing the mean.'
-            },
-            {
-              name: "cpm",
-              title: "convert to count-per-million (CPM) after the normalization",
-              type: "checkbox"
             }];
   },
   execute: function (options) {
@@ -149,9 +144,7 @@ phantasus.tmmNormalizationTool.prototype = {
                     logratioTrim: logratioTrim,
                     sumTrim: sumTrim 
                   };
-                if (options.input.cpm){
-                  args.convertCPM = options.input.cpm
-                }
+                
 
                   var req = ocpu.call("tmmNormalization/print", args, function (newSession) {
                     let r = new FileReader();
