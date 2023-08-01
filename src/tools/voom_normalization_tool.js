@@ -165,7 +165,7 @@ phantasus.voomNormalizationTool.prototype = {
       },
       {
         name: "filterByExp",
-        title: "Automatically filter normalized counts",
+        title: "Automatically filter out lowly expressed genes",
         type: "checkbox"
       }
     ];
