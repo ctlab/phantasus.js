@@ -764,7 +764,7 @@ phantasus.HeatMap.showTool = function (tool, heatMap, callback) {
             value.terminate();
             phantasus.FormBuilder.showInModal({
               title: 'Error',
-              html: e,
+              html: '<div class="error-msg">' + e + '</div>',
               close: 'Close',
               focus: heatMap.getFocusEl(),
               appendTo: heatMap.getContentEl()
