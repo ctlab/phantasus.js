@@ -302,3 +302,7 @@
 .c-pointer {
   cursor: pointer;
 }
+
+.error-msg{
+  white-space: pre-line;
+}

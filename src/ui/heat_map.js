@@ -271,6 +271,7 @@ phantasus.HeatMap = function (options) {
           'Annotate',
           'Create Calculated Annotation',
           'Adjust',
+          'Advanced normalization',
           'Collapse',
           'Similarity Matrix',
           'Transpose',
@@ -741,7 +742,11 @@ phantasus.HeatMap.showTool = function (tool, heatMap, callback) {
       });
       var input = {};
       _.each(gui, function (item) {
-        input[item.name] = formBuilder.getValue(item.name);
+        let item_value = formBuilder.getValue(item.name);
+        if (item_value){
+          input[item.name] = item_value;
+        }
+       
       });
       // give ui a chance to update
 
@@ -759,7 +764,7 @@ phantasus.HeatMap.showTool = function (tool, heatMap, callback) {
             value.terminate();
             phantasus.FormBuilder.showInModal({
               title: 'Error',
-              html: e,
+              html: '<div class="error-msg">' + e + '</div>',
               close: 'Close',
               focus: heatMap.getFocusEl(),
               appendTo: heatMap.getContentEl()
@@ -830,7 +835,8 @@ phantasus.HeatMap.showTool = function (tool, heatMap, callback) {
       input: {}
     });
     if (callback) {
-      callback({});
+      callback({heatMap: heatMap,
+        project: heatMap.getProject()});
     }
   }
 };
@@ -2121,22 +2127,28 @@ phantasus.HeatMap.prototype = {
         phantasus.DatasetUtil.toESSessionPromise(dataset);
       }
     });
-    this.getProject().on('trackChanged', function (e) {
-      var columns = e.columns;
-      _.each(e.vectors, function (v, i) {
-        var index = _this.getTrackIndex(v.getName(), columns);
-        if (index === -1) {
-          _this.addTrack(v.getName(), columns, e.display[i]);
-        } else {
-          // repaint
-          var track = _this.getTrackByIndex(index, columns);
-          var display = e.display[i];
-          if (display) {
-            track.settingFromConfig(display);
+    this.getProject().on('trackChanged', function (e_array) {
+      if (!e_array.length){
+        e_array = [e_array];
+      }
+      e_array.forEach(function(e) {
+        var columns = e.columns;
+        _.each(e.vectors, function (v, i) {
+          var index = _this.getTrackIndex(v.getName(), columns);
+          if (index === -1) {
+            _this.addTrack(v.getName(), columns, e.display[i]);
+          } else {
+            // repaint
+            var track = _this.getTrackByIndex(index, columns);
+            var display = e.display[i];
+            if (display) {
+              track.settingFromConfig(display);
+            }
+            track.setInvalid(true);
           }
-          track.setInvalid(true);
-        }
+        });
       });
+
       _this.revalidate();
     });
     this.getProject().on('rowTrackRemoved', function (e) {

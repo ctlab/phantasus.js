@@ -105,7 +105,7 @@ phantasus.MarkerSelection.prototype = {
       },
       {
         name: 'class_a',
-        title: 'Class A',
+        title: 'Target level',
         options: [],
         value: '',
         type: 'checkbox-list',
@@ -113,7 +113,7 @@ phantasus.MarkerSelection.prototype = {
       },
       {
         name: 'class_b',
-        title: 'Class B',
+        title: 'Reference level',
         options: [],
         value: '',
         type: 'checkbox-list',
@@ -138,14 +138,14 @@ phantasus.MarkerSelection.prototype = {
     var classA = options.input.class_a;
     var classB = options.input.class_b;
     if (classA.length === 0 && classB.length === 0) {
-      throw 'No samples in class A and class B';
+      throw 'No samples were selected as reference and target levels';
     }
 
     if (classA.length === 0) {
-      throw 'No samples in class A';
+      throw 'No samples in target level';
     }
     if (classB.length === 0) {
-      throw 'No samples in class B';
+      throw 'No samples reference level';
     }
     for (var i = 0; i < classA.length; i++) {
       var val = classA[i];
@@ -199,7 +199,7 @@ phantasus.MarkerSelection.prototype = {
     }
     for (var i = 0; i < bIndices.length; i++) {
       if (classASet[bIndices[i]]) {
-        throw 'The sample was found in class A and class B';
+        throw 'The sample was found in the reference level group and the target level group.';
       }
     }
     var isFishy = f.toString() === phantasus.FisherExact.toString();
@@ -233,10 +233,10 @@ phantasus.MarkerSelection.prototype = {
     var comparisonVector = dataset.getColumnMetadata().add('Comparison');
 
     for (var i = 0; i < aIndices.length; i++) {
-      comparisonVector.setValue(aIndices[i], 'A');
+      comparisonVector.setValue(aIndices[i], 'Target');
     }
     for (var i = 0; i < bIndices.length; i++) {
-      comparisonVector.setValue(bIndices[i], 'B');
+      comparisonVector.setValue(bIndices[i], 'Reference');
     }
 
     function done(result) {

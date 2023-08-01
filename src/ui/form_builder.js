@@ -371,6 +371,26 @@ phantasus.FormBuilder.getValue = function ($element) {
 
     return result;
   }
+  if($element.data('type') === 'select-list'){
+    var result = [];
+    $element.find('select').each(function (a, select) {
+      var $select = $(select);
+
+      if ($select.val()) {
+        result.push($select.val());
+      }
+    });
+    return result;
+  }
+  if ($element.data('type') === "nav-tab"){
+    let sel_tab = $element.find('.active a');
+    return sel_tab.text();
+  }
+  if($element.data('type') === 'slick-table'){
+ 
+    var result = $($element).data('SlickGrid');
+    return result;
+  }
   return $element.attr('type') === 'checkbox' ? $element.prop('checked') : $element.val();
 };
 
@@ -539,6 +559,21 @@ phantasus.FormBuilder.prototype = {
       html.push('</label></div>');
     } else if ('checkbox-list' === type) {
       html.push('<div name="' + name + '" class="checkbox-list"><div>');
+    }  else if ('select-list' === type){
+      html.push('<div name="' + name + '" class="select-list"  data-type="select-list"><div>');
+    } else if ('slick-table' === type){
+      html.push('<div name="' + name + '" class="slick-table"  data-type="slick-table" style="' + style + '" ><div>');
+    } else if ('nav-tabs' === type){
+      html.push('<ul class="nav nav-tabs" name="' + name + '" data-type="nav-tab">');
+      _.each(field.options, function (tab) {
+        if (tab == value){
+          html.push('<li class="active">');
+        } else {
+          html.push('<li>');
+        }
+        html.push('<a>' + tab + '</a></li>');
+      });
+      html.push("</ul>");
     } else if ('triple-select' === type) {
       html.push('<h5 style="margin-top: 5px; margin-bottom: 5px;">' + name + ':</h5>');
       html.push('<select style="' + field.comboboxStyle + '" name="' + field.firstName + '" id="' + id
@@ -1026,7 +1061,12 @@ phantasus.FormBuilder.prototype = {
     if ($v.length === 0) {
       $v = this.$form.find('[data-name=' + name + ']');
     }
-    return phantasus.FormBuilder.getValue($v);
+    if ($v.length >0 && !$v[0].hasAttribute("disabled")){
+      return phantasus.FormBuilder.getValue($v);
+    } else {
+      return undefined;
+    }
+    
   },
   setOptions: function (name, options, selectFirst) {
     var $select = this.$form.find('[name=' + name + ']');

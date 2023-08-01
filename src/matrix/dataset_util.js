@@ -1054,7 +1054,8 @@ phantasus.DatasetUtil.getMetadataRexp = function (metadata, featuresCount, parti
     if (ph_type === "integer"){
       curRexp["intValue"] = vecJ.getArray(); 
     } 
-    else if (ph_type === "real"){
+    else if (ph_type === "real" || ph_type === "number"){
+      curRexp["rclass"] = "REAL";
       curRexp["realValue"] = vecJ.getArray(); 
     }
     else if (ph_type === "logical"){
