@@ -476,7 +476,7 @@ phantasus.DESeqTool.prototype = {
       id_values = columnMeta.getByName( "geo_accession").getArray();
     };
     if (id_values.length == 0){
-      for (let i = 1; i <= dataset.columns; i++) {
+      for (let i = 1; i <= columnMeta.itemCount; i++) {
         id_values.push(i);
       };
     };
