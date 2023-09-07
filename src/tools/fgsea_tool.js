@@ -20,7 +20,7 @@ phantasus.initFGSEATool = function (options) {
 
     req.fail(function () {
       $el.dialog('destroy').remove();
-      throw new Error("Couldn't load FGSEA meta information. Please try again in a moment. Error:" + req.responseText);
+      throw new Error("Couldn't load FGSEA meta information. Error: " + req.responseText);
     });
   } else {
     new phantasus.fgseaTool(options.heatMap);

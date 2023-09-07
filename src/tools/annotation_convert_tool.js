@@ -24,7 +24,7 @@ phantasus.initAnnotationConvertTool = function (options) {
 
     req.fail(function () {
       $el.dialog('destroy').remove();
-      throw new Error("Couldn't load Annotation DB meta information. Please try again in a moment. Error:" + req.responseText);
+      throw new Error("Couldn't load Annotation DB meta information. Error:" + req.responseText);
     });
   } else {
     new phantasus.AnnotationConvertTool(options.heatMap);
