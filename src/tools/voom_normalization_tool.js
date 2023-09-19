@@ -308,7 +308,9 @@ phantasus.voomNormalizationTool.prototype = {
     let heatMap = options.heatMap;
 
     // console.log(dataset);
-    let oldDataset = project.getSortedFilteredDataset();
+    var oldDataset = project.getFullDataset();
+    var columnSortKey = project.getColumnSortKeys();
+    var rowSortKey = project.getRowSortKeys();
     var dataset = phantasus.DatasetUtil.copy(oldDataset);
     var currentSessionPromise = dataset.getESSession();
     dataset.setESSession(new Promise(function (resolve, reject) {
@@ -370,12 +372,19 @@ phantasus.voomNormalizationTool.prototype = {
     }));
     
     d.done(function (newDataset) {
+      let rowSort = [];
+      rowSortKey.forEach(function(x) {rowSort.push({field:x.name, order:x.sortOrder}) });
+      let colSort = [];
+      columnSortKey.forEach(function(x) {colSort.push({field:x.name, order:x.sortOrder}) });
         new phantasus.HeatMap({
             name: heatMap.getName(),
             dataset: newDataset,
             parent: heatMap,
             inheritFromParent: false,
-            symmetric: false
+            symmetric: false,
+            rowSortBy: rowSort,
+            columnSortBy: colSort  
+            
         }); 
     })
     return d;
