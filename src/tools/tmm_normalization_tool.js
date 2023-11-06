@@ -22,7 +22,7 @@ phantasus.tmmNormalizationTool.prototype = {
         if (val !== 'None'){
             let dataset = project
             .getFullDataset();
-            const vector =  dataset.getColumnMetadata().getByName(val).array;
+            const vector = dataset.getColumnMetadata().getByName(val).getArray();
             if (vector.length < dataset.columns){
                     phantasus.FormBuilder.showInModal({
                       title: 'Warning',
