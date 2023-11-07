@@ -457,7 +457,7 @@ phantasus.LimmaTool.prototype = {
     });
     selectedValues.forEach(function(value,index) {
       let factor_map =  phantasus.VectorUtil.createValuesToIndicesMap([columnMeta.getByName(value)]);
-      if (index !== 0){
+      if (!curRef[value]){
         factor_map.remove(factor_map.keys()[0]);
       };
       factor_map.forEach(function(ind_list, key){
