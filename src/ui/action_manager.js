@@ -1137,7 +1137,8 @@ phantasus.ActionManager = function () {
   [
     new phantasus.HClusterTool(), new phantasus.MarkerSelection(),
     new phantasus.NearestNeighbors(), new phantasus.AdjustDataTool(),
-    new phantasus.CollapseDatasetTool(), new phantasus.CreateAnnotation(), new phantasus.SimilarityMatrixTool(),
+    new phantasus.CollapseDatasetTool(), new phantasus.CreateAnnotation(), 
+    new phantasus.SimilarityMatrixTool(), new phantasus.CreateCombinedAnnotation(),
     new phantasus.TransposeTool(), new phantasus.TsneTool(),
     new phantasus.KmeansTool(), new phantasus.LimmaTool(), new phantasus.DESeqTool(), new phantasus.tmmNormalizationTool(), new phantasus.voomNormalizationTool()].forEach(function (tool) {
     _this.add({

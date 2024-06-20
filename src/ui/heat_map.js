@@ -270,6 +270,7 @@ phantasus.HeatMap = function (options) {
           null,
           'Annotate',
           'Create Calculated Annotation',
+          'Create Combined Annotation',
           'Adjust',
           'Advanced normalization',
           'Collapse',
