@@ -1842,7 +1842,8 @@ phantasus.Util.getRexpData = function (rexp, rclass) {
 phantasus.Util.getFilePath = function (session, str) {
   var splitted = str.split("/");
   var fileName = splitted[splitted.length - 1];
-  return session.getLoc() + "files/" + fileName;
+  return window.libraryPrefix + "ocpu/tmp/" + session.getKey() + "/files/" + fileName;
+  // return session.getLoc() + "files/" + fileName;
 };
 
 phantasus.Util.getConsNumbers = function (n) {
